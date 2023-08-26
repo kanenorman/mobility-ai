@@ -12,9 +12,9 @@ def mock_data():
 
 
 def main():
-    kafka_host = configs.get("kafka", "HOST")
-    kafka_port = configs.get("kafka", "PORT")
-    kafka_topic = configs.get("kafka", "SCHEDULES_INPUT_TOPIC")
+    kafka_host = configs["KAFKA_HOST"]
+    kafka_port = configs["KAFKA_PORT"]
+    kafka_topic = configs["SCHEDULES_INPUT_TOPIC"]
     bootstrap_servers = f"{kafka_host}:{kafka_port}"
 
     while True:
