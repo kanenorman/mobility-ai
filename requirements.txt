@@ -1,0 +1,4 @@
+pymbta3==0.0.5.dev0
+python-dotenv==1.0.0
+kafka-python==2.0.2
+pyspark==3.4.1
