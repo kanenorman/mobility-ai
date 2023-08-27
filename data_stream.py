@@ -15,7 +15,7 @@ def write_to_database(batch, batch_id):
     database = configs["POSTGRES_DB"]
     password = configs["POSTGRES_PASSWORD"]
     driver = configs["POSTGRES_DRIVER"]
-    url = f"postgresql://{host}:{port}/{database}"
+    url = f"jdbc:postgresql://{host}:{port}/{database}"
 
     (
         batch.write.format("jdbc")
