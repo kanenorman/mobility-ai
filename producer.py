@@ -1,14 +1,12 @@
 import json
 import sys
 import time
+from datetime import datetime
 
 from kafka import KafkaProducer
 
-from ..config import configs
-
-
-def mock_data():
-    return {"student_id": 12, "name": "Joe", "city": "New York"}
+from config import configs
+from mbta import get_schedules
 
 
 def main():
@@ -21,9 +19,12 @@ def main():
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
     )
 
+    prev_time = datetime.now()
     while True:
-        data = mock_data()
+        current_time = datetime.now()
+        data = get_schedules("Red", min_time=prev_time, max_time=current_time)
         producer.send(kafka_topic, value=data)
+        prev_time = current_time
         print("message sent...")
         time.sleep(5)
 
