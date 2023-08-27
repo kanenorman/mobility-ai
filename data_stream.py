@@ -19,7 +19,7 @@ def write_to_database(batch, batch_id):
 
     (
         batch.write.format("jdbc")
-        .option("driver", "org.postgresql.Driver")
+        .option("driver", driver)
         .option("url", url)
         .option("dbtable", table)
         .option("user", user)
