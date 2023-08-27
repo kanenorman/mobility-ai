@@ -7,7 +7,51 @@ from pyspark.sql import types as T
 from config import configs
 
 
-def extract_kafka(kafka_stream):
+def write_to_database(batch, batch_id):
+    table = configs["POSTGRES_TABLE"]
+    user = configs["POSTGRES_USER"]
+    host = configs["POSTGRES_HOST"]
+    port = configs["POSTGRES_PORT"]
+    database = configs["POSTGRES_DB"]
+    password = configs["POSTGRES_PASSWORD"]
+    driver = configs["POSTGRES_DRIVER"]
+    url = f"postgresql://{host}:{port}/{database}"
+
+    (
+        batch.write.format("jdbc")
+        .option("driver", "org.postgresql.Driver")
+        .option("url", url)
+        .option("dbtable", table)
+        .option("user", user)
+        .option("password", password)
+        .save()
+    )
+
+
+def main():
+    spark = (
+        SparkSession.builder.appName("MBTA Data Streaming")
+        .config(
+            "spark.jars.packages",
+            "org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1",
+        )
+        .master("local[*]")
+        .getOrCreate()
+    )
+    spark.sparkContext.setLogLevel("ERROR")
+
+    kafka_host = configs["KAFKA_HOST"]
+    kafka_port = configs["KAFKA_PORT"]
+    kafka_topic = configs["SCHEDULES_INPUT_TOPIC"]
+    bootstrap_servers = f"{kafka_host}:{kafka_port}"
+
+    kafka_stream = (
+        spark.readStream.format("kafka")
+        .option("kafka.bootstrap.servers", bootstrap_servers)
+        .option("subscribe", kafka_topic)
+        .load()
+    )
+
     df = kafka_stream.select(F.col("value").cast("string").alias("json"))
     schema = T.StructType(
         [
@@ -21,46 +65,16 @@ def extract_kafka(kafka_stream):
         F.from_json(F.col("json").cast("string"), schema).alias("parsed_value")
     ).select("parsed_value.*")
 
-    # Output the processed data to the console
-    query = processed_df.writeStream.outputMode("append").format("console").start()
-
-    # Wait for the termination of the query
-    query.awaitTermination()
-
-
-def write_to_database(df):
-    url = configs["jdbc_url"]
-    table = configs["DB_TABLE"]
-    user = configs["BD_USER"]
-    password = configs["DB_PASSWORD"]
-    driver = configs["DB_DRIVER"]
-    properties = {"user": user, "password": password, "driver": driver}
-    mode = "append"
-
-    df.write.jdbc(url, table, mode, properties)
-
-
-def main():
-    spark = (
-        SparkSession.builder.appName("MBTA Data Streaming")
-        .master("local[*]")
-        .getOrCreate()
+    query_kafka = (
+        processed_df.writeStream.trigger(processingTime="10 seconds")
+        .outputMode("update")
+        .foreachBatch(write_to_database)
+        .start()
     )
 
-    kafka_host = configs["KAFKA_HOST"]
-    kafka_port = configs["KAFKA_PORT"]
-    kafka_topic = configs["SCHEDULES_INPUT_TOPIC"]
-    bootstrap_servers = f"{kafka_host}:{kafka_port}"
+    query_kafka.awaitTermination()
 
-    kafka_stream = (
-        spark.readStream.format("kafka")
-        .option("kafka.bootstrap.servers", bootstrap_servers)
-        .option("subscribe", kafka_topic)
-        .option("startingOffsets", "latest")
-        .load()
-    )
-
-    extract_kafka(kafka_stream)
+    spark.stop()
 
 
 if __name__ == "__main__":
