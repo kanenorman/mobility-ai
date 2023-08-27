@@ -8,22 +8,18 @@ from config import configs
 
 
 def write_to_database(batch, batch_id):
-    table = configs["POSTGRES_TABLE"]
-    user = configs["POSTGRES_USER"]
-    host = configs["POSTGRES_HOST"]
-    port = configs["POSTGRES_PORT"]
-    database = configs["POSTGRES_DB"]
-    password = configs["POSTGRES_PASSWORD"]
-    driver = configs["POSTGRES_DRIVER"]
+    host = configs.POSTGRES_HOST
+    port = configs.POSTGRES_PORT
+    database = configs.POSTGRES_DB
     url = f"jdbc:postgresql://{host}:{port}/{database}"
 
     (
         batch.write.format("jdbc")
-        .option("driver", driver)
+        .option("driver", configs.POSTGRES_DRIVER)
         .option("url", url)
-        .option("dbtable", table)
-        .option("user", user)
-        .option("password", password)
+        .option("dbtable", configs.POSTGRES_TABLE)
+        .option("user", configs.POSTGRES_USER)
+        .option("password", configs.POSTGRES_PASSWORD)
         .mode("append")
         .save()
     )
@@ -41,9 +37,9 @@ def main():
     )
     spark.sparkContext.setLogLevel("ERROR")
 
-    kafka_host = configs["KAFKA_HOST"]
-    kafka_port = configs["KAFKA_PORT"]
-    kafka_topic = configs["SCHEDULES_INPUT_TOPIC"]
+    kafka_host = configs.KAFKA_HOST
+    kafka_port = configs.KAFKA_PORT
+    kafka_topic = configs.SCHEDULES_INPUT_TOPIC
     bootstrap_servers = f"{kafka_host}:{kafka_port}"
 
     kafka_stream = (

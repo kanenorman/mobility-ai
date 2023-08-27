@@ -12,9 +12,9 @@ def mock_data():
 
 
 def main():
-    kafka_host = configs["KAFKA_HOST"]
-    kafka_port = configs["KAFKA_PORT"]
-    kafka_topic = configs["SCHEDULES_INPUT_TOPIC"]
+    kafka_host = configs.KAFKA_HOST
+    kafka_port = configs.KAFKA_PORT
+    kafka_topic = configs.SCHEDULES_INPUT_TOPIC
     bootstrap_servers = f"{kafka_host}:{kafka_port}"
     producer = KafkaProducer(
         bootstrap_servers=[bootstrap_servers],
