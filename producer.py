@@ -16,13 +16,12 @@ def main():
     kafka_port = configs["KAFKA_PORT"]
     kafka_topic = configs["SCHEDULES_INPUT_TOPIC"]
     bootstrap_servers = f"{kafka_host}:{kafka_port}"
+    producer = KafkaProducer(
+        bootstrap_servers=[bootstrap_servers],
+        value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+    )
 
     while True:
-        producer = KafkaProducer(
-            bootstrap_servers=[bootstrap_servers],
-            value_serializer=lambda v: json.dumps(v).encode("utf-8"),
-        )
-
         data = mock_data()
         producer.send(kafka_topic, value=data)
         print("message sent...")
