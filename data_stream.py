@@ -24,6 +24,7 @@ def write_to_database(batch, batch_id):
         .option("dbtable", table)
         .option("user", user)
         .option("password", password)
+        .mode("append")
         .save()
     )
 
