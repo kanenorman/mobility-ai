@@ -1,3 +1,11 @@
+[![Python Badge](https://img.shields.io/badge/Python-3776ab?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
+[![Flask Badge](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![PyTorch Badge](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![scikit-learn Badge](https://img.shields.io/badge/scikit_learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![Apache Spark Badge](https://img.shields.io/badge/Apache_Spark-FFFFFF?style=for-the-badge&logo=apachespark&logoColor=%23E35A1C)](https://spark.apache.org/)
+[![Docker Badge](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![PostgreSQL Badge](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+
 # MBTA Data Streaming and Prediction Project
 
 ## Project Introduction
@@ -45,8 +53,8 @@ The MBTA Data Streaming and Prediction Project aims to provide commuters with re
 
 ## Getting Started
 
-To get started with this project, follow the instructions in the project documentation to set up the required environment, run the data streaming pipeline, deploy the predictive models, and access the real-time dashboard.
+To get started with this project, follow the instructions in the project documentation (Coming Soon) to set up the required environment, run the data streaming pipeline, deploy the predictive models, and access the real-time dashboard.
 
 ## Feedback
 
-Feedback to this project is always welcome. If you'd like to contribute, please refer to the contribution guidelines in the repository. For feedback or questions, feel free to reach out to the project maintainers.
+Feedback to this project is always welcome. For feedback or questions, feel free to reach out to me directly.
