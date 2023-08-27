@@ -56,7 +56,7 @@ def main():
     df = kafka_stream.select(F.col("value").cast("string").alias("json"))
     schema = T.StructType(
         [
-            T.StructField("student_id", T.StringType()),
+            T.StructField("student_id", T.IntegerType()),
             T.StructField("name", T.StringType()),
             T.StructField("city", T.StringType()),
         ]
