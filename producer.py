@@ -4,7 +4,7 @@ import time
 
 from kafka import KafkaProducer
 
-from config import configs
+from ..config import configs
 
 
 def mock_data():

@@ -25,13 +25,25 @@ def write_to_database(batch, batch_id):
     )
 
 
+def process_kafka_stream(kafka_stream):
+    df = kafka_stream.select(F.col("value").cast("string").alias("json"))
+    schema = T.StructType(
+        [
+            T.StructField("student_id", T.IntegerType()),
+            T.StructField("name", T.StringType()),
+            T.StructField("city", T.StringType()),
+        ]
+    )
+    processed_df = df.select(
+        F.from_json(F.col("json").cast("string"), schema).alias("parsed_value")
+    ).select("parsed_value.*")
+
+    return processed_df
+
+
 def main():
     spark = (
         SparkSession.builder.appName("MBTA Data Streaming")
-        .config(
-            "spark.jars.packages",
-            "org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1",
-        )
         .master("local[*]")
         .getOrCreate()
     )
@@ -49,18 +61,7 @@ def main():
         .load()
     )
 
-    df = kafka_stream.select(F.col("value").cast("string").alias("json"))
-    schema = T.StructType(
-        [
-            T.StructField("student_id", T.IntegerType()),
-            T.StructField("name", T.StringType()),
-            T.StructField("city", T.StringType()),
-        ]
-    )
-
-    processed_df = df.select(
-        F.from_json(F.col("json").cast("string"), schema).alias("parsed_value")
-    ).select("parsed_value.*")
+    processed_df = process_kafka_stream(kafka_stream)
 
     query_kafka = (
         processed_df.writeStream.trigger(processingTime="10 seconds")
