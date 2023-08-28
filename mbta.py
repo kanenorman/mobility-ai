@@ -7,7 +7,7 @@ from config import configs
 
 
 def get_schedules(
-    route: Union[str, None] = None,
+    route: str,
     min_time: Union[datetime.date, None] = None,
     max_time: Union[datetime.date, None] = None,
 ) -> Dict:
