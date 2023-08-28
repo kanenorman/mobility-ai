@@ -1,13 +1,12 @@
 import sys
 
 from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
-from pyspark.sql import types as T
 
 from config import configs
+from load_schedules import process_schedules_stream
 
 
-def write_to_database(batch, batch_id):
+def write_to_database(batch, _):
     host = configs.POSTGRES_HOST
     port = configs.POSTGRES_PORT
     database = configs.POSTGRES_DB
@@ -23,25 +22,6 @@ def write_to_database(batch, batch_id):
         .mode("append")
         .save()
     )
-
-
-def process_kafka_stream(kafka_stream):
-    schema = T.StructType(
-        [
-            T.StructField("timepoint", T.BooleanType()),
-            T.StructField("stop_sequence", T.IntegerType()),
-            T.StructField("stop_headsign", T.StringType()),
-            T.StructField("pickup_type", T.IntegerType()),
-            T.StructField("drop_off_type", T.IntegerType()),
-            T.StructField("direction_id", T.IntegerType()),
-            T.StructField("departure_time", T.TimestampType()),
-            T.StructField("arrival_time", T.TimestampType()),
-        ]
-    )
-    kafka_df = kafka_stream.withColumn("value", F.col("value").cast("string"))
-    processed_df = kafka_df.withColumn("json", F.from_json(F.col("value"), schema))
-
-    return processed_df.select("json.*")
 
 
 def main():
@@ -64,7 +44,7 @@ def main():
         .load()
     )
 
-    processed_df = process_kafka_stream(kafka_stream)
+    processed_df = process_schedules_stream(kafka_stream)
 
     query_kafka = (
         processed_df.writeStream.trigger(processingTime="10 seconds")
