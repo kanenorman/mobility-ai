@@ -20,6 +20,7 @@ def write_to_database(batch, _):
         .option("user", configs.POSTGRES_USER)
         .option("password", configs.POSTGRES_PASSWORD)
         .mode("append")
+        .option("saveMode", "ignore")
         .save()
     )
 
