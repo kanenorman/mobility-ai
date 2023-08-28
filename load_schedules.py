@@ -1,8 +1,24 @@
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
+from pyspark.sql import DataFrame
 
 
-def process_schedules_stream(kafka_stream):
+def process_schedules_stream(kafka_stream: DataFrame) -> DataFrame:
+    """
+    Process Kafka stream of schedules data.
+
+    Processes the incoming Kafka stream of schedules data by selecting relevant columns and applying schema.
+
+    Parameters:
+    ----------
+    kafka_stream : DataFrame
+        The Kafka stream containing schedules data.
+
+    Returns:
+    -------
+    DataFrame
+        The processed DataFrame containing selected and structured data.
+    """
     attributes_struct = T.StructType(
         [
             T.StructField("arrival_time", T.TimestampType()),

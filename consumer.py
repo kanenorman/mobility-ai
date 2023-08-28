@@ -1,12 +1,25 @@
 import sys
 
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.streaming import DataStreamWriter
 
 from config import configs
 from load_schedules import process_schedules_stream
 
 
-def write_to_database(batch, _):
+def write_to_database(batch: DataFrame, _: int) -> None:
+    """
+    Write batch data to a PostgreSQL database.
+
+    Writes the given batch of data to a PostgreSQL database using JDBC.
+
+    Parameters:
+    ----------
+    batch : DataFrame
+        The batch of data to be written to the database.
+    _ : int
+        The ID of the current batch (unused in this function).
+    """
     host = configs.POSTGRES_HOST
     port = configs.POSTGRES_PORT
     database = configs.POSTGRES_DB
@@ -25,7 +38,12 @@ def write_to_database(batch, _):
     )
 
 
-def main():
+def main() -> None:
+    """
+    Main function to start the Spark streaming job.
+
+    Sets up the Spark session, reads data from Kafka, processes it, and writes to a PostgreSQL database.
+    """
     spark = (
         SparkSession.builder.appName("MBTA Data Streaming")
         .master("local[*]")
@@ -47,7 +65,7 @@ def main():
 
     processed_df = process_schedules_stream(kafka_stream)
 
-    query_kafka = (
+    query_kafka: DataStreamWriter = (
         processed_df.writeStream.trigger(processingTime="10 seconds")
         .outputMode("update")
         .foreachBatch(write_to_database)
