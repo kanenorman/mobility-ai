@@ -26,19 +26,22 @@ def write_to_database(batch, batch_id):
 
 
 def process_kafka_stream(kafka_stream):
-    df = kafka_stream.select(F.col("value").cast("string").alias("json"))
     schema = T.StructType(
         [
-            T.StructField("student_id", T.IntegerType()),
-            T.StructField("name", T.StringType()),
-            T.StructField("city", T.StringType()),
+            T.StructField("timepoint", T.BooleanType()),
+            T.StructField("stop_sequence", T.IntegerType()),
+            T.StructField("stop_headsign", T.StringType()),
+            T.StructField("pickup_type", T.IntegerType()),
+            T.StructField("drop_off_type", T.IntegerType()),
+            T.StructField("direction_id", T.IntegerType()),
+            T.StructField("departure_time", T.TimestampType()),
+            T.StructField("arrival_time", T.TimestampType()),
         ]
     )
-    processed_df = df.select(
-        F.from_json(F.col("json").cast("string"), schema).alias("parsed_value")
-    ).select("parsed_value.*")
+    kafka_df = kafka_stream.withColumn("value", F.col("value").cast("string"))
+    processed_df = kafka_df.withColumn("json", F.from_json(F.col("value"), schema))
 
-    return processed_df
+    return processed_df.select("json.*")
 
 
 def main():

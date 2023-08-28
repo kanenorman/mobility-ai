@@ -22,11 +22,13 @@ def main():
     prev_time = datetime.now()
     while True:
         current_time = datetime.now()
-        data = get_schedules("Red", min_time=prev_time, max_time=current_time)
-        producer.send(kafka_topic, value=data)
+        messages = get_schedules("Red", min_time=prev_time, max_time=current_time)
+        for message in messages:
+            producer.send(kafka_topic, message["attributes"])
+
         prev_time = current_time
         print("message sent...")
-        time.sleep(5)
+        time.sleep(10)
 
 
 if __name__ == "__main__":
