@@ -7,7 +7,7 @@ from config import configs
 from load_schedules import process_schedules_stream
 
 
-def write_to_database(batch: DataFrame, _: int) -> None:
+def _write_to_database(batch: DataFrame, _: int) -> None:
     """
     Write batch data to a PostgreSQL database.
 
@@ -68,7 +68,7 @@ def main() -> None:
     query_kafka: DataStreamWriter = (
         processed_df.writeStream.trigger(processingTime="10 seconds")
         .outputMode("update")
-        .foreachBatch(write_to_database)
+        .foreachBatch(_write_to_database)
         .start()
     )
 

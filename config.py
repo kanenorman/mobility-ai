@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-Config = namedtuple(
+_Config = namedtuple(
     "Config",
     [
         "KAFKA_HOST",
@@ -22,7 +22,7 @@ Config = namedtuple(
     ],
 )
 
-configs = Config(
+configs = _Config(
     KAFKA_HOST=os.environ["KAFKA_HOST"],
     KAFKA_PORT=os.environ["KAFKA_PORT"],
     SCHEDULES_INPUT_TOPIC=os.environ["SCHEDULES_INPUT_TOPIC"],
