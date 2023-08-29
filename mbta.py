@@ -1,16 +1,20 @@
 import datetime
-from typing import Dict, Generator, Union
+from typing import Dict, Generator, List, Union
 
+import httpx
 from pymbta3 import Schedules
 
 from config import configs
+
+_schedules = Schedules(configs.MBTA_API_KEY)
+_base_url = "https://api-v3.mbta.com"
 
 
 def get_schedules(
     route: str,
     min_time: Union[datetime.date, None] = None,
     max_time: Union[datetime.date, None] = None,
-) -> Generator[Dict, None, None]:
+) -> Generator[Dict[str, Union[str, int]], None, None]:
     """
     Get schedules from the MBTA API.
 
@@ -30,5 +34,39 @@ def get_schedules(
     Dict[str, Union[str, int]]
         A dictionary containing schedule data for the specified route and time range.
     """
-    schedules = Schedules(configs.MBTA_API_KEY)
-    yield from schedules.get(route=route, min_time=min_time, max_time=max_time)["data"]
+    yield from _schedules.get(route=route, min_time=min_time, max_time=max_time)["data"]
+
+
+async def get_predictions(
+    route: str, trip: str, stop: str
+) -> List[Dict[str, Union[str, int]]]:
+    """
+    Get predictions from the MBTA API.
+
+    Retrieves prediction data for a specified route, trip, and stop using the MBTA API.
+
+    Parameters:
+    ----------
+    route : str
+        The route for which predictions are to be retrieved.
+    trip : str
+        The trip identifier for which predictions are to be retrieved.
+    stop : str
+        The stop identifier for which predictions are to be retrieved.
+
+    Returns:
+    -------
+    List[Dict[str, Union[str, int]]]
+        A list of dictionaries containing prediction data for the specified route, trip, and stop.
+    """
+    url = f"{_base_url}/predictions"
+    headers = {"X-API-Key": configs.MBTA_API_KEY}
+    params = {"route": route, "trip": trip, "stop": stop}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url=url, headers=headers, params=params)
+
+        if response.status_code == 200:
+            return response.json()["data"]
+        else:
+            return [{"error": "An error occurred"}]

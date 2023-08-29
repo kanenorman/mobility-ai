@@ -6,11 +6,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 _Config = namedtuple(
-    "Config",
+    "_Config",
     [
         "KAFKA_HOST",
         "KAFKA_PORT",
         "SCHEDULES_INPUT_TOPIC",
+        "PREDICTIONS_INPUT_TOPIC",
         "MBTA_API_KEY",
         "POSTGRES_PORT",
         "POSTGRES_DB",
@@ -26,6 +27,7 @@ configs = _Config(
     KAFKA_HOST=os.environ["KAFKA_HOST"],
     KAFKA_PORT=os.environ["KAFKA_PORT"],
     SCHEDULES_INPUT_TOPIC=os.environ["SCHEDULES_INPUT_TOPIC"],
+    PREDICTIONS_INPUT_TOPIC=os.environ["PREDICTIONS_INPUT_TOPIC"],
     MBTA_API_KEY=os.environ["MBTA_API_KEY"],
     POSTGRES_PORT=os.environ["POSTGRES_PORT"],
     POSTGRES_DB=os.environ["POSTGRES_DB"],
