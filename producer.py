@@ -5,19 +5,12 @@ from datetime import datetime
 from kafka import KafkaProducer
 
 from config import configs
-from mbta import get_predictions, get_schedules
+from mbta import get_schedules
 
 
 async def process_message(producer, message):
     schedules_topic = configs.SCHEDULES_INPUT_TOPIC
-    predictions_topic = configs.PREDICTIONS_INPUT_TOPIC
     producer.send(schedules_topic, message)
-
-    route_data = message["relationships"]["route"]["data"]
-    route, trip, stop = route_data["id"], route_data["id"], route_data["id"]
-
-    prediction_message = await get_predictions(route, trip, stop)
-    producer.send(predictions_topic, prediction_message)
 
 
 async def main() -> None:
