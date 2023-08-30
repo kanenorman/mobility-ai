@@ -26,13 +26,12 @@ async def main() -> None:
     prev_time = datetime.now()
     while True:
         current_time = datetime.now()
-
         messages = get_schedules(route="Red", min_time=prev_time, max_time=current_time)
-        tasks = []
-        for message in messages:
-            task = asyncio.create_task(process_message(producer, message))
-            tasks.append(task)
 
+        tasks = (
+            asyncio.create_task(process_message(producer, message))
+            for message in messages
+        )
         await asyncio.gather(*tasks)
 
         prev_time = current_time
