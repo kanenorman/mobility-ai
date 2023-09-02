@@ -28,7 +28,7 @@ The primary objective of the MBTA Data Streaming and Prediction Project is to le
 
 6. **DevOps and MLOps**: Establishing an effective DevOps workflow to automate deployment and monitoring of the streaming pipeline and models.
 
-![image](./assets/project_layout.png)
+![image](./assets/high-level.svg)
 
 ## Project Goals
 
