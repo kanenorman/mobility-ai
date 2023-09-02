@@ -5,7 +5,7 @@ FROM python:3.10
 WORKDIR /app
 
 # Copy all necessary files from your local directory to the container
-COPY . /app/
+COPY . .
 
 # Install the Python dependencies
 RUN python -m pip install -r requirements.txt

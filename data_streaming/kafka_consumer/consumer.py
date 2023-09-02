@@ -1,10 +1,10 @@
 import sys
 
+from load_schedules import process_schedules_stream
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.streaming import DataStreamWriter
 
 from config import configs
-from load_schedules import process_schedules_stream
 
 
 def _write_to_database(batch: DataFrame, _: int) -> None:

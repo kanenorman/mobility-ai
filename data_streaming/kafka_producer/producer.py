@@ -2,9 +2,8 @@ import asyncio
 import json
 from datetime import datetime
 
-from kafka import KafkaProducer
-
 from config import configs
+from kafka import KafkaProducer
 from mbta import get_schedules
 
 
