@@ -26,6 +26,11 @@ services:
     container_name: kafka-producer
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./data_streaming/kafka_producer/Dockerfile
+    environment:
+      KAFKA_HOST: "${KAFKA_HOST}"
+      KAFKA_PORT: "${KAFKA_PORT}"
+      SCHEDULES_INPUT_TOPIC: "${SCHEDULES_INPUT_TOPIC}"
+      MBTA_API_KEY: "${MBTA_API_KEY}"
     depends_on:
       - kafka
