@@ -3,5 +3,5 @@ python-dotenv==1.0.0
 kafka-python==2.0.2
 pyspark==3.4.1
 flask==2.3.3
-psycopg2==2.9.7
+psycopg2-binary==2.9.7
 httpx==0.24.1
