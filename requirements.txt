@@ -4,3 +4,4 @@ pyspark==3.4.1
 flask==2.3.3
 psycopg2-binary==2.9.7
 httpx==0.24.1
+Flask-SQLAlchemy==3.0.5
