@@ -2,9 +2,8 @@ import datetime
 from typing import Dict, Generator, List, Union
 
 import httpx
-from pymbta3 import Schedules
-
 from config import configs
+from pymbta3 import Schedules
 
 _schedules = Schedules(configs.MBTA_API_KEY)
 _base_url = "https://api-v3.mbta.com"
@@ -20,16 +19,16 @@ def get_schedules(
 
     Retrieves schedules for a specified route and time range using the MBTA API.
 
-    Parameters:
+    Parameters
     ----------
-    route : str
+    route
         The route for which schedules are to be retrieved. Example "Red" for red line.
-    min_time : Union[datetime.date, None], optional
+    min_time
         The minimum time for which schedules should be retrieved. If None, there is no lower bound on time.
-    max_time : Union[datetime.date, None], optional
+    max_time
         The maximum time for which schedules should be retrieved. If None, there is no upper bound on time.
 
-    Yields:
+    Yields
     ------
     Dict[str, Union[str, int]]
         A dictionary containing schedule data for the specified route and time range.
@@ -47,11 +46,11 @@ async def get_predictions(
 
     Parameters:
     ----------
-    route : str
+    route
         The route for which predictions are to be retrieved.
-    trip : str
+    trip
         The trip identifier for which predictions are to be retrieved.
-    stop : str
+    stop
         The stop identifier for which predictions are to be retrieved.
 
     Returns:

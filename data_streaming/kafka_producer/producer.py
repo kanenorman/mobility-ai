@@ -1,18 +1,43 @@
 import asyncio
 import json
 from datetime import datetime
+from typing import Dict
 
 from config import configs
 from kafka import KafkaProducer
 from mbta import get_schedules
 
 
-async def process_message(producer, message):
+async def process_message(producer: KafkaProducer, message: Dict):
+    """
+    Process a message and sends to kafka topic
+
+    Parameters
+    ----------
+    producer
+       Kafka producer instance
+    message
+        Record to push into kafka topic
+
+    Returns
+    -------
+        None
+    """
     schedules_topic = configs.SCHEDULES_INPUT_TOPIC
     producer.send(schedules_topic, message)
 
 
 async def main() -> None:
+    """
+    Main function for the asynchronous schedule processing.
+
+    This function continuously fetches schedules, processes them,
+    and sends them to Kafka.
+
+    Returns
+    _______
+        None
+    """
     kafka_host = configs.KAFKA_HOST
     kafka_port = configs.KAFKA_PORT
     bootstrap_servers = f"{kafka_host}:{kafka_port}"

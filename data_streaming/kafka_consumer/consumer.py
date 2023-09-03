@@ -1,23 +1,23 @@
 import sys
 
+import pyspark
+from config import configs
 from load_schedules import process_schedules_stream
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import SparkSession
 from pyspark.sql.streaming import DataStreamWriter
 
-from config import configs
 
-
-def _write_to_database(batch: DataFrame, _: int) -> None:
+def _write_to_database(batch: pypsark.sql.DataFrame, _: int) -> None:
     """
     Write batch data to a PostgreSQL database.
 
     Writes the given batch of data to a PostgreSQL database using JDBC.
 
-    Parameters:
+    Parameters
     ----------
-    batch : DataFrame
+    batch
         The batch of data to be written to the database.
-    _ : int
+    _
         The ID of the current batch (unused in this function).
     """
     host = configs.POSTGRES_HOST

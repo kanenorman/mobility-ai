@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# Function to check if Kafka is reachable
-check_kafka() {
+kafka_running() {
     nc -z -w 5 kafka $KAFKA_PORT 
 }
 
-until check_kafka; do
+until kafka_running; do
     echo "Kafka is not available yet. Retrying in 10 seconds..."
     sleep 10
 done
