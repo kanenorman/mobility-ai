@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.streaming import DataStreamWriter
 
 
-def _write_to_database(batch: pypsark.sql.DataFrame, _: int) -> None:
+def _write_to_database(batch: pyspark.sql.DataFrame, _: int) -> None:
     """
     Write batch data to a PostgreSQL database.
 
@@ -40,9 +40,10 @@ def _write_to_database(batch: pypsark.sql.DataFrame, _: int) -> None:
 
 def main() -> None:
     """
-    Main function to start the Spark streaming job.
+    Start the Spark streaming job.
 
-    Sets up the Spark session, reads data from Kafka, processes it, and writes to a PostgreSQL database.
+    Sets up the Spark session, reads data from Kafka,
+    processes it, and writes to a PostgreSQL database.
     """
     spark = (
         SparkSession.builder.appName("MBTA Data Streaming")
