@@ -25,6 +25,7 @@ def _write_to_database(batch: pyspark.sql.DataFrame, _: int) -> None:
     database = configs.POSTGRES_DB
     url = f"jdbc:postgresql://{host}:{port}/{database}"
 
+    print("writing to databse...")
     (
         batch.write.format("jdbc")
         .option("driver", configs.POSTGRES_DRIVER)
@@ -47,6 +48,10 @@ def main() -> None:
     """
     spark = (
         SparkSession.builder.appName("MBTA Data Streaming")
+        .config(
+            "/opt/spark/jars/spark-sql-kafka-0-10_2.12-3.3.3.jar,/opt/spark/jars/postgresql-42.6.0.jar,/opt/spark/jars/kafka-clients-3.5.0.jar",
+            "spark.jars",
+        )
         .master("local[*]")
         .getOrCreate()
     )
@@ -64,6 +69,7 @@ def main() -> None:
         .load()
     )
 
+    print("stream is read...")
     processed_df = process_schedules_stream(kafka_stream)
 
     query_kafka: DataStreamWriter = (
