@@ -48,10 +48,6 @@ def main() -> None:
     """
     spark = (
         SparkSession.builder.appName("MBTA Data Streaming")
-        .config(
-            "/opt/spark/jars/spark-sql-kafka-0-10_2.12-3.3.3.jar,/opt/spark/jars/postgresql-42.6.0.jar,/opt/spark/jars/kafka-clients-3.5.0.jar",
-            "spark.jars",
-        )
         .master("local[*]")
         .getOrCreate()
     )
