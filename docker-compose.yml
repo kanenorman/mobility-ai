@@ -10,25 +10,64 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: "${ZOOKEEPER_PORT}"
       ZOOKEEPER_TICK_TIME: 2000
-
-  kafka:
+  
+  broker1:
     image: confluentinc/cp-kafka:latest
-    container_name: kafka
+    container_name: broker1
     networks:
       - network
-    hostname: kafka
+    hostname: ${KAFKA_HOST1}
     ports:
-      - "${KAFKA_PORT}:${KAFKA_PORT}"
+      - "${KAFKA_PORT1}:${KAFKA_PORT1}"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:${ZOOKEEPER_PORT}"
-      KAFKA_LISTENERS: "INTERNAL://${KAFKA_HOST}:${KAFKA_PORT}"
-      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://${KAFKA_HOST}:${KAFKA_PORT}"
+      KAFKA_LISTENERS: "INTERNAL://${KAFKA_HOST1}:${KAFKA_PORT1}"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://${KAFKA_HOST1}:${KAFKA_PORT1}"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" 
     depends_on:
       - zookeeper
 
+  broker2:
+    image: confluentinc/cp-kafka:latest
+    container_name: broker2
+    networks:
+      - network
+    hostname: ${KAFKA_HOST2}
+    ports:
+      - "${KAFKA_PORT2}:${KAFKA_PORT2}"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:${ZOOKEEPER_PORT}"
+      KAFKA_LISTENERS: "INTERNAL://${KAFKA_HOST2}:${KAFKA_PORT2}"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://${KAFKA_HOST2}:${KAFKA_PORT2}"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" 
+    depends_on:
+      - zookeeper
+
+  broker3:
+    image: confluentinc/cp-kafka:latest
+    container_name: broker3
+    networks:
+      - network
+    hostname: broker3
+    ports:
+      - "${KAFKA_PORT3}:${KAFKA_PORT3}"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:${ZOOKEEPER_PORT}"
+      KAFKA_LISTENERS: "INTERNAL://${KAFKA_HOST3}:${KAFKA_PORT3}"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://${KAFKA_HOST3}:${KAFKA_PORT3}"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" 
+    depends_on:
+      - zookeeper
+ 
   producer:
     container_name: producer
     networks:
@@ -37,13 +76,20 @@ services:
       context: .
       dockerfile: ./data_streaming/kafka_producer/Dockerfile
     environment:
-      KAFKA_HOST: "${KAFKA_HOST}"
-      KAFKA_PORT: "${KAFKA_PORT}"
+      KAFKA_HOST1: "${KAFKA_HOST1}"
+      KAFKA_PORT1: "${KAFKA_PORT1}"
+      KAFKA_HOST2: "${KAFKA_HOST2}"
+      KAFKA_PORT2: "${KAFKA_PORT2}"
+      KAFKA_HOST3: "${KAFKA_HOST3}"
+      KAFKA_PORT3: "${KAFKA_PORT3}"
       SCHEDULES_INPUT_TOPIC: "${SCHEDULES_INPUT_TOPIC}"
       MBTA_API_KEY: "${MBTA_API_KEY}"
       PYTHONUNBUFFERED: 1
     depends_on:
-      - kafka
+      - broker1
+      - broker2
+      - broker3
+ 
   consumer:
     container_name: consumer
     networks:
@@ -59,12 +105,19 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_TABLE=${POSTGRES_TABLE}
       - POSTGRES_DRIVER=${POSTGRES_DRIVER}
-      - KAFKA_HOST=${KAFKA_HOST}
-      - KAFKA_PORT=${KAFKA_PORT}
+      - KAFKA_HOST1=${KAFKA_HOST1}
+      - KAFKA_PORT1=${KAFKA_PORT1}
+      - KAFKA_HOST2=${KAFKA_HOST2}
+      - KAFKA_PORT2=${KAFKA_PORT2}
+      - KAFKA_HOST3=${KAFKA_HOST3}
+      - KAFKA_PORT3=${KAFKA_PORT3}
       - SCHEDULES_INPUT_TOPIC=${SCHEDULES_INPUT_TOPIC}
       - PYTHONUNBUFFERED=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true 
     depends_on:
-      - kafka
+      - broker1
+      - broker2
+      - broker3
       - flask_database
   
   flask_app:
