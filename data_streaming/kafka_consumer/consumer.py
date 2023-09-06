@@ -53,14 +53,14 @@ def main() -> None:
     )
     spark.sparkContext.setLogLevel("ERROR")
 
-    kafka_host = configs.KAFKA_HOST
-    kafka_port = configs.KAFKA_PORT
     kafka_topic = configs.SCHEDULES_INPUT_TOPIC
-    bootstrap_servers = f"{kafka_host}:{kafka_port}"
+    server_1 = f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}"
+    server_2 = f"{configs.KAFKA_HOST2}:{configs.KAFKA_PORT2}"
+    server_3 = f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}"
 
     kafka_stream = (
         spark.readStream.format("kafka")
-        .option("kafka.bootstrap.servers", bootstrap_servers)
+        .option("kafka.bootstrap.servers", f"{server_1},{server_2},{server_3}")
         .option("subscribe", kafka_topic)
         .load()
     )

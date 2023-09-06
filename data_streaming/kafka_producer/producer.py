@@ -10,7 +10,7 @@ from mbta import get_schedules
 
 async def process_message(producer: KafkaProducer, message: Dict):
     """
-    Process a message and sends to kafka topic
+    Process a message and sends to kafka topic.
 
     Parameters
     ----------
@@ -29,7 +29,7 @@ async def process_message(producer: KafkaProducer, message: Dict):
 
 async def main() -> None:
     """
-    Main function for the asynchronous schedule processing.
+    Primary function for the asynchronous schedule processing.
 
     This function continuously fetches schedules, processes them,
     and sends them to Kafka.
@@ -38,12 +38,14 @@ async def main() -> None:
     _______
         None
     """
-    kafka_host = configs.KAFKA_HOST
-    kafka_port = configs.KAFKA_PORT
-    bootstrap_servers = f"{kafka_host}:{kafka_port}"
+    bootstrap_servers = [
+        f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}",
+        f"{configs.KAFKA_HOST2}:{configs.KAFKA_PORT2}",
+        f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}",
+    ]
 
     producer = KafkaProducer(
-        bootstrap_servers=[bootstrap_servers],
+        bootstrap_servers=bootstrap_servers,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
     )
 
