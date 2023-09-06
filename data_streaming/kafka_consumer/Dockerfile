@@ -33,6 +33,8 @@ COPY data_streaming/kafka_consumer /app/data_streaming/kafka_consumer
 # Set the working directory for the application
 WORKDIR /app/data_streaming/kafka_consumer
 
+CMD ["./start_consumer.sh"]
+
 # Define the command to run the Spark application
 CMD ["/opt/spark/bin/spark-submit", \
      "--master", "local", \
