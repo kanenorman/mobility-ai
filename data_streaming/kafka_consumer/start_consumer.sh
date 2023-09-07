@@ -1,20 +1,22 @@
 #!/bin/bash
 
 KAFKA_PORTS=("$KAFKA_PORT1" "$KAFKA_PORT2" "$KAFKA_PORT3")
-KAFKA_HOST=("$KAFKA_HOST1","$KAFKA_HOST2", "$KAFKA_HOST3")
+KAFKA_HOST=("$KAFKA_HOST1" "$KAFKA_HOST2" "$KAFKA_HOST3")
 
 kafka_running() {
     local result
-    for port in "${KAFKA_PORTS[@]}"; do
-        host="${KAFKA_HOST[$port]}"
-        nc -z -w 5 $host "$port" && result="true" && break
+    for index in "${!KAFKA_PORTS[@]}"; do
+        port="${KAFKA_PORTS[$index]}"
+        host="${KAFKA_HOST[$index]}"
+        nc -z -w 5 "$host" "$port" && result="true" && break
     done
-    if [ "$result" == "true" ]; then
+    if [[ "$result" == "true" ]]; then
         return 0
     else
         return 1
     fi
 }
+
 
 until kafka_running; do
     echo "Kafka is not available yet on any of the specified ports. Retrying in 3 seconds..."
