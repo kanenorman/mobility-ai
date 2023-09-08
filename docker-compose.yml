@@ -1,7 +1,7 @@
 version: '3'
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.5.0
     networks:
       - network
     container_name: zookeeper
@@ -10,9 +10,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: "${ZOOKEEPER_PORT}"
       ZOOKEEPER_TICK_TIME: 2000
-  
   broker1:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.0
     container_name: broker1
     networks:
       - network
@@ -26,12 +25,11 @@ services:
       KAFKA_ADVERTISED_LISTENERS: "INTERNAL://${KAFKA_HOST1}:${KAFKA_PORT1}"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" 
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
       - zookeeper
-
   broker2:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.0
     container_name: broker2
     networks:
       - network
@@ -45,12 +43,11 @@ services:
       KAFKA_ADVERTISED_LISTENERS: "INTERNAL://${KAFKA_HOST2}:${KAFKA_PORT2}"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" 
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
       - zookeeper
-
   broker3:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.0
     container_name: broker3
     networks:
       - network
@@ -64,10 +61,47 @@ services:
       KAFKA_ADVERTISED_LISTENERS: "INTERNAL://${KAFKA_HOST3}:${KAFKA_PORT3}"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" 
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
       - zookeeper
- 
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - broker1
+      - broker2
+      - broker3
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "${KAFKA_HOST1}:${KAFKA_PORT1},${KAFKA_HOST2}:${KAFKA_PORT2},${KAFKA_HOST3}:${KAFKA_PORT3}"
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    networks:
+      - network
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.5.0
+    hostname: control-center
+    container_name: control-center
+    depends_on:
+      - broker1
+      - broker2
+      - broker3
+      - schema-registry
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: "${KAFKA_HOST1}:${KAFKA_PORT1},${KAFKA_HOST2}:${KAFKA_PORT2},${KAFKA_HOST3}:${KAFKA_PORT3}"
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      CONFLIENT_METRICS_ENABLE: 'false'
+      PORT: 9021
+    networks:
+      - network
   producer:
     container_name: producer
     networks:
@@ -89,7 +123,6 @@ services:
       - broker1
       - broker2
       - broker3
- 
   consumer:
     container_name: consumer
     networks:
@@ -113,13 +146,12 @@ services:
       - KAFKA_PORT3=${KAFKA_PORT3}
       - SCHEDULES_INPUT_TOPIC=${SCHEDULES_INPUT_TOPIC}
       - PYTHONUNBUFFERED=1
-      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true 
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
     depends_on:
       - broker1
       - broker2
       - broker3
       - flask_database
-  
   flask_app:
     restart: always
     container_name: flask_app
@@ -132,7 +164,6 @@ services:
       - DEV_POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     depends_on:
       - flask_database
- 
   flask_database:
     container_name: flask_database
     image: postgres:15
@@ -144,10 +175,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-
 volumes:
-  postgres_data: 
-
+  postgres_data:
 networks:
   network:
