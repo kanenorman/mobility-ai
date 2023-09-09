@@ -1,13 +1,15 @@
+# Use a Python base image
 FROM python:3.10
 
+# Set the working directory
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y netcat-traditional
-
+# Copy the requirements file and Kafka producer code
 COPY requirements.txt .
 COPY data_streaming/kafka_producer .
 
-RUN python -m pip install -r requirements.txt
+# Install Python dependencies
+RUN pip install -r requirements.txt
 
-CMD ["./start_producer.sh"]
-
+# Specify the command to run when the container starts
+CMD ["python", "producer.py"]

@@ -10,6 +10,11 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: "${ZOOKEEPER_PORT}"
       ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ['CMD', 'bash', '-c', "echo 'ruok' | nc zookeeper ${ZOOKEEPER_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   broker1:
     image: confluentinc/cp-kafka:7.5.0
     container_name: broker1
@@ -27,7 +32,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", 'nc -z ${KAFKA_HOST1} ${KAFKA_PORT1}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
   broker2:
     image: confluentinc/cp-kafka:7.5.0
     container_name: broker2
@@ -45,7 +56,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", 'nc -z ${KAFKA_HOST2} ${KAFKA_PORT2}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
   broker3:
     image: confluentinc/cp-kafka:7.5.0
     container_name: broker3
@@ -63,15 +80,24 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", 'nc -z ${KAFKA_HOST3} ${KAFKA_PORT3}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
   schema-registry:
     image: confluentinc/cp-schema-registry:7.5.0
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
-      - broker1
-      - broker2
-      - broker3
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
@@ -85,10 +111,14 @@ services:
     hostname: control-center
     container_name: control-center
     depends_on:
-      - broker1
-      - broker2
-      - broker3
-      - schema-registry
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
+      schema-registry:
+        condition: service_started
     ports:
       - "9021:9021"
     environment:
@@ -120,9 +150,12 @@ services:
       MBTA_API_KEY: "${MBTA_API_KEY}"
       PYTHONUNBUFFERED: 1
     depends_on:
-      - broker1
-      - broker2
-      - broker3
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
   consumer:
     container_name: consumer
     networks:
@@ -148,10 +181,14 @@ services:
       - PYTHONUNBUFFERED=1
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
     depends_on:
-      - broker1
-      - broker2
-      - broker3
-      - flask_database
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
+      flask_database:
+        condition: service_healthy
   flask_app:
     restart: always
     container_name: flask_app
@@ -163,7 +200,8 @@ services:
     environment:
       - DEV_POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     depends_on:
-      - flask_database
+      flask_database:
+        condition: service_healthy
   flask_database:
     container_name: flask_database
     image: postgres:15
@@ -175,6 +213,11 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 volumes:
   postgres_data:
 networks:
