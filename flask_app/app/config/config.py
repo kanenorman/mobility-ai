@@ -17,4 +17,8 @@ class _TestConfigs:
     pass
 
 
-config = {"dev": _DevelopmentConfigs, "prod": _ProductionConfigs, "test": _TestConfigs}
+config = {
+    "dev": _DevelopmentConfigs,
+    "prod": _ProductionConfigs,
+    "test": _TestConfigs,
+}

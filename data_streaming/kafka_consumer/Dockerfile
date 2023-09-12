@@ -5,7 +5,7 @@ FROM bitnami/spark:3.3.3
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install -r  requirements.txt 
+RUN pip install -r  requirements.txt
 
 # Copy application code
 COPY data_streaming/kafka_consumer /app/data_streaming/kafka_consumer

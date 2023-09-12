@@ -24,9 +24,11 @@ def get_schedules(
     route
         The route for which schedules are to be retrieved. Example "Red" for red line.
     min_time
-        The minimum time for which schedules should be retrieved. If None, there is no lower bound on time.
+        The minimum time for which schedules should be retrieved.
+        If None, there is no lower bound on time.
     max_time
-        The maximum time for which schedules should be retrieved. If None, there is no upper bound on time.
+        The maximum time for which schedules should be retrieved.
+        If None, there is no upper bound on time.
 
     Yields
     ------
@@ -44,7 +46,7 @@ async def get_predictions(
 
     Retrieves prediction data for a specified route, trip, and stop using the MBTA API.
 
-    Parameters:
+    Parameters
     ----------
     route
         The route for which predictions are to be retrieved.
@@ -53,10 +55,11 @@ async def get_predictions(
     stop
         The stop identifier for which predictions are to be retrieved.
 
-    Returns:
+    Returns
     -------
     List[Dict[str, Union[str, int]]]
-        A list of dictionaries containing prediction data for the specified route, trip, and stop.
+        A list of dictionaries containing prediction data for the
+        specified route, trip, and stop.
     """
     url = f"{_base_url}/predictions"
     headers = {"X-API-Key": configs.MBTA_API_KEY}

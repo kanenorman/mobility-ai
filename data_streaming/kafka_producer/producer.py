@@ -21,7 +21,7 @@ async def process_message(producer: KafkaProducer, message: Dict):
 
     Returns
     -------
-        None
+    None
     """
     schedules_topic = configs.SCHEDULES_INPUT_TOPIC
     producer.send(schedules_topic, message)
@@ -35,8 +35,8 @@ async def main() -> None:
     and sends them to Kafka.
 
     Returns
-    _______
-        None
+    -------
+    None
     """
     bootstrap_servers = [
         f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}",
