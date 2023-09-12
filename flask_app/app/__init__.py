@@ -7,7 +7,7 @@ from .extensions import database
 from .views import main
 
 
-def create_app(app_environment: str) -> Flask:
+def create_app() -> Flask:
     """
     Entry point for creating flask app.
 
@@ -21,6 +21,9 @@ def create_app(app_environment: str) -> Flask:
     Flask
         flask app
     """
+
+    app_environment = os.getenv("FLASK_ENV") or "dev"
+
     app = Flask(__name__)
     app.config.from_object(config[app_environment])
     app.register_blueprint(main)
@@ -33,5 +36,5 @@ def create_app(app_environment: str) -> Flask:
 
 
 if __name__ == "__main__":
-    app = create_app(os.getenv("FLASK_ENV", "dev"))
+    app = create_app()
     app.run()
