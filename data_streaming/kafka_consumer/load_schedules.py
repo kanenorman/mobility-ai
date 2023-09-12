@@ -9,7 +9,8 @@ def process_schedules_stream(
     """
     Process Kafka stream of schedules data.
 
-    Processes the incoming Kafka stream of schedules data by selecting relevant columns and applying schema.
+    Processes the incoming Kafka stream of schedules data by selecting relevant
+    columns and applying schema.
 
     Parameters
     ----------

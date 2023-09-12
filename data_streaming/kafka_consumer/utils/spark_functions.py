@@ -66,7 +66,12 @@ def write_to_database(batch: pyspark.sql.DataFrame, _: int) -> None:
 
     # Create a JDBC connection
     connection = psycopg2.connect(
-        **{"host": host, "database": database, "user": user, "password": password}
+        **{
+            "host": host,
+            "database": database,
+            "user": user,
+            "password": password,
+        }
     )
     cursor = connection.cursor()
 
