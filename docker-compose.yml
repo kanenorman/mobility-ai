@@ -192,6 +192,8 @@ services:
   flask_app:
     restart: always
     container_name: flask_app
+    networks:
+      - network
     build:
       context: .
       dockerfile: ./flask_app/Dockerfile
