@@ -38,11 +38,16 @@ def start_streaming_job() -> None:
     # Process Kafka data
     processed_df = process_schedules_stream(kafka_stream)
 
+    table_name = configs.POSTGRES_TABLE
+    unique_id = "id"
+
     # Define the Kafka query
     query_kafka: DataStreamWriter = (
         processed_df.writeStream.trigger(processingTime="10 seconds")
         .outputMode("update")
-        .foreachBatch(write_to_database)
+        .foreachBatch(
+            lambda df, epoch_id: write_to_database(df, epoch_id, table_name, unique_id)
+        )
         .start()
     )
 
