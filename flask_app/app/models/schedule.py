@@ -1,4 +1,4 @@
-from .extensions import database as db
+from ..extensions import database as db
 
 
 class Schedule(db.Model):
