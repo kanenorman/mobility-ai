@@ -25,12 +25,12 @@
           </tr>
         </thead>
         <tbody>
-          {% for row in data %}
+          {% for schedule in data %}
           <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-            <!-- Add other table cells here -->
+            <td>{{ schedule.id }}</td>
+            <td>{{ schedule.arrival_time }}</td>
+            <td>{{ schedule.departure_time }}</td>
+            <!-- Add other table cells for other attributes if needed -->
           </tr>
           {% endfor %}
         </tbody>
