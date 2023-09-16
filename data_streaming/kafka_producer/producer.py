@@ -1,23 +1,22 @@
-import asyncio
 import json
-from datetime import datetime
 from typing import Dict
 
 from config import configs
 from kafka import KafkaProducer
 from mbta import get_schedules
+from sseclient import SSEClient
 
 
-async def process_message(producer: KafkaProducer, message: Dict):
+def process_message(producer: KafkaProducer, message: Dict):
     """
-    Process a message and sends to kafka topic.
+    Process a message and sends it to a Kafka topic.
 
     Parameters
     ----------
-    producer
-       Kafka producer instance
-    message
-        Record to push into kafka topic
+    producer : KafkaProducer
+        The Kafka producer instance.
+    message : dict
+        The record to push into the Kafka topic.
 
     Returns
     -------
@@ -27,12 +26,12 @@ async def process_message(producer: KafkaProducer, message: Dict):
     producer.send(schedules_topic, message)
 
 
-async def main() -> None:
+def main() -> None:
     """
-    Primary function for the asynchronous schedule processing.
+    Primary function for the schedule processing.
 
-    This function continuously fetches schedules, processes them,
-    and sends them to Kafka.
+    This function continuously fetches schedules
+    using Server Sent Events (SSE) and sends them to the kafka topic.
 
     Returns
     -------
@@ -49,21 +48,14 @@ async def main() -> None:
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
     )
 
-    prev_time = datetime.now()
-    while True:
-        current_time = datetime.now()
-        messages = get_schedules(route="Red", min_time=prev_time, max_time=current_time)
+    schedules = get_schedules(route="Red")
+    server = SSEClient(schedules)
 
-        tasks = (
-            asyncio.create_task(process_message(producer, message))
-            for message in messages
+    for event in server.events():
+        process_message(
+            producer=producer, message={"event": event.event, "data": event.data}
         )
-        await asyncio.gather(*tasks)
-
-        prev_time = current_time
-        print("Batch of messages sent...")
-        await asyncio.sleep(60)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

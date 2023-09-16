@@ -1,7 +1,8 @@
 flask==2.3.3
 Flask-SQLAlchemy==3.0.5
-httpx==0.24.1
 kafka-python==2.0.2
 psycopg2-binary==2.9.7
 pymbta3==0.0.5.dev0
 pyspark==3.3.3
+requests==2.31.0
+sseclient-py==1.8.0
