@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import Dict
 
@@ -7,7 +8,7 @@ from mbta import get_schedules
 from sseclient import SSEClient
 
 
-def process_message(producer: KafkaProducer, message: Dict):
+async def process_message(producer: KafkaProducer, message: Dict):
     """
     Process a message and sends it to a Kafka topic.
 
@@ -26,7 +27,7 @@ def process_message(producer: KafkaProducer, message: Dict):
     producer.send(schedules_topic, message)
 
 
-def main() -> None:
+async def main() -> None:
     """
     Primary function for the schedule processing.
 
@@ -52,10 +53,17 @@ def main() -> None:
     server = SSEClient(schedules)
 
     for event in server.events():
-        process_message(
-            producer=producer, message={"event": event.event, "data": event.data}
+        tasks = (
+            asyncio.create_task(
+                process_message(
+                    producer=producer, message={"event": event.event, "data": data}
+                )
+            )
+            for data in json.loads(event.data)
         )
+
+        await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
