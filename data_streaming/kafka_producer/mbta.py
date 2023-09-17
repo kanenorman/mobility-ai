@@ -1,12 +1,18 @@
 import httpx
-import retry
 from config import configs
+from retry import retry
 
 _BASE_URL = "https://api-v3.mbta.com"
 _HEADERS = {"Accept": "text/event-stream", "X-API-Key": configs.MBTA_API_KEY}
 
 
-@retry(httpx.RequestError, httpx.HTTPError, delay=5, backoff=2, max_delay=60, tries=3)
+@retry(
+    exceptions=(httpx.RequestError, httpx.HTTPError),
+    delay=5,
+    backoff=2,
+    max_delay=60,
+    tries=3,
+)
 def get_schedules(
     route: str,
 ):
