@@ -37,7 +37,7 @@ def process_schedules_stream(
 
     data_struct = T.StructType(
         [
-            T.StructField("id", T.IntegerType()),
+            T.StructField("id", T.StringType()),
             T.StructField("type", T.StringType()),
         ]
     )
@@ -48,8 +48,7 @@ def process_schedules_stream(
         ]
     )
 
-    # Define the main schema
-    schedule_schema = T.StructType(
+    data_schema = T.StructType(
         [
             T.StructField("attributes", attributes_struct),
             T.StructField("id", T.StringType()),
@@ -67,22 +66,26 @@ def process_schedules_stream(
         ]
     )
 
+    kafka_schema = T.StructType(
+        [T.StructField("event", T.StringType()), T.StructField("data", data_schema)]
+    )
+
     kafka_df = kafka_stream.withColumn("value", F.col("value").cast("string"))
 
-    processed_df = kafka_df.select(
-        F.from_json(F.col("value"), schedule_schema).alias("json")
+    return kafka_df.select(
+        F.from_json(F.col("value"), kafka_schema).alias("json")
     ).select(
-        "json.id",
-        "json.attributes.arrival_time",
-        "json.attributes.departure_time",
-        "json.attributes.direction_id",
-        "json.attributes.drop_off_type",
-        "json.attributes.pickup_type",
-        "json.attributes.stop_headsign",
-        "json.attributes.stop_sequence",
-        "json.attributes.timepoint",
-        F.col("json.relationships.route.data.id").alias("route_id"),
-        F.col("json.relationships.stop.data.id").alias("stop_id"),
-        F.col("json.relationships.trip.data.id").alias("trip_id"),
+        "json.event",
+        "json.data.id",
+        "json.data.attributes.arrival_time",
+        "json.data.attributes.departure_time",
+        "json.data.attributes.direction_id",
+        "json.data.attributes.drop_off_type",
+        "json.data.attributes.pickup_type",
+        "json.data.attributes.stop_headsign",
+        "json.data.attributes.stop_sequence",
+        "json.data.attributes.timepoint",
+        F.col("json.data.relationships.route.data.id").alias("route_id"),
+        F.col("json.data.relationships.stop.data.id").alias("stop_id"),
+        F.col("json.data.relationships.trip.data.id").alias("trip_id"),
     )
-    return processed_df

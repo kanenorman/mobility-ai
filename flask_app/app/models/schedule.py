@@ -4,6 +4,7 @@ from ..extensions import database as db
 class Schedule(db.Model):
     __tablename__ = "schedule"
 
+    event = db.Column(db.String(255), nullable=False)
     id = db.Column(db.String(255), primary_key=True, nullable=False)
     arrival_time = db.Column(db.TIMESTAMP, nullable=True)
     departure_time = db.Column(db.TIMESTAMP, nullable=True)
@@ -19,6 +20,7 @@ class Schedule(db.Model):
 
     def __init__(
         self,
+        event,
         id,
         arrival_time,
         departure_time,
@@ -37,6 +39,8 @@ class Schedule(db.Model):
 
         Parameters
         ----------
+        event : str
+            MBTA V3 API Streaming Event
         id : str
             Unique identifier for the schedule entry.
         arrival_time : datetime
@@ -62,6 +66,7 @@ class Schedule(db.Model):
         trip_id : int
             Unique identifier for the trip associated with the schedule entry.
         """
+        self.event = event
         self.id = id
         self.arrival_time = arrival_time
         self.departure_time = departure_time
