@@ -1,42 +1,21 @@
 import asyncio
 import json
-from typing import Dict
+from typing import Callable, Dict
 
 from config import configs
 from kafka import KafkaProducer
-from mbta import get_schedules
+from mbta import get_alerts, get_schedules
 from sseclient import SSEClient
 
 
-async def process_message(producer: KafkaProducer, message: Dict):
+def create_kafka_producer() -> KafkaProducer:
     """
-    Process a message and sends it to a Kafka topic.
+    Create and return a KafkaProducer instance.
 
-    Parameters
-    ----------
-    producer : KafkaProducer
+    Returns
+    -------
+    KafkaProducer
         The Kafka producer instance.
-    message : dict
-        The record to push into the Kafka topic.
-
-    Returns
-    -------
-    None
-    """
-    schedules_topic = configs.SCHEDULES_INPUT_TOPIC
-    producer.send(schedules_topic, message)
-
-
-async def main() -> None:
-    """
-    Primary function for the schedule processing.
-
-    This function continuously fetches schedules
-    using Server Sent Events (SSE) and sends them to the kafka topic.
-
-    Returns
-    -------
-    None
     """
     bootstrap_servers = [
         f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}",
@@ -44,25 +23,96 @@ async def main() -> None:
         f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}",
     ]
 
-    producer = KafkaProducer(
+    return KafkaProducer(
         bootstrap_servers=bootstrap_servers,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
     )
 
-    schedules = get_schedules(route="Red")
-    server = SSEClient(schedules)
+
+async def send_to_kafka(producer: KafkaProducer, topic: str, message: Dict):
+    """
+    Send a message to a Kafka topic using the provided producer.
+
+    Parameters
+    ----------
+    producer : KafkaProducer
+        The Kafka producer instance.
+    topic : str
+        The Kafka topic to send the message to.
+    message : dict
+        The record to push into the Kafka topic.
+
+    Returns
+    -------
+    None
+    """
+    producer.send(topic, message)
+
+
+async def fetch_and_send_data(
+    producer: KafkaProducer, fetch_func: Callable, topic: str, **kwargs
+):
+    """
+    Fetches data and sends it to a Kafka topic.
+
+    Parameters
+    ----------
+    producer : KafkaProducer
+        The Kafka producer instance.
+    fetch_func : Callable
+        A function to fetch the data.
+    topic : str
+        The Kafka topic to send the data to.
+    kwargs : dict
+        Additional keyword arguments to pass to fetch_func.
+
+    Returns
+    -------
+    None
+    """
+    response = fetch_func(**kwargs)
+    server = SSEClient(response)
 
     for event in server.events():
         tasks = (
             asyncio.create_task(
-                process_message(
-                    producer=producer, message={"event": event.event, "data": data}
+                send_to_kafka(
+                    producer=producer,
+                    topic=topic,
+                    message={"event": event.event, "data": data},
                 )
             )
             for data in json.loads(event.data)
         )
 
         await asyncio.gather(*tasks)
+
+
+async def main() -> None:
+    """
+    Primary function for processing schedules and alerts.
+
+    This function fetches schedules and alerts and sends them to Kafka topics.
+
+    Returns
+    -------
+    None
+    """
+    producer = create_kafka_producer()
+
+    # Define the data sources and topics with their respective parameters
+    data_sources = (
+        (get_alerts, configs.ALERTS_INPUT_TOPIC, {"route": "Red"}),
+        (get_schedules, configs.SCHEDULES_INPUT_TOPIC, {"route": "Red"}),
+    )
+
+    # Start fetching and sending data concurrently
+    task = (
+        fetch_and_send_data(producer, fetch_func, topic, **kwargs)
+        for fetch_func, topic, kwargs in data_sources
+    )
+
+    await asyncio.gather(*task)
 
 
 if __name__ == "__main__":
