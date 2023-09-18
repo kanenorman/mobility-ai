@@ -182,7 +182,6 @@ services:
       - SCHEDULES_INPUT_TOPIC=${SCHEDULES_INPUT_TOPIC}
       - ALERTS_INPUT_TOPIC=${ALERTS_INPUT_TOPIC}
       - PYTHONUNBUFFERED=1
-      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
     depends_on:
       broker1:
         condition: service_healthy

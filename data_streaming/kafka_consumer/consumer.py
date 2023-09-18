@@ -30,6 +30,8 @@ def start_streaming_job() -> None:
         spark.readStream.format("kafka")
         .option("kafka.bootstrap.servers", f"{server_1},{server_2},{server_3}")
         .option("subscribe", kafka_topic)
+        .option("startingOffsets", "earliest")
+        .option("maxOffsetsPerTrigger", 1000)
         .load()
     )
 

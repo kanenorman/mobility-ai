@@ -8,7 +8,7 @@ from mbta import get_alerts, get_schedules
 from sseclient import SSEClient
 
 
-def create_kafka_producer() -> KafkaProducer:
+def _create_kafka_producer() -> KafkaProducer:
     """
     Create and return a KafkaProducer instance.
 
@@ -29,7 +29,7 @@ def create_kafka_producer() -> KafkaProducer:
     )
 
 
-async def send_to_kafka(producer: KafkaProducer, topic: str, message: Dict):
+async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict):
     """
     Send a message to a Kafka topic using the provided producer.
 
@@ -49,11 +49,11 @@ async def send_to_kafka(producer: KafkaProducer, topic: str, message: Dict):
     producer.send(topic, message)
 
 
-async def fetch_and_send_data(
+async def _fetch_and_send_data(
     producer: KafkaProducer, fetch_func: Callable, topic: str, **kwargs
 ):
     """
-    Fetches data and sends it to a Kafka topic.
+    Fetch data and send it to a Kafka topic.
 
     Parameters
     ----------
@@ -76,7 +76,7 @@ async def fetch_and_send_data(
     for event in server.events():
         tasks = (
             asyncio.create_task(
-                send_to_kafka(
+                _send_to_kafka(
                     producer=producer,
                     topic=topic,
                     message={"event": event.event, "data": data},
@@ -98,7 +98,7 @@ async def main() -> None:
     -------
     None
     """
-    producer = create_kafka_producer()
+    producer = _create_kafka_producer()
 
     # Define the data sources and topics with their respective parameters
     data_sources = (
@@ -108,7 +108,7 @@ async def main() -> None:
 
     # Start fetching and sending data concurrently
     task = (
-        fetch_and_send_data(producer, fetch_func, topic, **kwargs)
+        _fetch_and_send_data(producer, fetch_func, topic, **kwargs)
         for fetch_func, topic, kwargs in data_sources
     )
 
