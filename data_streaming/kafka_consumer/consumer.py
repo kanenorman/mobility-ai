@@ -1,9 +1,73 @@
 import sys
 
-from load_schedules import process_schedules_stream
+import schemas
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.streaming import DataStreamWriter
 from utils import (configs, configure_spark_logging, create_spark_session,
                    write_to_database)
+
+
+def _read_stream_from_kafka(spark: SparkSession, topic: str) -> DataFrame:
+    """
+    Read data from Kafka into a Spark DataFrame.
+
+    Parameters
+    ----------
+    spark : SparkSession
+        The Spark session.
+    topic : str
+        The Kafka topic to subscribe to.
+
+    Returns
+    -------
+    DataFrame
+        A Spark DataFrame containing the Kafka data.
+    """
+    server_1 = f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}"
+    server_2 = f"{configs.KAFKA_HOST2}:{configs.KAFKA_PORT2}"
+    server_3 = f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}"
+    bootstrap_servers = f"{server_1},{server_2},{server_3}"
+
+    return (
+        spark.readStream.format("kafka")
+        .option("kafka.bootstrap.servers", bootstrap_servers)
+        .option("subscribe", topic)
+        .option("startingOffsets", "earliest")
+        .option("maxOffsetsPerTrigger", 1000)
+        .load()
+    )
+
+
+def _write_data_stream(
+    df: DataFrame, table_name: str, primary_key: str
+) -> DataStreamWriter:
+    """
+    Write a Spark DataFrame to a database.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The DataFrame to write.
+    table_name : str
+        The name of the database table.
+    primary_key : str
+        The primary key of the table.
+
+    Returns
+    -------
+    DataStreamWriter
+        The DataStreamWriter for the write operation.
+    """
+    return (
+        df.writeStream.trigger(processingTime="10 seconds")
+        .outputMode("update")
+        .foreachBatch(
+            lambda batch, epoch_id: write_to_database(
+                batch, epoch_id, table_name, primary_key
+            )
+        )
+        .start()
+    )
 
 
 def start_streaming_job() -> None:
@@ -13,49 +77,24 @@ def start_streaming_job() -> None:
     Sets up the Spark session, reads data from Kafka,
     processes it, and writes to a PostgreSQL database.
     """
-    # Kafka configuration
-    kafka_topic = configs.SCHEDULES_INPUT_TOPIC
-    server_1 = f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}"
-    server_2 = f"{configs.KAFKA_HOST2}:{configs.KAFKA_PORT2}"
-    server_3 = f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}"
-
-    # Create a Spark session
     spark = create_spark_session()
-
-    # Configure Spark logging
     configure_spark_logging(spark)
 
-    # Read data from Kafka
-    kafka_stream = (
-        spark.readStream.format("kafka")
-        .option("kafka.bootstrap.servers", f"{server_1},{server_2},{server_3}")
-        .option("subscribe", kafka_topic)
-        .option("startingOffsets", "earliest")
-        .option("maxOffsetsPerTrigger", 1000)
-        .load()
+    schedules_stream = _read_stream_from_kafka(spark, "schedules")
+    schedule_df = schemas.parse_schedules_topic(schedules_stream)
+    schedule_stream_writer = _write_data_stream(
+        schedule_df, table_name="schedule", primary_key="id"
     )
 
-    print("Stream is read...")
-
-    # Process Kafka data
-    processed_df = process_schedules_stream(kafka_stream)
-
-    table_name = configs.POSTGRES_TABLE
-    unique_id = "id"
-
-    # Define the Kafka query
-    query_kafka: DataStreamWriter = (
-        processed_df.writeStream.trigger(processingTime="10 seconds")
-        .outputMode("update")
-        .foreachBatch(
-            lambda df, epoch_id: write_to_database(df, epoch_id, table_name, unique_id)
-        )
-        .start()
+    alerts_stream = _read_stream_from_kafka(spark, "alerts")
+    alerts_df = schemas.parse_alerts_topic(alerts_stream)
+    alert_stream_writer = _write_data_stream(
+        alerts_df, table_name="alert", primary_key="id"
     )
 
-    query_kafka.awaitTermination()
+    schedule_stream_writer.awaitTermination()
+    alert_stream_writer.awaitTermination()
 
-    # Stop the Spark session
     spark.stop()
 
 
