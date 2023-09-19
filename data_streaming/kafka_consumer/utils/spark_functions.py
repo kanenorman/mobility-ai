@@ -42,10 +42,31 @@ def _build_upsert_query(table_name: str, unique_key: str, columns: List[str]):
     -------
     str
         The upsert query.
+
+    Notes
+    -----
+    Mimics the following Postgres command:
+
+        INSERT INTO <table_name> (<column1>, <column2>)
+        VALUES
+            (<value1_1>, <value1_2>),
+            (<value2_1>, <value2_2>),
+            (<value3_1>, <value3_2>)
+        ON CONFLICT (<conflict_column>) DO UPDATE
+        SET <update_column> = EXCLUDED.<update_column>;
     """
     column_names = ",".join(columns)
-    return f"""INSERT INTO {table_name} ({column_names}) VALUES %s
-               ON CONFLICT ({unique_key}) DO NOTHING"""
+    columns_with_excluded_markers = [f"EXCLUDED.{column}" for column in columns]
+    excluded_columns = ", ".join(columns_with_excluded_markers)
+
+    insert_query = """ INSERT INTO %s (%s) VALUES %%s """ % (table_name, column_names)
+    on_conflict_clause = """ ON CONFLICT (%s) DO UPDATE SET (%s) = (%s) ;""" % (
+        unique_key,
+        column_names,
+        excluded_columns,
+    )
+
+    return insert_query + on_conflict_clause
 
 
 def _build_delete_query(table_name: str, unique_key: str):
@@ -68,18 +89,32 @@ def _build_delete_query(table_name: str, unique_key: str):
     --------
     >>> _build_delete_query("my_table", "id")
     'DELETE FROM my_table WHERE id = %s'
+
+    Notes
+    -----
+    Mimics the following Postgres command:
+
+        DELETE FROM <table_name> WHERE <key> = <value>;
     """
-    return f"""DELETE FROM {table_name}
-               WHERE {unique_key} = %s"""
+    return """DELETE FROM %s WHERE %s = %%s""" % (table_name, unique_key)
 
 
-def _preform_deletion(unique_key, query):
+def _preform_deletion(deletion_query: str, value: str):
+    """
+    Execute the deletion operation on a single Postgres record.
+
+    Parameters
+    ----------
+    deletion_query
+        the deletion query.
+    value
+        the value to match against the key for deletion.
+    """
     with _get_postgres_connection() as connection:
         with connection.cursor() as cursor:
             cursor = connection.cursor()
-            execute_values(cur=cursor, sql=query, argslist=unique_key)
+            execute_values(cur=cursor, sql=deletion_query, argslist=value)
             connection.commit()
-            print("deleted from database...")
 
 
 def _preform_upsert(batch: List[pyspark.sql.Row], query: str, batch_size: int):
@@ -104,7 +139,6 @@ def _preform_upsert(batch: List[pyspark.sql.Row], query: str, batch_size: int):
             cursor = connection.cursor()
             execute_values(cur=cursor, sql=query, argslist=batch, page_size=batch_size)
             connection.commit()
-            print("wrote to database ...")
 
 
 def _prepare_upsert(
@@ -131,6 +165,17 @@ def _prepare_upsert(
     -------
     None
     """
+    # The logic is as follows:
+    # Iterate through each record in the batch_partition
+    # If the record indicates a "remove" operation, we:
+    # 1. Upsert the current batch (if it contains any records).
+    # 2. Perform the deletion operation specified by deletion_query.
+    # Otherwise, we:
+    # 1. Increment the counter.
+    # 2. Add the record to the batch for upsert.
+    # After adding a record, if the batch size exceeds batch_size, we upsert the batch
+    # After processing all records, upsert any remaining records in the batch.
+
     counter: int = 0
     batch: List[pyspark.sql.Row] = []
 
@@ -139,7 +184,7 @@ def _prepare_upsert(
             if len(batch) > 0:
                 _preform_upsert(batch, upsert_query, batch_size)
                 batch = []
-            _preform_deletion(record.id, deletion_query)
+            _preform_deletion(deletion_query, record.id)
         else:
             counter += 1
             batch.append(record)
@@ -186,8 +231,6 @@ def write_to_database(
     )
 
     deletion_query = _build_delete_query(table_name=table_name, unique_key=unique_key)
-
-    batch.show(truncate=False)
 
     batch.coalesce(parallelism).rdd.mapPartitions(
         lambda dataframe_partition: _prepare_upsert(
