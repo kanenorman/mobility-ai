@@ -15,8 +15,8 @@ class Schedule(db.Model):
     stop_sequence = db.Column(db.Integer, nullable=True)
     timepoint = db.Column(db.Boolean, nullable=True)
     route_id = db.Column(db.String(255), nullable=True)
-    stop_id = db.Column(db.Integer, nullable=True)
-    trip_id = db.Column(db.Integer, nullable=True)
+    stop_id = db.Column(db.String(255), nullable=True)
+    trip_id = db.Column(db.String(255), nullable=True)
 
     def __init__(
         self,

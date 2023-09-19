@@ -3,7 +3,7 @@ import pyspark.sql.functions as F
 import pyspark.sql.types as T
 
 
-def process_schedules_stream(
+def parse_schedules_topic(
     kafka_stream: pyspark.sql.DataFrame,
 ) -> pyspark.sql.DataFrame:
     """
