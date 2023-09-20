@@ -67,3 +67,17 @@ def get_alerts(params: Union[Dict, None] = None):
         API request parameters
     """
     return _make_api_request("alerts", params)
+
+
+def get_trips(params: Union[Dict, None] = None):
+    """
+    Get trips for the MBTA API.
+
+    Retrives trips for a specified id, route_pattern, or route.
+
+    Parameters
+    ----------
+    params
+        API request parameters
+    """
+    return _make_api_request("trips", params)

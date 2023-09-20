@@ -11,17 +11,11 @@ def create_app() -> Flask:
     """
     Entry point for creating flask app.
 
-    Parameters
-    ----------
-    app_environment:
-        Specify if using dev, prod, or test environment
-
     Returns
     -------
     Flask
         flask app
     """
-
     app_environment = os.getenv("FLASK_ENV") or "dev"
 
     app = Flask(__name__)
