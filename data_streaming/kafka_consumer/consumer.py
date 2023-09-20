@@ -86,14 +86,21 @@ def start_streaming_job() -> None:
         schedule_df, table_name="schedule", primary_key="id"
     )
 
-    alerts_stream = _read_stream_from_kafka(spark, "alerts")
-    alerts_df = schemas.parse_alerts_topic(alerts_stream)
-    alert_stream_writer = _write_data_stream(
-        alerts_df, table_name="alert", primary_key="id"
+    # alerts_stream = _read_stream_from_kafka(spark, "alerts")
+    # alerts_df = schemas.parse_alerts_topic(alerts_stream)
+    # alert_stream_writer = _write_data_stream(
+    #     alerts_df, table_name="alert", primary_key="id"
+    # )
+    #
+    trips_stream = _read_stream_from_kafka(spark, "trips")
+    trips_df = schemas.parse_trips_topic(trips_stream)
+    trips_stream_writer = _write_data_stream(
+        trips_df, table_name="trip", primary_key="id"
     )
 
+    trips_stream_writer.awaitTermination()
     schedule_stream_writer.awaitTermination()
-    alert_stream_writer.awaitTermination()
+    # alert_stream_writer.awaitTermination()
 
     spark.stop()
 
