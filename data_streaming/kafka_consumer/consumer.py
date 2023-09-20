@@ -1,13 +1,14 @@
 import sys
+from collections.abc import Callable
 
 import schemas
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.streaming import DataStreamWriter
+from pyspark.sql.streaming import DataStreamWriter, StreamingQuery
 from utils import (configs, configure_spark_logging, create_spark_session,
                    write_to_database)
 
 
-def _read_stream_from_kafka(spark: SparkSession, topic: str) -> DataFrame:
+def _read_stream_from_kafka(spark: SparkSession, kafka_topic: str) -> DataFrame:
     """
     Read data from Kafka into a Spark DataFrame.
 
@@ -15,7 +16,7 @@ def _read_stream_from_kafka(spark: SparkSession, topic: str) -> DataFrame:
     ----------
     spark : SparkSession
         The Spark session.
-    topic : str
+    kafka_topic : str
         The Kafka topic to subscribe to.
 
     Returns
@@ -31,7 +32,7 @@ def _read_stream_from_kafka(spark: SparkSession, topic: str) -> DataFrame:
     return (
         spark.readStream.format("kafka")
         .option("kafka.bootstrap.servers", bootstrap_servers)
-        .option("subscribe", topic)
+        .option("subscribe", kafka_topic)
         .option("startingOffsets", "earliest")
         .option("maxOffsetsPerTrigger", 1000)
         .load()
@@ -39,7 +40,7 @@ def _read_stream_from_kafka(spark: SparkSession, topic: str) -> DataFrame:
 
 
 def _write_data_stream(
-    df: DataFrame, table_name: str, primary_key: str
+    df: DataFrame, destination_table: str, primary_key: str
 ) -> DataStreamWriter:
     """
     Write a Spark DataFrame to a database.
@@ -48,7 +49,7 @@ def _write_data_stream(
     ----------
     df : DataFrame
         The DataFrame to write.
-    table_name : str
+    destination_table : str
         The name of the database table.
     primary_key : str
         The primary key of the table.
@@ -63,11 +64,45 @@ def _write_data_stream(
         .outputMode("update")
         .foreachBatch(
             lambda batch, epoch_id: write_to_database(
-                batch, epoch_id, table_name, primary_key
+                batch, epoch_id, destination_table, primary_key
             )
         )
         .start()
     )
+
+
+def _stream(
+    spark: SparkSession,
+    kafka_topic: str,
+    data_schema: Callable,
+    destination_table: str,
+    primary_key_column: str,
+) -> StreamingQuery:
+    """
+    Process data from a Kafka stream and write it to a table.
+
+    Parameters
+    ----------
+    spark : SparkSession
+        The Spark session for data processing.
+    kafka_topic : str
+        The name of the Kafka topic to read data from.
+    data_schema : Callable
+        A callable function that parses and transforms the Kafka data stream
+        into a DataFrame.
+    destination_table : str
+        The name of the table to write the processed data to.
+    primary_key_column : str
+        The primary key column for the target table.
+
+    Returns
+    -------
+    StreamingQuery
+    """
+    kafka_stream = _read_stream_from_kafka(spark, kafka_topic)
+    data_df = data_schema(kafka_stream)
+    stream_writer = _write_data_stream(data_df, destination_table, primary_key_column)
+    return stream_writer
 
 
 def start_streaming_job() -> None:
@@ -80,27 +115,31 @@ def start_streaming_job() -> None:
     spark = create_spark_session()
     configure_spark_logging(spark)
 
-    schedules_stream = _read_stream_from_kafka(spark, "schedules")
-    schedule_df = schemas.parse_schedules_topic(schedules_stream)
-    schedule_stream_writer = _write_data_stream(
-        schedule_df, table_name="schedule", primary_key="id"
+    schedule_stream = _stream(
+        spark=spark,
+        kafka_topic="schedules",
+        data_schema=schemas.parse_schedules_topic,
+        destination_table="schedule",
+        primary_key_column="id",
+    )
+    trips_stream = _stream(
+        spark=spark,
+        kafka_topic="trips",
+        data_schema=schemas.parse_trips_topic,
+        destination_table="trip",
+        primary_key_column="id",
+    )
+    stops_stream = _stream(
+        spark=spark,
+        kafka_topic="stops",
+        data_schema=schemas.parse_stops_topic,
+        destination_table="stop",
+        primary_key_column="id",
     )
 
-    # alerts_stream = _read_stream_from_kafka(spark, "alerts")
-    # alerts_df = schemas.parse_alerts_topic(alerts_stream)
-    # alert_stream_writer = _write_data_stream(
-    #     alerts_df, table_name="alert", primary_key="id"
-    # )
-    #
-    trips_stream = _read_stream_from_kafka(spark, "trips")
-    trips_df = schemas.parse_trips_topic(trips_stream)
-    trips_stream_writer = _write_data_stream(
-        trips_df, table_name="trip", primary_key="id"
-    )
-
-    trips_stream_writer.awaitTermination()
-    schedule_stream_writer.awaitTermination()
-    # alert_stream_writer.awaitTermination()
+    schedule_stream.awaitTermination()
+    trips_stream.awaitTermination()
+    stops_stream.awaitTermination()
 
     spark.stop()
 

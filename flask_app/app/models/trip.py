@@ -37,6 +37,9 @@ class Trip(db.Model):
         """
         Trip entry for public transportation.
 
+        A Trip is defined as the journey of a particular vehicle
+        through a set of stops on a primary route.
+
         Parameters
         ----------
         event : str
