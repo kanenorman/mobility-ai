@@ -45,12 +45,18 @@ def get_schedules(params: Union[Dict, None] = None):
     """
     Get schedules from the MBTA API.
 
-    Retrieves schedules for a specified route.
+    A schedule is the arrival drop off and departure pick up time
+    to/from a stop at a given sequence along a trip.
 
     Parameters
     ----------
     params
         API request parameters
+
+    Notes
+    -----
+        A route, stop, or trip MUST be specified as a parameter.
+        API docs: https://api-v3.mbta.com/docs/swagger/index.html#/Schedule
     """
     return _make_api_request("schedules", params)
 
@@ -59,12 +65,18 @@ def get_alerts(params: Union[Dict, None] = None):
     """
     Get alerts from the MBTA API.
 
-    Retrieves alerts for a specified route.
+    An alert is defined as an effect on a provided service, route, route_type,
+    stop, and or trip. Described by a banner, short header, and image alternative
+    text. It is caused by a cause that is somewhere in its lifecycle.
 
     Parameters
     ----------
     params
         API request parameters
+
+    Notes
+    -----
+        API docs: https://api-v3.mbta.com/docs/swagger/index.html#/Alert
     """
     return _make_api_request("alerts", params)
 
@@ -73,11 +85,36 @@ def get_trips(params: Union[Dict, None] = None):
     """
     Get trips for the MBTA API.
 
-    Retrives trips for a specified id, route_pattern, or route.
+    A Trip is defined as the journey of a particular vehicle
+    through a set of stops on a primary route.
 
     Parameters
     ----------
     params
         API request parameters
+
+    Notes
+    -----
+        A id, route, route_pattern, or name MUST be specified as a parameter.
+        API docs: https://api-v3.mbta.com/docs/swagger/index.html#/Trip
     """
     return _make_api_request("trips", params)
+
+
+def get_stops(params: Union[Dict, None] = None):
+    """
+    Get stops for the MBTA API.
+
+    A stop is a location on a route that a vechicle stops to on/off load
+    passengers.
+
+    Parameters
+    ----------
+    params
+        API request parameters
+
+    Notes
+    -----
+        API docs: https://api-v3.mbta.com/docs/swagger/index.html#/Stop
+    """
+    return _make_api_request("stops", params)
