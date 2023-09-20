@@ -2,9 +2,9 @@ import asyncio
 import json
 from typing import Callable, Dict
 
+import mbta
 from config import configs
 from kafka import KafkaProducer
-from mbta import get_alerts, get_schedules
 from sseclient import SSEClient
 
 
@@ -103,21 +103,24 @@ async def main() -> None:
     # Define the data sources and topics with their respective parameters
     data_sources = (
         {
-            "producer": producer,
-            "fetch_func": get_alerts,
-            "topic": configs.ALERTS_INPUT_TOPIC,
+            "topic": "alerts",
+            "fetch_func": mbta.get_alerts,
             "params": {"filter[route]": "Red"},
         },
         {
-            "producer": producer,
-            "fetch_func": get_schedules,
-            "topic": configs.SCHEDULES_INPUT_TOPIC,
+            "topic": "schedules",
+            "fetch_func": mbta.get_schedules,
+            "params": {"filter[route]": "Red"},
+        },
+        {
+            "topic": "trips",
+            "fetch_func": mbta.get_trips,
             "params": {"filter[route]": "Red"},
         },
     )
 
     # Start fetching and sending data concurrently
-    tasks = (_fetch_and_send_data(**source) for source in data_sources)
+    tasks = (_fetch_and_send_data(producer, **source) for source in data_sources)
 
     await asyncio.gather(*tasks)
 
