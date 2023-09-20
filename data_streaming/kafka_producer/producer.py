@@ -102,17 +102,24 @@ async def main() -> None:
 
     # Define the data sources and topics with their respective parameters
     data_sources = (
-        (get_alerts, configs.ALERTS_INPUT_TOPIC, {"route": "Red"}),
-        (get_schedules, configs.SCHEDULES_INPUT_TOPIC, {"route": "Red"}),
+        {
+            "producer": producer,
+            "fetch_func": get_alerts,
+            "topic": configs.ALERTS_INPUT_TOPIC,
+            "params": {"filter[route]": "Red"},
+        },
+        {
+            "producer": producer,
+            "fetch_func": get_schedules,
+            "topic": configs.SCHEDULES_INPUT_TOPIC,
+            "params": {"filter[route]": "Red"},
+        },
     )
 
     # Start fetching and sending data concurrently
-    task = (
-        _fetch_and_send_data(producer, fetch_func, topic, **kwargs)
-        for fetch_func, topic, kwargs in data_sources
-    )
+    tasks = (_fetch_and_send_data(**source) for source in data_sources)
 
-    await asyncio.gather(*task)
+    await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":

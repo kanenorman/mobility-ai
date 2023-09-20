@@ -1,3 +1,5 @@
+from typing import Dict, Union
+
 import httpx
 from config import configs
 from retry import retry
@@ -10,7 +12,7 @@ from retry import retry
     max_delay=60,
     tries=3,
 )
-def _make_api_request(endpoint: str, route: str):
+def _make_api_request(endpoint: str, params: Union[Dict, None] = None):
     """
     Make an API request to the MBTA API.
 
@@ -18,8 +20,8 @@ def _make_api_request(endpoint: str, route: str):
     ----------
     endpoint
         The API endpoint to request (e.g., "schedules" or "alerts").
-    route
-        The route for which data is to be retrieved. Example "Red" for the red line.
+    params
+        API request parameters
 
     Returns
     -------
@@ -28,7 +30,6 @@ def _make_api_request(endpoint: str, route: str):
     """
     headers = {"Accept": "text/event-stream", "X-API-Key": configs.MBTA_API_KEY}
     url = f"https://api-v3.mbta.com/{endpoint}"
-    params = {"filter[route]": route}
 
     with httpx.stream(
         method="GET",
@@ -40,7 +41,7 @@ def _make_api_request(endpoint: str, route: str):
         yield from stream.iter_bytes()
 
 
-def get_schedules(route: str):
+def get_schedules(params: Union[Dict, None] = None):
     """
     Get schedules from the MBTA API.
 
@@ -48,13 +49,13 @@ def get_schedules(route: str):
 
     Parameters
     ----------
-    route
-        The route for which schedules are to be retrieved. Example "Red" for the red line.
+    params
+        API request parameters
     """
-    return _make_api_request("schedules", route)
+    return _make_api_request("schedules", params)
 
 
-def get_alerts(route: str):
+def get_alerts(params: Union[Dict, None] = None):
     """
     Get alerts from the MBTA API.
 
@@ -62,7 +63,7 @@ def get_alerts(route: str):
 
     Parameters
     ----------
-    route
-        The route for which alerts are to be retrieved. Example "Red" for the red line.
+    params
+        API request parameters
     """
-    return _make_api_request("alerts", route)
+    return _make_api_request("alerts", params)
