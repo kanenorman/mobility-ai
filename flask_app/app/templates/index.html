@@ -1,40 +1,56 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <title>Test Data</title>
-    <!-- Include Bootstrap CSS and JS -->
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  </head>
 
-  <body>
-    <div class="container">
-      <h1 class="mt-5">Test Data</h1>
-      <table class="table table-striped table-bordered mt-3">
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>arrival_time</th>
-            <th>departure_time</th>
-            <!-- Add other table headers here -->
-          </tr>
-        </thead>
-        <tbody>
-          {% for schedule in data %}
-          <tr>
-            <td>{{ schedule.id }}</td>
-            <td>{{ schedule.arrival_time }}</td>
-            <td>{{ schedule.departure_time }}</td>
-            <!-- Add other table cells for other attributes if needed -->
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<head>
+  <title>Test Data</title>
+  <!-- Include Bootstrap CSS and JS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div id="map" style="height: 800px"></div>
+      </div>
+      <div class="col-md-6">
+        <h1 class="mt-5">Transit Stops</h1>
+        <table class="table table-striped table-bordered mt-3">
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>arrival_time</th>
+              <th>departure_time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for schedule in data %}
+            <tr>
+              <td>{{ schedule.id }}</td>
+              <td>{{ schedule.arrival_time }}</td>
+              <td>{{ schedule.departure_time }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </body>
+  </div>
+  <script>
+    var map = L.map("map").setView([42.3601, -71.0589], 12);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+  </script>
+</body>
+
 </html>
