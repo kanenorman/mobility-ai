@@ -1,12 +1,17 @@
+# Real-Time MBTA Data Streaming and Arrival Time Prediction
+
 [![Python Badge](https://img.shields.io/badge/Python-3776ab?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
-[![Flask Badge](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Flask Badge](https://img.shields.io/badge/Flask-5DB036?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![PyTorch Badge](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![scikit-learn Badge](https://img.shields.io/badge/scikit_learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![Apache Spark Badge](https://img.shields.io/badge/Apache_Spark-FFFFFF?style=for-the-badge&logo=apachespark&logoColor=%23E35A1C)](https://spark.apache.org/)
 [![Docker Badge](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![PostgreSQL Badge](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-000?style=for-the-badge&logo=apachekafka)
 
-# MBTA Data Streaming and Prediction Project
+## Project Health
+<a href="https://github.com/kanenorman/mbta-project/actions/workflows/run-kafka-produer-test.yml"> ![test](https://github.com/kanenorman/mbta-project/actions/workflows/run-kafka-produer-test.yml/badge.svg?event=push) </a>
+
 
 ## Project Introduction
 
