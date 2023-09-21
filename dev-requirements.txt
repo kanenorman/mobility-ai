@@ -1,0 +1,3 @@
+PyHamcrest==2.0.4
+pytest==7.4.2
+pytest-env==1.0.1
