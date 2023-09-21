@@ -7,7 +7,7 @@ on:
     branches:
       - "*"
 jobs:
-  run_tests:
+  kafka_producer_tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,6 +17,4 @@ jobs:
       - name: Install dependencies and development dependencies
         run: python -m pip install -r requirements.txt -r dev-requirements.txt
       - name: Set working directory
-        run: cd data_streaming/kafka_producer
-      - name: Run tests
-        run: python -m pytest tests/
+        run: cd data_streaming/kafka_producer && python -m pytest tests/
