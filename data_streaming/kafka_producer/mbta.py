@@ -118,3 +118,23 @@ def get_stops(params: Union[Dict, None] = None):
         API docs: https://api-v3.mbta.com/docs/swagger/index.html#/Stop
     """
     return _make_api_request("stops", params)
+
+
+def get_shapes(params: Union[Dict, None] = None):
+    """
+    Get shapes for the MBTA API.
+
+    A shape is a geographic representaion of an object. (e.g. linestring, polygon).
+
+    filter[route] MUST be specified for any shapes to be returned.
+
+    Parameters
+    ----------
+    params
+        API request parameters
+
+    Notes
+    -----
+        API docs: https://api-v3.mbta.com/docs/swagger/index.html#/shapes
+    """
+    return _make_api_request("shapes", params)
