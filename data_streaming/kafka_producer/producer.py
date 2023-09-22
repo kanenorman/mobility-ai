@@ -122,6 +122,11 @@ async def main() -> None:
             "fetch_func": mbta.get_stops,
             "params": {"filter[route]": "Red"},
         },
+        {
+            "topic": "shapes",
+            "fetch_func": mbta.get_shapes,
+            "params": {"filter[route]": "Red"},
+        },
     )
 
     # Start fetching and sending data concurrently
