@@ -4,6 +4,8 @@ import psycopg2
 import pyspark
 from psycopg2.extras import execute_values
 from pyspark.sql import SparkSession
+from sedona.register import SedonaRegistrator
+from sedona.utils import KryoSerializer, SedonaKryoRegistrator
 
 from .config import configs
 
@@ -251,11 +253,17 @@ def create_spark_session() -> pyspark.sql.SparkSession:
     pyspark.sql.SparkSession
         The configured SparkSession.
     """
-    return (
+    spark = (
         SparkSession.builder.appName("MBTA Data Streaming")
         .master("local[*]")
+        .config("spark.serializer", KryoSerializer.getName)
+        .config("spark.kryo.registrator", SedonaKryoRegistrator.getName)
         .getOrCreate()
     )
+
+    SedonaRegistrator.registerAll(spark)
+
+    return spark
 
 
 def configure_spark_logging(spark: pyspark.sql.SparkSession) -> None:
