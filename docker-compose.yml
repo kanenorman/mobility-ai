@@ -205,7 +205,9 @@ services:
         condition: service_healthy
   flask_database:
     container_name: flask_database
-    image: postgis/postgis:15-3.4
+    build:
+      context: .
+      dockerfile: ./postgres/Dockerfile
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     environment:
