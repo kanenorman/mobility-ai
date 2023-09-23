@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Test Data</title>
+    <title>MBTA Transit Predictor</title>
     <!-- Include Bootstrap CSS and JS -->
     <link
       rel="stylesheet"
@@ -54,6 +54,15 @@
       </div>
     </div>
     <script src="static/js/index.js"></script>
+
+    <!-- Plot the train tracks-->
+    <script>
+      const trainLines = {{train_lines | tojson | safe }};
+      const trainJSON = JSON.parse(trainLines);
+      const geoJson = L.geoJSON(trainJSON, {style: {"color": "#FF0000"}})
+      geoJson.addTo(map);
+    </script>
+
     <!-- Plot the markers for the train stop locations -->
     <script>
       const trainIcon = L.icon({
@@ -66,16 +75,10 @@
       const stops = {{stops | tojson | safe }};
 
       stops.forEach(function (stop) {
-        const marker = L.marker([stop.latitude, stop.longitude], {icon: trainIcon});
+        const marker = L.marker([stop.latitude, stop.longitude]);
         marker.addTo(map);
         marker.bindPopup(stop.name).openPopup();
       });
-    </script>
-
-    <script>
-      const trainLines = {{train_lines | tojson | safe }};
-      const trainJSON = JSON.parse(trainLines);
-      L.geoJSON(trainJSON).addTo(map);
     </script>
   </body>
 </html>
