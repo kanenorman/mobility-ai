@@ -17,7 +17,7 @@ def _decode_polyline(encoded_polyline: str) -> str:
     Parameters
     ----------
     encoded_polyline : str
-        Linestring object in encoded polyline algorithm format
+        Linestring object in encoded polyline algorithm format (e.g 'u{~vFvyys@fS]').
 
     Returns
     -------
@@ -29,8 +29,8 @@ def _decode_polyline(encoded_polyline: str) -> str:
     Read more about Encoded Polyline Algorithm Format:
     https://developers.google.com/maps/documentation/utilities/polylinealgorithm
     """
-    coordinates = polyline.decode(encoded_polyline, 5)
-    geometry = LineString([(x, y) for y, x in coordinates])
+    coordinates = polyline.decode(encoded_polyline, 5, geojson=True)
+    geometry = LineString(coordinates)
     return geometry.wkt
 
 
