@@ -30,7 +30,7 @@ def _decode_polyline(encoded_polyline: str) -> str:
     https://developers.google.com/maps/documentation/utilities/polylinealgorithm
     """
     coordinates = polyline.decode(encoded_polyline, 5)
-    geometry = LineString(coordinates)
+    geometry = LineString([(x, y) for y, x in coordinates])
     return geometry.wkt
 
 
