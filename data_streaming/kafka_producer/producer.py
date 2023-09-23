@@ -64,8 +64,15 @@ async def _fetch_and_send_data(
             client, "GET", url, headers=headers, params=params, timeout=None
         ) as event_source:
             async for sse in event_source.aiter_sse():
-                event = {"event": sse.event, "data": sse.data}
-                await _send_to_kafka(producer=producer, topic=topic, message=event)
+                tasks = (
+                    _send_to_kafka(
+                        producer=producer,
+                        topic=topic,
+                        message={"event": sse.event, "data": data},
+                    )
+                    for data in json.loads(sse.data)
+                )
+                await asyncio.gather(*tasks)
 
 
 async def main() -> None:
