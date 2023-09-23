@@ -1,11 +1,12 @@
 import asyncio
 import json
-from typing import Callable, Dict
+import os
+from typing import Dict, Union
 
-import mbta
+import httpx
 from config import configs
+from httpx_sse import aconnect_sse
 from kafka import KafkaProducer
-from sseclient import SSEClient
 
 
 def _create_kafka_producer() -> KafkaProducer:
@@ -50,42 +51,21 @@ async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict):
 
 
 async def _fetch_and_send_data(
-    producer: KafkaProducer, fetch_func: Callable, topic: str, **kwargs
+    producer: KafkaProducer,
+    topic: str,
+    end_point: str,
+    params: Union[Dict, None] = None,
 ):
-    """
-    Fetch data and send it to a Kafka topic.
+    url = f"https://api-v3.mbta.com/{end_point}"
+    headers = {"Accept": "text/event-stream", "X-API-Key": os.environ["MBTA_API_KEY"]}
 
-    Parameters
-    ----------
-    producer : KafkaProducer
-        The Kafka producer instance.
-    fetch_func : Callable
-        A function to fetch the data.
-    topic : str
-        The Kafka topic to send the data to.
-    kwargs : dict
-        Additional keyword arguments to pass to fetch_func.
-
-    Returns
-    -------
-    None
-    """
-    response = fetch_func(**kwargs)
-    server = SSEClient(response)
-
-    for event in server.events():
-        tasks = (
-            asyncio.create_task(
-                _send_to_kafka(
-                    producer=producer,
-                    topic=topic,
-                    message={"event": event.event, "data": data},
-                )
-            )
-            for data in json.loads(event.data)
-        )
-
-        await asyncio.gather(*tasks)
+    async with httpx.AsyncClient() as client:
+        async with aconnect_sse(
+            client, "GET", url, headers=headers, params=params, timeout=None
+        ) as event_source:
+            async for sse in event_source.aiter_sse():
+                event = {"event": sse.event, "data": sse.data}
+                await _send_to_kafka(producer=producer, topic=topic, message=event)
 
 
 async def main() -> None:
@@ -103,28 +83,28 @@ async def main() -> None:
     # Define the data sources and topics with their respective parameters
     data_sources = (
         {
-            "topic": "alerts",
-            "fetch_func": mbta.get_alerts,
-            "params": {"filter[route]": "Red"},
-        },
-        {
             "topic": "schedules",
-            "fetch_func": mbta.get_schedules,
+            "end_point": "schedules",
             "params": {"filter[route]": "Red"},
         },
         {
             "topic": "trips",
-            "fetch_func": mbta.get_trips,
+            "end_point": "trips",
             "params": {"filter[route]": "Red"},
         },
         {
             "topic": "stops",
-            "fetch_func": mbta.get_stops,
+            "end_point": "stops",
             "params": {"filter[route]": "Red"},
         },
         {
             "topic": "shapes",
-            "fetch_func": mbta.get_shapes,
+            "end_point": "shapes",
+            "params": {"filter[route]": "Red"},
+        },
+        {
+            "topic": "vehicles",
+            "end_point": "vehicles",
             "params": {"filter[route]": "Red"},
         },
     )
