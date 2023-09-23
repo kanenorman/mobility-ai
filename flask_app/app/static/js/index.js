@@ -1,4 +1,5 @@
-const map = L.map("map").setView([42.3601, -71.0589], 12);
+const bostonCoordinates = [42.3601, -71.0589];
+const map = L.map("map").setView(bostonCoordinates, 12);
 const CartoDB_Positron = L.tileLayer(
   "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
   {

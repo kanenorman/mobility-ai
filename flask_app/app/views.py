@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template
+from geoalchemy2 import functions
 
 from .extensions import database as db
-from .models import Schedule, Stop
+from .models import Schedule, Shape, Stop
 
 main = Blueprint("main", __name__)
 
@@ -9,6 +10,10 @@ main = Blueprint("main", __name__)
 @main.route("/")
 def index():
     """Index route for homepage."""
+    train_lines = db.session.scalar(functions.ST_AsGeoJSON(Shape.geometry))
     stops = Stop.query.all()
     schedule_data = db.session.query(Schedule).limit(10).all()
-    return render_template("index.html", data=schedule_data, stops=stops)
+
+    return render_template(
+        "index.html", data=schedule_data, stops=stops, train_lines=train_lines
+    )
