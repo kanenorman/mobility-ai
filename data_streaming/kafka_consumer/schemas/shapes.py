@@ -1,3 +1,5 @@
+from typing import Union
+
 import polyline
 import pyspark
 import pyspark.sql.functions as F
@@ -7,7 +9,7 @@ from shapely import LineString
 
 
 @udf(returnType=T.StringType())
-def _decode_polyline(encoded_polyline: str) -> str:
+def _decode_polyline(encoded_polyline: str) -> Union[str, None]:
     """
     Decode polyline represenation.
 
@@ -29,9 +31,12 @@ def _decode_polyline(encoded_polyline: str) -> str:
     Read more about Encoded Polyline Algorithm Format:
     https://developers.google.com/maps/documentation/utilities/polylinealgorithm
     """
-    coordinates = polyline.decode(encoded_polyline, 5, geojson=True)
-    geometry = LineString(coordinates)
-    return geometry.wkt
+    if encoded_polyline:
+        coordinates = polyline.decode(encoded_polyline, 5, geojson=True)
+        geometry = LineString(coordinates)
+        return geometry.wkt
+
+    return None
 
 
 def parse_shapes_topic(
