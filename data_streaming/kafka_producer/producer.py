@@ -78,6 +78,9 @@ async def _fetch_and_send_data(
     -----
     See https://api-v3.mbta.com/docs/swagger/index.html
     for API documentation
+
+    See https://www.mbta.com/developers/v3-api/streaming
+    for streaming API documentation
     """
     url = f"https://api-v3.mbta.com/{end_point}"
     headers = {"Accept": "text/event-stream", "X-API-Key": os.environ["MBTA_API_KEY"]}
@@ -94,15 +97,25 @@ async def _fetch_and_send_data(
             async for server_sent_event in event_source.aiter_sse():
                 response_data = json.loads(server_sent_event.data)
                 response_event = server_sent_event.event
-                tasks = (
-                    _send_to_kafka(
+
+                # reset events return an array of JSON objects
+                if response_event == "reset":
+                    tasks = (
+                        _send_to_kafka(
+                            producer=producer,
+                            topic=topic,
+                            message={"event": response_event, "data": data},
+                        )
+                        for data in response_data
+                    )
+                    await asyncio.gather(*tasks)
+                # other events return a single JSON object
+                else:
+                    await _send_to_kafka(
                         producer=producer,
                         topic=topic,
-                        message={"event": response_event, "data": data},
+                        message={"event": response_event, "data": response_data},
                     )
-                    for data in response_data
-                )
-                await asyncio.gather(*tasks)
 
 
 async def main() -> None:
