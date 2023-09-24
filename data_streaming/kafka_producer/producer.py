@@ -50,6 +50,39 @@ async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> 
     producer.send(topic, message)
 
 
+async def _send_batch_to_kafka(
+    producer: KafkaProducer, topic: str, event: str, batch_data: str
+) -> None:
+    """
+    Send array of JSON objects to Kafka.
+
+    Parameters
+    ----------
+    producer
+        Kafka producer instance.
+    topic
+        Kafka topic to write to.
+    event
+        Server Sent Event. Will be one of "reset", "add", "update", "remove"
+    batch_data
+        Array of JSON data
+
+    Returns
+    -------
+    None
+    """
+    tasks = (
+        _send_to_kafka(
+            producer=producer,
+            topic=topic,
+            message={"event": event, "data": data},
+        )
+        for data in batch_data
+    )
+
+    await asyncio.gather(*tasks)
+
+
 async def _fetch_and_send_data(
     producer: KafkaProducer,
     topic: str,
@@ -62,9 +95,9 @@ async def _fetch_and_send_data(
     Parameters
     ----------
     producer
-        Kafka Producer instance.
+        Kafka producer instance.
     topic
-        Topic to write to.
+        Kafka topic to write to.
     end_point
         MBTA API endpoint (e.g. alerts, schedules, etc.)
     params
@@ -100,15 +133,12 @@ async def _fetch_and_send_data(
 
                 # reset events return an array of JSON objects
                 if response_event == "reset":
-                    tasks = (
-                        _send_to_kafka(
-                            producer=producer,
-                            topic=topic,
-                            message={"event": response_event, "data": data},
-                        )
-                        for data in response_data
+                    await _send_batch_to_kafka(
+                        producer=producer,
+                        topic=topic,
+                        event=response_event,
+                        batch_data=response_data,
                     )
-                    await asyncio.gather(*tasks)
                 # other events return a single JSON object
                 else:
                     await _send_to_kafka(
