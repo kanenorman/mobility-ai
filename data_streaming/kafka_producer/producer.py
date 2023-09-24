@@ -30,7 +30,7 @@ def _create_kafka_producer() -> KafkaProducer:
     )
 
 
-async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict):
+async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> None:
     """
     Send a message to a Kafka topic using the provided producer.
 
@@ -55,22 +55,52 @@ async def _fetch_and_send_data(
     topic: str,
     end_point: str,
     params: Union[Dict, None] = None,
-):
+) -> None:
+    """
+    Fetch API data and send to kafka producer.
+
+    Parameters
+    ----------
+    producer
+        Kafka Producer instance.
+    topic
+        Topic to write to.
+    end_point
+        MBTA API endpoint (e.g. alerts, schedules, etc.)
+    params
+        API request parameters (e.g. 'filter[route]', 'id', etc.)
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    See https://api-v3.mbta.com/docs/swagger/index.html
+    for API documentation
+    """
     url = f"https://api-v3.mbta.com/{end_point}"
     headers = {"Accept": "text/event-stream", "X-API-Key": os.environ["MBTA_API_KEY"]}
 
     async with httpx.AsyncClient() as client:
         async with aconnect_sse(
-            client, "GET", url, headers=headers, params=params, timeout=None
+            client=client,
+            method="GET",
+            url=url,
+            headers=headers,
+            params=params,
+            timeout=None,
         ) as event_source:
-            async for sse in event_source.aiter_sse():
+            async for server_sent_event in event_source.aiter_sse():
+                response_data = json.loads(server_sent_event.data)
+                response_event = server_sent_event.event
                 tasks = (
                     _send_to_kafka(
                         producer=producer,
                         topic=topic,
-                        message={"event": sse.event, "data": data},
+                        message={"event": response_event, "data": data},
                     )
-                    for data in json.loads(sse.data)
+                    for data in response_data
                 )
                 await asyncio.gather(*tasks)
 
