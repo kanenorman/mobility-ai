@@ -1,11 +1,16 @@
 import sys
 from collections.abc import Callable
+from typing import Union
 
 import schemas
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.streaming import DataStreamWriter, StreamingQuery
-from utils import (configs, configure_spark_logging, create_spark_session,
-                   write_to_database)
+from utils import (
+    configs,
+    configure_spark_logging,
+    create_spark_session,
+    write_to_database,
+)
 
 
 def _read_stream_from_kafka(spark: SparkSession, kafka_topic: str) -> DataFrame:
@@ -76,7 +81,7 @@ def _stream(
     kafka_topic: str,
     data_schema: Callable,
     destination_table: str,
-    primary_key_column: str,
+    primary_key_column: Union[str, None] = None,
 ) -> StreamingQuery:
     """
     Process data from a Kafka stream and write it to a table.
@@ -92,7 +97,7 @@ def _stream(
         into a DataFrame.
     destination_table : str
         The name of the table to write the processed data to.
-    primary_key_column : str
+    primary_key_column : Union[str,None]
         The primary key column for the target table.
 
     Returns
@@ -147,8 +152,7 @@ def start_streaming_job() -> None:
         spark=spark,
         kafka_topic="vehicles",
         data_schema=schemas.parse_vehicles_topic,
-        destination_table="vehicles",
-        primary_key_column="id",
+        destination_table="vehicle",
     )
 
     schedule_stream.awaitTermination()
