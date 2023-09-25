@@ -47,7 +47,7 @@ def parse_vehicles_topic(
             T.StructField("current_status", T.StringType()),
             T.StructField("current_stop_sequence", T.IntegerType()),
             T.StructField("direction_id", T.IntegerType()),
-            T.StructField("label", T.IntegerType()),
+            T.StructField("label", T.StringType()),
             T.StructField("latitude", T.DoubleType()),
             T.StructField("longitude", T.DoubleType()),
             T.StructField("occupancy_status", carriages_struct),
@@ -62,7 +62,16 @@ def parse_vehicles_topic(
             T.StructField("id", T.StringType()),
             T.StructField("links", T.StringType()),
             T.StructField("attributes", attributes_struct),
-            T.StructField("relationships", relationships_struct),
+            T.StructField(
+                "relationships",
+                T.StructType(
+                    [
+                        T.StructField("route", relationships_struct),
+                        T.StructField("stop", relationships_struct),
+                        T.StructField("trip", relationships_struct),
+                    ]
+                ),
+            ),
         ]
     )
 
@@ -76,7 +85,6 @@ def parse_vehicles_topic(
         F.from_json(F.col("value"), kafka_schema).alias("json")
     ).select(
         "json.event",
-        "json.data",
         "json.data.id",
         "json.data.type",
         "json.data.attributes.bearing",
@@ -89,8 +97,7 @@ def parse_vehicles_topic(
         "json.data.attributes.occupancy_status",
         "json.data.attributes.speed",
         "json.data.attributes.updated_at",
-        "json.data.relationships"
-        # F.col("json.data.relationships.route.data.id").alias("route_id"),
-        # F.col("json.data.relationships.stop.data.id").alias("stop_id"),
-        # F.col("json.data.relationships.trip.data.id").alias("trip_id"),
+        F.col("json.data.relationships.route.data.id").alias("route_id"),
+        F.col("json.data.relationships.stop.data.id").alias("stop_id"),
+        F.col("json.data.relationships.trip.data.id").alias("trip_id"),
     )

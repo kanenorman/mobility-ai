@@ -1,4 +1,4 @@
-from typing import Iterable, List
+from typing import Iterable, List, Union
 
 import psycopg2
 import pyspark
@@ -27,7 +27,9 @@ def _get_postgres_connection():
     )
 
 
-def _build_upsert_query(table_name: str, unique_key: str, columns: List[str]):
+def _build_upsert_query(
+    table_name: str, unique_key: Union[str, None], columns: List[str]
+):
     """
     Build and return the upsert (INSERT ON CONFLICT) query for PostgreSQL.
 
@@ -35,7 +37,7 @@ def _build_upsert_query(table_name: str, unique_key: str, columns: List[str]):
     ----------
     table_name : str
         The name of the target table.
-    unique_key : str
+    unique_key : Union[str, None]
         The unique key for conflict resolution.
     columns : List[str]
         The list of column names to insert.
@@ -58,17 +60,24 @@ def _build_upsert_query(table_name: str, unique_key: str, columns: List[str]):
         SET <update_column> = EXCLUDED.<update_column>;
     """
     column_names = ",".join(columns)
-    columns_with_excluded_markers = [f"EXCLUDED.{column}" for column in columns]
-    excluded_columns = ", ".join(columns_with_excluded_markers)
-
-    insert_query = """ INSERT INTO %s (%s) VALUES %%s """ % (table_name, column_names)
-    on_conflict_clause = """ ON CONFLICT (%s) DO UPDATE SET (%s) = (%s) ;""" % (
-        unique_key,
+    insert_query = """ INSERT INTO %s (%s) VALUES %%s """ % (
+        table_name,
         column_names,
-        excluded_columns,
     )
 
-    return insert_query + on_conflict_clause
+    if unique_key is not None:
+        columns_with_excluded_markers = [f"EXCLUDED.{column}" for column in columns]
+        excluded_columns = ", ".join(columns_with_excluded_markers)
+
+        on_conflict_clause = """ ON CONFLICT (%s) DO UPDATE SET (%s) = (%s) ;""" % (
+            unique_key,
+            column_names,
+            excluded_columns,
+        )
+
+        return insert_query + on_conflict_clause
+    else:
+        return insert_query
 
 
 def _build_delete_query(table_name: str, unique_key: str):
@@ -112,7 +121,6 @@ def _preform_deletion(deletion_query: str, value: str):
     value
         the value to match against the key for deletion.
     """
-    print("VALUE ", value)
     with _get_postgres_connection() as connection:
         with connection.cursor() as cursor:
             cursor = connection.cursor()
@@ -206,7 +214,7 @@ def write_to_database(
     batch: pyspark.sql.DataFrame,
     epoch_id: int,
     table_name: str,
-    unique_key: str,
+    unique_key: Union[str, None],
     parallelism: int = 1,
 ) -> None:
     """
@@ -220,7 +228,7 @@ def write_to_database(
         The current epoch ID.
     table_name : str
         The name of the target table.
-    unique_key : str
+    unique_key : Union[str, None]
         The unique key for conflict resolution.
     parallelism : int, optional
         The degree of parallelism for writing data, by default 1.
