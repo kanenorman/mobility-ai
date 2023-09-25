@@ -112,10 +112,11 @@ def _preform_deletion(deletion_query: str, value: str):
     value
         the value to match against the key for deletion.
     """
+    print("VALUE ", value)
     with _get_postgres_connection() as connection:
         with connection.cursor() as cursor:
             cursor = connection.cursor()
-            execute_values(cur=cursor, sql=deletion_query, argslist=value)
+            cursor.execute(query=deletion_query, vars=(value,))
             connection.commit()
 
 

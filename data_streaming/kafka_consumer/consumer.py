@@ -143,11 +143,19 @@ def start_streaming_job() -> None:
         destination_table="shape",
         primary_key_column="id",
     )
+    vehicles_stream = _stream(
+        spark=spark,
+        kafka_topic="vehicles",
+        data_schema=schemas.parse_vehicles_topic,
+        destination_table="vehicles",
+        primary_key_column="id",
+    )
 
     schedule_stream.awaitTermination()
     trips_stream.awaitTermination()
     stops_stream.awaitTermination()
     shapes_stream.awaitTermination()
+    vehicles_stream.awaitTermination()
 
     spark.stop()
 
