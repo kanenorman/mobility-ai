@@ -1,5 +1,21 @@
 # AC215 - Milestone2
 
+**Table of Contents**
+- [Team Members](#team-members)
+- [Group Name](#group-name)
+- [Project](#project)
+- [Micro Service Descriptions](#micro-service-descriptions)
+  - [Zookeeper](#zookeeper)
+  - [Broker1, Broker2, Broker3](#brokers)
+  - [Schema-Registry](#schema-registry)
+  - [Control-Center](#control-center)
+  - [Producer](#producer)
+  - [Consumer](#consumer)
+  - [Flask App](#flask-app)
+  - [Flask Database](#flask-database)
+- [Project Organization](#project-organization)
+- [Running Locally](#running-locally)
+
 **Team Members**
 Kane Norman, Juan Castillo, Philip Ndikum, David Wintermeyer
 
@@ -7,46 +23,42 @@ Kane Norman, Juan Castillo, Philip Ndikum, David Wintermeyer
 MBTArrivals
 
 **Project**
-Amidst the growing intricacies of urban mobility and the essential need for timely transit predictions, our
-group project aims to build a scalable time series forecasting system primarily focused on data from the Massachusetts
-Bay Transportation Authority (MBTA). By weaving together these scalable and modern data engineering and Machine
-Learning operations (MLOps) methodologies, this research aims to address pressing challenges in infrastructure and
-transit reliability, with broader implications for supply-chain optimization and logistics in a post-pandemic world. In
-providing these guidelines and findings, our project serves as both an instructive blueprint and a substantive
-contribution to the ever-growing data engineering and urban mobility literature
+Amidst growing difficulties in urban mobility and the need for timely transit predictions, our
+group project aims to build a scalable time series forecasting system for the Massachusetts
+Bay Transportation Authority (MBTA) transit system. By combining modern data engineering and scalable Machine Learning operations (MLOps) methodologies, this research aims to address pressing challenges in infrastructure and transit reliability -- with broader implications for supply-chain optimization and logistics. By providing guidelines and solutions, our project serves as an instructive blueprint, and a substantive contribution to the ever-growing data engineering and urban mobility literature.
 
 ### Micro Service Descriptions
 
-In our project, we follow a microservice architecture where each service is containerized using Docker
+In this project, we implement a microservice architecture where each service is containerized using Docker
 and orchestrated via a `docker-compose.yml` file. Here's an overview of the services:
 
 #### Zookeeper
 
 Zookeeper is a crucial distributed coordination service that plays a vital role in managing distributed systems.
-In our context, it is primarily utilized within the Apache Kafka ecosystem for tasks such as maintaining configuration information,
+In this project, it is primarily utilized within the Apache Kafka ecosystem for tasks such as maintaining configuration information,
 ensuring distributed synchronization, and providing a naming service.
 
 #### Broker1, Broker2, Broker3
 
-Brokers serve as the backbone of our Kafka infrastructure. They are responsible for receiving messages from producers,
-securely storing them, and efficiently delivering them to consumers. We employ multiple broker instances within our Kafka cluster
-to ensure fault tolerance and scalability, enhancing the robustness of our system.
+Brokers serve as the backbone of a Kafka infrastructure. They are responsible for receiving messages from producers,
+securely storing these messages, and efficiently delivering them to consumers. We employ multiple broker instances within our Kafka cluster for redundancy 
+to ensure fault tolerance and scalability -- enhancing the robustness of our system.
 
 #### Schema-Registry
 
 The Schema Registry service is integral to our data pipeline, enabling the storage and management of Avro schemas
-associated with Kafka topics. Its primary function is to ensure data consistency and compatibility between producers and consumers,
+associated with Kafka topics. Its primary function is to ensure data consistency and compatibility between producers and consumers --
 facilitating the seamless exchange of information within our architecture.
 
 #### Control-Center
 
-Control Center is an indispensable tool for the management and monitoring of our Apache Kafka clusters.
-It empowers us with valuable insights into the health and performance of our Kafka infrastructure, helping us maintain a
+The Control Center is an indispensable tool for managing and monitoring Apache Kafka clusters.
+It provides valuable insights into the health and performance of our Kafka infrastructure, helping us maintain a
 resilient and responsive messaging system.
 
 #### Producer
 
-Our Producer service is responsible for generating and dispatching messages to Kafka topics.
+The Producer service is responsible for generating and dispatching messages to Kafka topics.
 Its primary data source is the [mbta-v3-api](https://www.mbta.com/developers/v3-api), which supports real-time data streaming
 through Server Sent Events (SSE). This service is pivotal in ensuring that fresh data is continuously ingested into our system.
 The bulk of this code can be found in the `/data_streaming/kafka_producer` directory.
@@ -160,6 +172,35 @@ In the future, once our model is developed, we will make an API endpoint for the
 1. **Set Up Your Environment**:
    - Create a local `.env` file in the project directory.
    - Populate the `.env` file with necessary configurations, including your MBTA API Token.
+   
+   ** Example: `.env` file **
+   This section lists the configuration variables used in the project along with  corresponding values.
+   ```bash
+    # kafka & zookeeper
+    KAFKA_HOST1=broker1
+    KAFKA_PORT1=9092
+    KAFKA_HOST2=broker2
+    KAFKA_PORT2=19092
+    KAFKA_HOST3=broker3
+    KAFKA_PORT3=29092
+    ZOOKEEPER_PORT=2181
+    SCHEDULES_INPUT_TOPIC=mbta-schedules-input
+
+    # API keys
+    MBTA_API_KEY= [Your_key]
+
+    # Postgres
+    POSTGRES_PORT=5432
+    POSTGRES_DB=mbta
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=password
+    POSTGRES_HOST=flask_database
+    POSTGRES_DRIVER=org.postgresql.Driver
+    POSTGRES_TABLE=schedule
+
+    # Flask
+    FLASK_PORT=5000
+   ```
 
 1. **Set up Python Version using Pyenv**:
     - If you haven't installed `pyenv` yet, you can do so by following the instructions on [pyenv's GitHub repository](https://github.com/pyenv/pyenv#installation).
