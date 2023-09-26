@@ -3,15 +3,19 @@ Postgres equivalent of CREATE DATABASE IF NOT EXISTS
 */
 DO
 $do$
+DECLARE
+   db_name text := 'mbta';
 BEGIN
-   IF EXISTS (SELECT FROM pg_database WHERE datname = 'mbta') THEN
-      RAISE NOTICE 'Database already exists';  -- optional
+   IF EXISTS (SELECT FROM pg_database WHERE datname = db_name) THEN
+      RAISE NOTICE 'Database % Already Exists', db_name;
    ELSE
-      PERFORM dblink_exec('dbname=' || current_database()  -- current db
-                        , 'CREATE DATABASE mbta');
+      PERFORM dblink_exec('dbname=' || current_database()
+                        , 'CREATE DATABASE ' || db_name);
    END IF;
 END
 $do$;
+
+
 
 \c mbta;
 
