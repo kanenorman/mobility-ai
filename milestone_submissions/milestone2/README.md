@@ -148,7 +148,50 @@ In the future, once our model is developed, we will make an API endpoint for the
 
 ### Running Locally
 
-- Request an API Token from the MBTA.
-- Set up a local `.env` file.
-- Run the following command `docker-compose up -d`
-- Navigate to `localhost:5000`
+1. **Clone the Repository**: 
+    ```bash
+    git clone https://github.com/kanenorman/AC215_MBTArrivals-App.git
+    cd AC215_MBTArrivals-App
+    ```
+
+1. **Request an API Token**:
+   - Visit the [MBTA's official site](https://www.mbta.com/developers/v3-api) or the relevant link to get your API token.
+
+1. **Set Up Your Environment**:
+   - Create a local `.env` file in the project directory.
+   - Populate the `.env` file with necessary configurations, including your MBTA API Token.
+
+1. **Set up Python Version using Pyenv**:
+    - If you haven't installed `pyenv` yet, you can do so by following the instructions on [pyenv's GitHub repository](https://github.com/pyenv/pyenv#installation).
+    - Install the required Python version:
+        ```bash
+        pyenv install 3.10.0
+        pyenv local 3.10.0
+        ```
+    - Verify the activated Python version:
+        ```bash
+        python --version
+        ```
+
+1. **Set up and Activate Conda Environment**:
+    - Create and activate a new Conda environment named "mbta_env" with Python 3.10 and install requirements:
+        ```bash
+        conda config --add channels conda-forge # Ensure extra channels added
+        conda create --name mbta_env python=3.10
+        conda activate mbta_env
+        pip install -r requirements.txt
+        ```
+
+1. **Ensure Docker is Running (For Docker Users)**:
+    ```bash
+    sudo systemctl start docker
+    sudo systemctl status docker
+    ```
+
+1. **Run the App with Docker**:
+    ```bash
+    docker-compose up -d
+    ```
+
+1. **Access the App**:
+   - Open a web browser and navigate to `localhost:5000`.
