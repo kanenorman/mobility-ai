@@ -1,6 +1,6 @@
 import sys
 from collections.abc import Callable
-from typing import Union
+from typing import List, Union
 
 import schemas
 from pyspark.sql import DataFrame, SparkSession
@@ -45,7 +45,7 @@ def _read_stream_from_kafka(spark: SparkSession, kafka_topic: str) -> DataFrame:
 
 
 def _write_data_stream(
-    df: DataFrame, destination_table: str, primary_key: str
+    df: DataFrame, destination_table: str, primary_key: Union[str, List[str], None]
 ) -> DataStreamWriter:
     """
     Write a Spark DataFrame to a database.
@@ -56,7 +56,7 @@ def _write_data_stream(
         The DataFrame to write.
     destination_table : str
         The name of the database table.
-    primary_key : str
+    primary_key : Union[str, List[str], None]
         The primary key of the table.
 
     Returns
@@ -65,7 +65,7 @@ def _write_data_stream(
         The DataStreamWriter for the write operation.
     """
     return (
-        df.writeStream.trigger(processingTime="10 seconds")
+        df.writeStream.trigger(processingTime="3 seconds")
         .outputMode("update")
         .foreachBatch(
             lambda batch, epoch_id: write_to_database(
@@ -81,7 +81,7 @@ def _stream(
     kafka_topic: str,
     data_schema: Callable,
     destination_table: str,
-    primary_key_column: Union[str, None] = None,
+    primary_key: Union[str, List[str], None] = None,
 ) -> StreamingQuery:
     """
     Process data from a Kafka stream and write it to a table.
@@ -97,8 +97,8 @@ def _stream(
         into a DataFrame.
     destination_table : str
         The name of the table to write the processed data to.
-    primary_key_column : Union[str,None]
-        The primary key column for the target table.
+    primary_key : Union[str,List[str], None]
+        The primary key column(s) for the target table.
 
     Returns
     -------
@@ -106,7 +106,7 @@ def _stream(
     """
     kafka_stream = _read_stream_from_kafka(spark, kafka_topic)
     data_df = data_schema(kafka_stream)
-    stream_writer = _write_data_stream(data_df, destination_table, primary_key_column)
+    stream_writer = _write_data_stream(data_df, destination_table, primary_key)
     return stream_writer
 
 
@@ -125,28 +125,28 @@ def start_streaming_job() -> None:
         kafka_topic="schedules",
         data_schema=schemas.parse_schedules_topic,
         destination_table="schedule",
-        primary_key_column="id",
+        primary_key="id",
     )
     trips_stream = _stream(
         spark=spark,
         kafka_topic="trips",
         data_schema=schemas.parse_trips_topic,
         destination_table="trip",
-        primary_key_column="id",
+        primary_key="id",
     )
     stops_stream = _stream(
         spark=spark,
         kafka_topic="stops",
         data_schema=schemas.parse_stops_topic,
         destination_table="stop",
-        primary_key_column="id",
+        primary_key="id",
     )
     shapes_stream = _stream(
         spark=spark,
         kafka_topic="shapes",
         data_schema=schemas.parse_shapes_topic,
         destination_table="shape",
-        primary_key_column="id",
+        primary_key="id",
     )
     vehicles_stream = _stream(
         spark=spark,
