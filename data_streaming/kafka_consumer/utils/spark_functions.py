@@ -28,7 +28,7 @@ def _get_postgres_connection():
 
 
 def _build_upsert_query(
-    table_name: str, unique_key: Union[str, None], columns: List[str]
+    table_name: str, on_conflict_key: Union[str, List[str], None], columns: List[str]
 ):
     """
     Build and return the upsert (INSERT ON CONFLICT) query for PostgreSQL.
@@ -37,8 +37,9 @@ def _build_upsert_query(
     ----------
     table_name : str
         The name of the target table.
-    unique_key : Union[str, None]
-        The unique key for conflict resolution.
+    on_conflict_key : Union[str, List[str], None]
+        The unique key(s) for conflict resolution. Can be a single string or a
+        list of strings, or None.
     columns : List[str]
         The list of column names to insert.
 
@@ -65,12 +66,16 @@ def _build_upsert_query(
         column_names,
     )
 
-    if unique_key is not None:
+    if on_conflict_key is not None:
+        if isinstance(on_conflict_key, str):
+            unique_key = [on_conflict_key]  # Convert a single string to a list
+
+        unique_key_str = ",".join(unique_key)
         columns_with_excluded_markers = [f"EXCLUDED.{column}" for column in columns]
         excluded_columns = ", ".join(columns_with_excluded_markers)
 
         on_conflict_clause = """ ON CONFLICT (%s) DO UPDATE SET (%s) = (%s) ;""" % (
-            unique_key,
+            unique_key_str,
             column_names,
             excluded_columns,
         )
@@ -80,16 +85,17 @@ def _build_upsert_query(
         return insert_query
 
 
-def _build_delete_query(table_name: str, unique_key: str):
+def _build_delete_query(table_name: str, delete_key: Union[str, List[str]]):
     """
-    Build and return the delete query for PostgreSQL.
+    Build and return the delete query for PostgreSQL with multiple condition columns.
 
     Parameters
     ----------
     table_name : str
         The name of the target table from which to delete records.
-    unique_key : str
-        The column name used as a unique key to specify which records to delete.
+    delete_key : list
+        A list containing the column names used as conditions to specify which records
+        to delete.
 
     Returns
     -------
@@ -98,16 +104,22 @@ def _build_delete_query(table_name: str, unique_key: str):
 
     Examples
     --------
-    >>> _build_delete_query("my_table", "id")
-    'DELETE FROM my_table WHERE id = %s'
+    >>> _build_delete_query("my_table", ["id", "name"])
+    'DELETE FROM my_table WHERE id = %s AND name = %s'
 
     Notes
     -----
     Mimics the following Postgres command:
 
-        DELETE FROM <table_name> WHERE <key> = <value>;
+        DELETE FROM <table_name> WHERE <key1> = <value1> ... AND <keyN> = <valueN> ;
     """
-    return """DELETE FROM %s WHERE %s = %%s""" % (table_name, unique_key)
+    if isinstance(delete_key, str):
+        return """DELETE FROM %s WHERE %s = %%s""" % (table_name, delete_key)
+
+    placeholders = ["%s = %s" % (col, "%s") for col in delete_key]
+    condition_str = " AND ".join(placeholders)
+
+    return f"DELETE FROM {table_name} WHERE {condition_str}"
 
 
 def _preform_deletion(deletion_query: str, value: str):
@@ -214,7 +226,7 @@ def write_to_database(
     batch: pyspark.sql.DataFrame,
     epoch_id: int,
     table_name: str,
-    unique_key: Union[str, None],
+    primary_key: Union[str, List[str], None],
     parallelism: int = 1,
 ) -> None:
     """
@@ -228,7 +240,7 @@ def write_to_database(
         The current epoch ID.
     table_name : str
         The name of the target table.
-    unique_key : Union[str, None]
+    primary_key : Union[str, List[str], None]
         The unique key for conflict resolution.
     parallelism : int, optional
         The degree of parallelism for writing data, by default 1.
@@ -238,10 +250,11 @@ def write_to_database(
     None
     """
     upsert_query = _build_upsert_query(
-        columns=batch.schema.names, table_name=table_name, unique_key=unique_key
+        columns=batch.schema.names, table_name=table_name, on_conflict_key=primary_key
     )
 
-    deletion_query = _build_delete_query(table_name=table_name, unique_key=unique_key)
+    delete_key = batch.schema.names if primary_key is None else primary_key
+    deletion_query = _build_delete_query(table_name=table_name, delete_key=delete_key)
 
     batch.coalesce(parallelism).rdd.mapPartitions(
         lambda dataframe_partition: _prepare_upsert(
