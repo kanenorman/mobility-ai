@@ -85,41 +85,31 @@ def _build_upsert_query(
         return insert_query
 
 
-def _build_delete_query(table_name: str, delete_key: Union[str, List[str]]):
+def _build_delete_query(table_name: str):
     """
-    Build and return the delete query for PostgreSQL with multiple condition columns.
+    Build and return the delete query for PostgreSQL.
+
+    MBTA v3 API has a 'remove' event that contains a
+    single JSON-API resource identified object. e.g
+    {'event': 'remove', 'data': {'id':'1234', 'type': 'vehicle'}}
 
     Parameters
     ----------
     table_name : str
         The name of the target table from which to delete records.
-    delete_key : list
-        A list containing the column names used as conditions to specify which records
-        to delete.
 
     Returns
     -------
     str
         The delete query.
 
-    Examples
-    --------
-    >>> _build_delete_query("my_table", ["id", "name"])
-    'DELETE FROM my_table WHERE id = %s AND name = %s'
-
     Notes
     -----
     Mimics the following Postgres command:
 
-        DELETE FROM <table_name> WHERE <key1> = <value1> ... AND <keyN> = <valueN> ;
+        DELETE FROM <table_name> WHERE id = <value>
     """
-    if isinstance(delete_key, str):
-        return """DELETE FROM %s WHERE %s = %%s""" % (table_name, delete_key)
-
-    placeholders = ["%s = %s" % (col, "%s") for col in delete_key]
-    condition_str = " AND ".join(placeholders)
-
-    return f"DELETE FROM {table_name} WHERE {condition_str}"
+    return """DELETE FROM %s WHERE id = %%s""" % (table_name)
 
 
 def _preform_deletion(deletion_query: str, value: str):
@@ -253,8 +243,7 @@ def write_to_database(
         columns=batch.schema.names, table_name=table_name, on_conflict_key=primary_key
     )
 
-    delete_key = batch.schema.names if primary_key is None else primary_key
-    deletion_query = _build_delete_query(table_name=table_name, delete_key=delete_key)
+    deletion_query = _build_delete_query(table_name=table_name)
 
     batch.coalesce(parallelism).rdd.mapPartitions(
         lambda dataframe_partition: _prepare_upsert(
