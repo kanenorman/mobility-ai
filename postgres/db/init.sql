@@ -1,123 +1,129 @@
 /*
 Postgres equivalent of CREATE DATABASE IF NOT EXISTS
-*/
-DO
-$do$
+ */
+DO $do$
 DECLARE
-   db_name text := 'mbta';
+    db_name text := 'mbta';
 BEGIN
-   IF EXISTS (SELECT FROM pg_database WHERE datname = db_name) THEN
-      RAISE NOTICE 'Database % Already Exists', db_name;
-   ELSE
-      PERFORM dblink_exec('dbname=' || current_database()
-                        , 'CREATE DATABASE ' || db_name);
-   END IF;
+    IF EXISTS (
+        SELECT
+        FROM
+            pg_database
+        WHERE
+            datname = db_name) THEN
+    RAISE NOTICE 'Database % Already Exists', db_name;
+ELSE
+    PERFORM
+        dblink_exec('dbname=' || current_database(), 'CREATE DATABASE ' || db_name);
+END IF;
 END
 $do$;
 
-
-
 \c mbta;
-
 CREATE EXTENSION IF NOT EXISTS POSTGIS;
 
 CREATE TABLE IF NOT EXISTS alert (
     event VARCHAR(255) NOT NULL,
-    id VARCHAR(255) PRIMARY KEY NOT NULL,
-    active_period VARCHAR(255),
-    banner VARCHAR(255),
-    cause VARCHAR(255),
-    created_at TIMESTAMP,
-    description VARCHAR(255),
-    effect VARCHAR(255),
-    header VARCHAR(255),
-    image VARCHAR(255),
-    image_alternative_text VARCHAR(255),
-    informed_entity VARCHAR(255),
-    lifecycle VARCHAR(255),
-    service_effect VARCHAR(255),
-    severity VARCHAR(255),
-    short_header VARCHAR(255),
-    timeframe VARCHAR(255),
-    updated_at TIMESTAMP,
-    type VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS schedule (
-    event VARCHAR(255) NOT NULL,
-    id VARCHAR(255) PRIMARY KEY NOT NULL,
-    arrival_time TIMESTAMP,
-    departure_time TIMESTAMP,
-    direction_id INTEGER,
-    drop_off_type INTEGER,
-    pickup_type INTEGER,
-    stop_headsign VARCHAR(255),
-    stop_sequence INTEGER,
-    timepoint BOOLEAN,
-    route_id VARCHAR(255),
-    stop_id VARCHAR(255),
-    trip_id VARCHAR(255)
+    id varchar(255) NOT NULL,
+    active_period varchar(255),
+    banner varchar(255),
+    cause varchar(255),
+    created_at timestamp,
+    description varchar(255),
+    effect varchar(255),
+    header varchar(255),
+    image varchar(255),
+    image_alternative_text varchar(255),
+    informed_entity varchar(255),
+    lifecycle varchar(255),
+    service_effect varchar(255),
+    severity varchar(255),
+    short_header varchar(255),
+    timeframe varchar(255),
+    updated_at timestamp,
+    type VARCHAR(255),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS shape (
     event VARCHAR(255) NOT NULL,
-    id VARCHAR(255) PRIMARY KEY NOT NULL,
+    id varchar(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
-    geometry GEOMETRY(LINESTRING)
+    geometry GEOMETRY(LINESTRING),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS stop (
     event VARCHAR(255) NOT NULL,
-    id VARCHAR(255) PRIMARY KEY NOT NULL,
+    id varchar(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
-    address VARCHAR(255),
-    at_street VARCHAR(255),
-    description VARCHAR(255),
-    latitude FLOAT,
-    location_type INTEGER,
-    longitude FLOAT,
-    municipality VARCHAR(255),
-    name VARCHAR(255),
-    on_street VARCHAR(255),
-    platform_code VARCHAR(255),
-    platform_name VARCHAR(255),
-    vehicle_type VARCHAR(255),
-    wheelchair_boarding INTEGER,
-    zone VARCHAR(255),
-    parent_station VARCHAR(255)
+    address varchar(255),
+    at_street varchar(255),
+    description varchar(255),
+    latitude float,
+    location_type integer,
+    longitude float,
+    municipality varchar(255),
+    name varchar(255),
+    on_street varchar(255),
+    platform_code varchar(255),
+    platform_name varchar(255),
+    vehicle_type varchar(255),
+    wheelchair_boarding integer,
+    zone varchar(255),
+    parent_station varchar(255),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS trip (
     event VARCHAR(255) NOT NULL,
-    id VARCHAR(255) PRIMARY KEY NOT NULL,
+    id varchar(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
-    bikes_allowed INTEGER,
-    block_id VARCHAR(255),
-    direction_id INTEGER,
-    headsign VARCHAR(255),
-    name VARCHAR(255),
-    wheelchair_accessible INTEGER,
-    shape_id VARCHAR(255),
-    service_id VARCHAR(255),
-    route_id VARCHAR(255),
-    route_pattern_id VARCHAR(255)
+    bikes_allowed integer,
+    block_id varchar(255),
+    direction_id integer,
+    headsign varchar(255),
+    name varchar(255),
+    wheelchair_accessible integer,
+    shape_id varchar(255),
+    service_id varchar(255),
+    route_id varchar(255),
+    route_pattern_id varchar(255),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS schedule (
+    event VARCHAR(255) NOT NULL,
+    id varchar(255) NOT NULL,
+    arrival_time timestamp,
+    departure_time timestamp,
+    direction_id integer,
+    drop_off_type integer,
+    pickup_type integer,
+    stop_headsign varchar(255),
+    stop_sequence integer,
+    timepoint boolean,
+    route_id varchar(255),
+    stop_id varchar(255),
+    trip_id varchar(255),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS vehicle (
-    id VARCHAR(255) NOT NULL,
+    id varchar(255) NOT NULL,
     event VARCHAR(255) NOT NULL,
     type VARCHAR(255),
-    bearing INTEGER,
-    current_status VARCHAR(255),
-    current_stop_sequence INTEGER,
-    direction_id INTEGER,
-    label VARCHAR(255),
-    latitude DOUBLE PRECISION,
-    longitude DOUBLE PRECISION,
-    occupancy_status VARCHAR(255),
-    speed INTEGER,
-    updated_at TIMESTAMP NOT NULL,
-    route_id VARCHAR(255),
-    stop_id VARCHAR(255),
-    trip_id VARCHAR(255)
+    bearing integer,
+    current_status varchar(255) NOT NULL,
+    current_stop_sequence integer,
+    direction_id integer,
+    label varchar(255),
+    latitude double precision,
+    longitude double precision,
+    occupancy_status varchar(255),
+    speed integer,
+    updated_at timestamp NOT NULL,
+    route_id varchar(255),
+    stop_id varchar(255),
+    trip_id varchar(255)
 );
