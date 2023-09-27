@@ -1,7 +1,7 @@
 const bostonCoordinates = [42.3601, -71.0589];
 const map = L.map("map").setView(bostonCoordinates, 12);
-const CartoDB_Positron = L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+var CartoDB_Voyager = L.tileLayer(
+  "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
   {
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -9,4 +9,4 @@ const CartoDB_Positron = L.tileLayer(
     maxZoom: 20,
   },
 );
-CartoDB_Positron.addTo(map);
+CartoDB_Voyager.addTo(map);
