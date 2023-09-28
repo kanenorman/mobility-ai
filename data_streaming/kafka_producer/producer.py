@@ -1,6 +1,5 @@
 import asyncio
 import json
-import os
 from typing import Dict, Union
 
 import httpx
@@ -85,6 +84,7 @@ async def _send_batch_to_kafka(
 
 async def _fetch_and_send_data(
     producer: KafkaProducer,
+    client: httpx.AsyncClient,
     topic: str,
     end_point: str,
     params: Union[Dict, None] = None,
@@ -96,6 +96,8 @@ async def _fetch_and_send_data(
     ----------
     producer
         Kafka producer instance.
+    client
+        httpx Connection Client (must be async)
     topic
         Kafka topic to write to.
     end_point
@@ -116,36 +118,33 @@ async def _fetch_and_send_data(
     for streaming API documentation
     """
     url = f"https://api-v3.mbta.com/{end_point}"
-    headers = {"Accept": "text/event-stream", "X-API-Key": os.environ["MBTA_API_KEY"]}
+    headers = {"Accept": "text/event-stream", "X-API-Key": configs.MBTA_API_KEY}
+    async with aconnect_sse(
+        client=client,
+        method="GET",
+        url=url,
+        headers=headers,
+        params=params,
+    ) as event_source:
+        async for server_sent_event in event_source.aiter_sse():
+            response_data = json.loads(server_sent_event.data)
+            response_event = server_sent_event.event
 
-    async with httpx.AsyncClient() as client:
-        async with aconnect_sse(
-            client=client,
-            method="GET",
-            url=url,
-            headers=headers,
-            params=params,
-            timeout=None,
-        ) as event_source:
-            async for server_sent_event in event_source.aiter_sse():
-                response_data = json.loads(server_sent_event.data)
-                response_event = server_sent_event.event
-
-                # reset events return an array of JSON objects
-                if response_event == "reset":
-                    await _send_batch_to_kafka(
-                        producer=producer,
-                        topic=topic,
-                        event=response_event,
-                        batch_data=response_data,
-                    )
-                # other events return a single JSON object
-                else:
-                    await _send_to_kafka(
-                        producer=producer,
-                        topic=topic,
-                        message={"event": response_event, "data": response_data},
-                    )
+            # reset events return an array of JSON objects
+            if response_event == "reset":
+                await _send_batch_to_kafka(
+                    producer=producer,
+                    topic=topic,
+                    event=response_event,
+                    batch_data=response_data,
+                )
+            # other events return a single JSON object
+            else:
+                await _send_to_kafka(
+                    producer=producer,
+                    topic=topic,
+                    message={"event": response_event, "data": response_data},
+                )
 
 
 async def main() -> None:
@@ -158,41 +157,47 @@ async def main() -> None:
     -------
     None
     """
-    producer = _create_kafka_producer()
+    timeout = httpx.Timeout(connect=None, read=None, write=None, pool=None)
+    limits = httpx.Limits(max_keepalive_connections=None, keepalive_expiry=None)
 
-    # Define the data sources and topics with their respective parameters
-    data_sources = (
-        {
-            "topic": "schedules",
-            "end_point": "schedules",
-            "params": {"filter[route]": "Red"},
-        },
-        {
-            "topic": "trips",
-            "end_point": "trips",
-            "params": {"filter[route]": "Red"},
-        },
-        {
-            "topic": "stops",
-            "end_point": "stops",
-            "params": {"filter[route]": "Red"},
-        },
-        {
-            "topic": "shapes",
-            "end_point": "shapes",
-            "params": {"filter[route]": "Red"},
-        },
-        {
-            "topic": "vehicles",
-            "end_point": "vehicles",
-            "params": {"filter[route]": "Red"},
-        },
-    )
+    async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
+        producer = _create_kafka_producer()
 
-    # Start fetching and sending data concurrently
-    tasks = (_fetch_and_send_data(producer, **source) for source in data_sources)
+        # Define the data sources and topics with their respective parameters
+        data_sources = (
+            {
+                "topic": "schedules",
+                "end_point": "schedules",
+                "params": {"filter[route]": "Red"},
+            },
+            {
+                "topic": "trips",
+                "end_point": "trips",
+                "params": {"filter[route]": "Red"},
+            },
+            {
+                "topic": "stops",
+                "end_point": "stops",
+                "params": {"filter[route]": "Red"},
+            },
+            {
+                "topic": "shapes",
+                "end_point": "shapes",
+                "params": {"filter[route]": "Red"},
+            },
+            {
+                "topic": "vehicles",
+                "end_point": "vehicles",
+                "params": {"filter[route]": "Red"},
+            },
+        )
 
-    await asyncio.gather(*tasks)
+        # Start fetching and sending data concurrently
+        tasks = (
+            _fetch_and_send_data(producer, client, **source) for source in data_sources
+        )
+
+        await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
