@@ -49,8 +49,11 @@ def parse_stops_topic(
         ]
     )
 
+    child_stops_struct = T.StructType([T.StructField("data", T.ArrayType(data_struct))])
+
     relationships_struct = T.StructType(
         [
+            T.StructField("child_stops", child_stops_struct),
             T.StructField("facilities", links_struct),
             T.StructField(
                 "parent_station",
