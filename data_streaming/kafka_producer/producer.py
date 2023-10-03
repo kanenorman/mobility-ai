@@ -119,32 +119,35 @@ async def _fetch_and_send_data(
     """
     url = f"https://api-v3.mbta.com/{end_point}"
     headers = {"Accept": "text/event-stream", "X-API-Key": configs.MBTA_API_KEY}
-    async with aconnect_sse(
-        client=client,
-        method="GET",
-        url=url,
-        headers=headers,
-        params=params,
-    ) as event_source:
-        async for server_sent_event in event_source.aiter_sse():
-            response_data = json.loads(server_sent_event.data)
-            response_event = server_sent_event.event
+    # TODO: Find solution to fix issue with aconnect_sse.
+    # see https://github.com/florimondmanca/httpx-sse/issues/4
+    while True:
+        async with aconnect_sse(
+            client=client,
+            method="GET",
+            url=url,
+            headers=headers,
+            params=params,
+        ) as event_source:
+            async for server_sent_event in event_source.aiter_sse():
+                response_data = json.loads(server_sent_event.data)
+                response_event = server_sent_event.event
 
-            # reset events return an array of JSON objects
-            if response_event == "reset":
-                await _send_batch_to_kafka(
-                    producer=producer,
-                    topic=topic,
-                    event=response_event,
-                    batch_data=response_data,
-                )
-            # other events return a single JSON object
-            else:
-                await _send_to_kafka(
-                    producer=producer,
-                    topic=topic,
-                    message={"event": response_event, "data": response_data},
-                )
+                # reset events return an array of JSON objects
+                if response_event == "reset":
+                    await _send_batch_to_kafka(
+                        producer=producer,
+                        topic=topic,
+                        event=response_event,
+                        batch_data=response_data,
+                    )
+                # other events return a single JSON object
+                else:
+                    await _send_to_kafka(
+                        producer=producer,
+                        topic=topic,
+                        message={"event": response_event, "data": response_data},
+                    )
 
 
 async def main() -> None:
