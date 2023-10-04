@@ -3,9 +3,10 @@ import json
 from typing import Dict, Union
 
 import httpx
-from config import configs
 from httpx_sse import aconnect_sse
 from kafka import KafkaProducer
+
+from .config import configs
 
 
 def _create_kafka_producer() -> KafkaProducer:

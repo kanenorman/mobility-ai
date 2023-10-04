@@ -2,10 +2,11 @@ import sys
 from collections.abc import Callable
 from typing import List, Union
 
-import schemas
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.streaming import DataStreamWriter, StreamingQuery
-from utils import (
+
+from . import schemas
+from .utils import (
     configs,
     configure_spark_logging,
     create_spark_session,
