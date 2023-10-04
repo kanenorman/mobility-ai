@@ -6,8 +6,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+RUN mkdir producer
+
 # Copy code base
-COPY data_streaming/kafka_producer .
+COPY data_streaming/kafka_producer kafka_producer/
 
 # Specify the command to run when the container starts
-CMD ["python", "producer.py"]
+CMD ["python", "-m", "kafka_producer.producer"]
