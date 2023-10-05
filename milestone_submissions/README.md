@@ -107,8 +107,12 @@ In the future, once our model is developed, we will make an API endpoint for the
 ├── README.md
 ├── SETUP_INSTRUCTIONS.md
 ├── assets
-│   ├── data-streaming.svg
-│   └── high-level.svg
+│   └── figures
+│       ├── data-streaming.svg
+│       ├── high-level.svg
+│       ├── mobility_ai_logo.png
+│       ├── wanddb_monitoring.pdf
+│       └── wanddb_monitoring.png
 ├── data_streaming
 │   ├── README.md
 │   ├── kafka_consumer
@@ -165,10 +169,6 @@ In the future, once our model is developed, we will make an API endpoint for the
 │   └── ml_train.py
 ├── milestone_submissions
 │   ├── README.md
-│   ├── figures
-│   │   ├── mobility_ai_logo.png
-│   │   ├── wanddb_monitoring.pdf
-│   │   └── wanddb_monitoring.png
 │   └── milestone2
 ├── postgres
 │   ├── Dockerfile
@@ -316,6 +316,6 @@ Our approach meets all requirements laid out in the Milestone 3 framework. We've
 
 One important feature of our workflow is monitoring and experiment tracking through the Weights and Biases (wandb) cloud platform. Below is a snapshot of the monitoring interface:
 
-![WandB Monitoring](figures/wanddb_monitoring.png)
+![WandB Monitoring](../assets/figures/wanddb_monitoring.png)
 
 This platform provides real-time feedback on our training sessions, assisting in keeping our models optimized and efficient -- which will facilitate scaling out our prediction system.
