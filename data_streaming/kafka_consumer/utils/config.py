@@ -16,7 +16,6 @@ class _Config:
     POSTGRES_PASSWORD: str = os.environ["POSTGRES_PASSWORD"]
     POSTGRES_HOST: str = os.environ["POSTGRES_HOST"]
     POSTGRES_DRIVER: str = os.environ["POSTGRES_DRIVER"]
-    POSTGRES_TABLE: str = os.environ["POSTGRES_TABLE"]
 
 
 configs = _Config()
