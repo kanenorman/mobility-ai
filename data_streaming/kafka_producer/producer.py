@@ -5,6 +5,7 @@ from typing import Dict, Union
 import httpx
 from httpx_sse import aconnect_sse
 from kafka import KafkaProducer
+from stamina import retry
 
 from .config import configs
 
@@ -58,13 +59,13 @@ async def _send_batch_to_kafka(
 
     Parameters
     ----------
-    producer
+    producer : Kafka Producer
         Kafka producer instance.
-    topic
+    topic : str
         Kafka topic to write to.
-    event
+    event : str
         Server Sent Event. Will be one of "reset", "add", "update", "remove"
-    batch_data
+    batch_data : str
         Array of JSON data
 
     Returns
@@ -81,6 +82,59 @@ async def _send_batch_to_kafka(
     )
 
     await asyncio.gather(*tasks)
+
+
+def _iter_sse_retrying(
+    client: httpx.AsyncClient,
+    method: str,
+    url: str,
+    headers: Union[Dict, None] = None,
+    params: Union[Dict, None] = None,
+):
+    """
+    Handle reconnections for SSE interuptions.
+
+    Parameters
+    ----------
+    client : httpx.AsyncClient
+        Async connection client
+    method : str
+        HTTP method (i.e. GET/POST)
+    url : str
+        API url (e.g https://mbta-v3.mbta.com/predictions)
+    headers : Union[Dict, None]
+        Request headers
+    params : Union[Dict, None]
+        Request parameters
+
+    Notes
+    -----
+    See https://github.com/florimondmanca/httpx-sse#handling-reconnections
+    """
+    last_event_id = ""
+    reconnection_delay = 0.0
+
+    @retry(on=httpx.ReadError, attempts=5)
+    async def _aiter_sse():
+        nonlocal last_event_id, reconnection_delay
+
+        await asyncio.sleep(reconnection_delay)
+
+        if last_event_id:
+            headers["Last-Event-ID"] = last_event_id
+
+        async with aconnect_sse(
+            client, method, url, headers=headers, params=params
+        ) as event_source:
+            async for sse in event_source.aiter_sse():
+                last_event_id = sse.id
+
+                if sse.retry is not None:
+                    reconnection_delay = sse.retry / 1000
+
+                yield sse
+
+    return _aiter_sse()
 
 
 async def _fetch_and_send_data(
@@ -120,35 +174,27 @@ async def _fetch_and_send_data(
     """
     url = f"https://api-v3.mbta.com/{end_point}"
     headers = {"Accept": "text/event-stream", "X-API-Key": configs.MBTA_API_KEY}
-    # TODO: Find solution to fix issue with aconnect_sse.
-    # see https://github.com/florimondmanca/httpx-sse/issues/4
-    while True:
-        async with aconnect_sse(
-            client=client,
-            method="GET",
-            url=url,
-            headers=headers,
-            params=params,
-        ) as event_source:
-            async for server_sent_event in event_source.aiter_sse():
-                response_data = json.loads(server_sent_event.data)
-                response_event = server_sent_event.event
+    async for server_sent_event in _iter_sse_retrying(
+        client=client, method="GET", url=url, params=params, headers=headers
+    ):
+        response_data = json.loads(server_sent_event.data)
+        response_event = server_sent_event.event
 
-                # reset events return an array of JSON objects
-                if response_event == "reset":
-                    await _send_batch_to_kafka(
-                        producer=producer,
-                        topic=topic,
-                        event=response_event,
-                        batch_data=response_data,
-                    )
-                # other events return a single JSON object
-                else:
-                    await _send_to_kafka(
-                        producer=producer,
-                        topic=topic,
-                        message={"event": response_event, "data": response_data},
-                    )
+        # reset events return an array of JSON objects
+        if response_event == "reset":
+            await _send_batch_to_kafka(
+                producer=producer,
+                topic=topic,
+                event=response_event,
+                batch_data=response_data,
+            )
+        # other events return a single JSON object
+        else:
+            await _send_to_kafka(
+                producer=producer,
+                topic=topic,
+                message={"event": response_event, "data": response_data},
+            )
 
 
 async def main() -> None:
@@ -167,7 +213,6 @@ async def main() -> None:
     async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
         producer = _create_kafka_producer()
 
-        # Define the data sources and topics with their respective parameters
         data_sources = (
             {
                 "topic": "schedules",
@@ -196,7 +241,6 @@ async def main() -> None:
             },
         )
 
-        # Start fetching and sending data concurrently
         tasks = (
             _fetch_and_send_data(producer, client, **source) for source in data_sources
         )
