@@ -30,7 +30,7 @@ MODEL_DIR.mkdir(parents=True, exist_ok=True)
 EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)
 NUM_TRIALS = 10
 
-WANDB_API_KEY = "c681b54830ece75abfc914b6c09ed6cc9140f1d4"
+WANDB_API_KEY = os.environ["WANDB_API_KEY"]
 
 global mbta_final_df
 
