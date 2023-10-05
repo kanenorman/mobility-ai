@@ -1,4 +1,4 @@
-name: Kafka Producer Unit Tests
+name: Unit Tests
 on:
   push:
     branches:

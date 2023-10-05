@@ -14,7 +14,7 @@
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/kanenorman/AC215_MBTArrivals-App/main.svg)](https://results.pre-commit.ci/latest/github/kanenorman/AC215_MBTArrivals-App/main)
 
-<a href="https://github.com/kanenorman/mbta-project/actions/workflows/run-kafka-produer-test.yml"> ![test](https://github.com/kanenorman/mbta-project/actions/workflows/run-kafka-produer-test.yml/badge.svg?event=push) </a>
+<a href="https://github.com/kanenorman/mbta-project/actions/workflows/run-unit-test.yml"> ![test](https://github.com/kanenorman/mbta-project/actions/workflows/run-unit-test.yml/badge.svg?event=push) </a>
 
 ## Project Introduction
 
