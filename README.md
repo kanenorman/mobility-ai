@@ -76,5 +76,3 @@ Feedback to this project is always welcome. For feedback or questions, feel free
 *I want to make it explicitly clear that I am not affiliated with the Massachusetts Bay Transportation Authority (MBTA) or any other official transportation organization. This project is independent and unofficial.*
 
 *Please exercise caution and use any information or functionality provided by this project responsibly and in accordance with the laws and regulations governing your location.*
-
-
