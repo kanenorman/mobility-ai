@@ -4,9 +4,7 @@
 
 **Table of Contents**
 
-- [Team Members](#team-members)
-- [Group Name](#group-name)
-- [Project](#project)
+- [Introduction](#introduction)
 - [Micro Service Descriptions](#micro-service-descriptions)
   - [Zookeeper](#zookeeper)
   - [Broker1, Broker2, Broker3](#brokers)
