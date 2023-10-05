@@ -11,7 +11,7 @@ main = Blueprint("main", __name__)
 def index():
     """Index route for homepage."""
     train_lines = db.session.scalar(functions.ST_AsGeoJSON(Shape.geometry))
-    stops = Stop.query.all()
+    stops = db.session.query(Stop).filter(Stop.parent_station is None).all()
     schedule_data = db.session.query(Schedule).limit(10).all()
 
     return render_template(
