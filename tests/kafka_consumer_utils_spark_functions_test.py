@@ -25,3 +25,16 @@ from data_streaming.kafka_consumer.utils import spark_functions
 def test_build_upsert_query(table_name, on_conflict_key, columns, expected_query):
     result = spark_functions._build_upsert_query(table_name, on_conflict_key, columns)
     assert_that(result, equal_to(expected_query))
+
+
+@pytest.mark.parametrize(
+    "table_name, expected_query",
+    [
+        ("table1", "DELETE FROM table1 WHERE id = %s"),
+        ("table2", "DELETE FROM table2 WHERE id = %s"),
+        ("table3", "DELETE FROM table3 WHERE id = %s"),
+    ],
+)
+def test_build_delete_query(table_name, expected_query):
+    result = spark_functions._build_delete_query(table_name)
+    assert result == expected_query
