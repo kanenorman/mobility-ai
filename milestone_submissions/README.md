@@ -225,8 +225,8 @@ In the future, once our model is developed, we will make an API endpoint for the
     # Flask
     FLASK_PORT=5000
 
-   #W&B
-   WANDB_API_KEY=[Your_key]
+    #W&B
+    WANDB_API_KEY=[Your_key]
    ```
 
 1. **Set up Python Version using Pyenv**:
