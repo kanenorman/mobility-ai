@@ -1,4 +1,6 @@
-# Real-Time MBTA Data Streaming and Arrival Time Prediction
+<img src="assets/figures/mobility_ai_logo.png" alt="Mobility AI Logo" width="400"/>
+
+<hr>
 
 [![Python Badge](https://img.shields.io/badge/Python-3776ab?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
 [![Flask Badge](https://img.shields.io/badge/Flask-5DB036?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
@@ -36,7 +38,7 @@ The primary objective of the MBTA Data Streaming and Prediction Project is to le
 
 6. **DevOps and MLOps**: Establishing an effective DevOps workflow to automate deployment and monitoring of the streaming pipeline and models.
 
-![image](./assets/high-level.svg)
+![image](./assets/figures/high-level.svg)
 
 ## Project Goals
 

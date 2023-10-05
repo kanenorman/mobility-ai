@@ -4,7 +4,7 @@
 
 This README provides a comprehensive overview of our data streaming procedure, utilized to retrieve and store data from the MBTA API. The process involves streaming data from the [MBTA API using the Server Sent Event protocol](https://www.mbta.com/developers/v3-api/streaming), capturing the JSON response, and subsequently forwarding this data to a Kafka topic. A consumer application actively monitors this Kafka topic and is responsible for writing the data into a PostgreSQL database.
 
-![image](../assets/data-streaming.svg)
+![image](../assets/figures/data-streaming.svg)
 
 ## Data Streaming Workflow
 
