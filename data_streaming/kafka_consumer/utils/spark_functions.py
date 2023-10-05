@@ -61,20 +61,20 @@ def _build_upsert_query(
         SET <update_column> = EXCLUDED.<update_column>;
     """
     column_names = ",".join(columns)
-    insert_query = """ INSERT INTO %s (%s) VALUES %%s """ % (
+    insert_query = """INSERT INTO {} ({}) VALUES %s""".format(
         table_name,
         column_names,
     )
 
     if on_conflict_key is not None:
         if isinstance(on_conflict_key, str):
-            unique_key = [on_conflict_key]  # Convert a single string to a list
+            on_conflict_key = [on_conflict_key]  # Convert a single string to a list
 
-        unique_key_str = ",".join(unique_key)
+        unique_key_str = ",".join(on_conflict_key)
         columns_with_excluded_markers = [f"EXCLUDED.{column}" for column in columns]
         excluded_columns = ", ".join(columns_with_excluded_markers)
 
-        on_conflict_clause = """ ON CONFLICT (%s) DO UPDATE SET (%s) = (%s) ;""" % (
+        on_conflict_clause = """ ON CONFLICT ({}) DO UPDATE SET ({}) = ({});""".format(
             unique_key_str,
             column_names,
             excluded_columns,
@@ -82,7 +82,7 @@ def _build_upsert_query(
 
         return insert_query + on_conflict_clause
     else:
-        return insert_query
+        return insert_query + ";"
 
 
 def _build_delete_query(table_name: str):
