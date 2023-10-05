@@ -41,7 +41,7 @@ ensuring distributed synchronization, and providing a naming service.
 #### Broker1, Broker2, Broker3
 
 Brokers serve as the backbone of a Kafka infrastructure. They are responsible for receiving messages from producers,
-securely storing these messages, and efficiently delivering them to consumers. We employ multiple broker instances within our Kafka cluster for redundancy 
+securely storing these messages, and efficiently delivering them to consumers. We employ multiple broker instances within our Kafka cluster for redundancy
 to ensure fault tolerance and scalability -- enhancing the robustness of our system.
 
 #### Schema-Registry
@@ -160,7 +160,7 @@ In the future, once our model is developed, we will make an API endpoint for the
 
 ### Running Locally
 
-1. **Clone the Repository**: 
+1. **Clone the Repository**:
     ```bash
     git clone https://github.com/kanenorman/AC215_MBTArrivals-App.git
     cd AC215_MBTArrivals-App
@@ -172,7 +172,7 @@ In the future, once our model is developed, we will make an API endpoint for the
 1. **Set Up Your Environment**:
    - Create a local `.env` file in the project directory.
    - Populate the `.env` file with necessary configurations, including your MBTA API Token.
-   
+
    ** Example: `.env` file **
    This section lists the configuration variables used in the project along with  corresponding values.
    ```bash
