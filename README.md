@@ -11,8 +11,10 @@
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 
 ## Project Health
-<a href="https://github.com/kanenorman/mbta-project/actions/workflows/run-kafka-produer-test.yml"> ![test](https://github.com/kanenorman/mbta-project/actions/workflows/run-kafka-produer-test.yml/badge.svg?event=push) </a>
 
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/kanenorman/AC215_MBTArrivals-App/main.svg)](https://results.pre-commit.ci/latest/github/kanenorman/AC215_MBTArrivals-App/main)
+
+<a href="https://github.com/kanenorman/mbta-project/actions/workflows/run-kafka-produer-test.yml"> ![test](https://github.com/kanenorman/mbta-project/actions/workflows/run-kafka-produer-test.yml/badge.svg?event=push) </a>
 
 ## Project Introduction
 
@@ -69,10 +71,10 @@ Feedback to this project is always welcome. For feedback or questions, feel free
 
 **This Project is for Personal Hobby Use Only**
 
-*This project is developed solely for personal interest and is not intended to be used as a consumer product or as a decision-making tool. It may contain inaccuracies or errors, and there are no guarantees or warranties associated with its use. Users are encouraged to use their discretion and verify any information provided by this project independently.*
+_This project is developed solely for personal interest and is not intended to be used as a consumer product or as a decision-making tool. It may contain inaccuracies or errors, and there are no guarantees or warranties associated with its use. Users are encouraged to use their discretion and verify any information provided by this project independently._
 
 **Not Affiliated with the MBTA**
 
-*I want to make it explicitly clear that I am not affiliated with the Massachusetts Bay Transportation Authority (MBTA) or any other official transportation organization. This project is independent and unofficial.*
+_I want to make it explicitly clear that I am not affiliated with the Massachusetts Bay Transportation Authority (MBTA) or any other official transportation organization. This project is independent and unofficial._
 
-*Please exercise caution and use any information or functionality provided by this project responsibly and in accordance with the laws and regulations governing your location.*
+_Please exercise caution and use any information or functionality provided by this project responsibly and in accordance with the laws and regulations governing your location._
