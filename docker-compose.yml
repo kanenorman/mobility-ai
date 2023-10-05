@@ -177,6 +177,8 @@ services:
       - KAFKA_PORT2=${KAFKA_PORT2}
       - KAFKA_PORT3=${KAFKA_PORT3}
       - PYTHONUNBUFFERED=1
+      - SPARK_MODE=worker
+      - SPARK_WORKER_CORES=2
     depends_on:
       broker1:
         condition: service_healthy
