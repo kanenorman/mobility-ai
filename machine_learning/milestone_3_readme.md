@@ -8,15 +8,15 @@
 1. **MS3 overview:** This milestone focuses on constructing a robust, scalable, and modular computing infrastructure. With an emphasis on adaptability, we've architected a system capable of seamless integration with a plethora of tools and cloud services.
 1. **Team Members:** Kane Norman, Juan Castillo, Philip Ndikum, David Wintermeyer
 1. **Group Name:** MBTArrivals
-1. **Project:** Amidst growing difficulties in urban mobility and the need for timely transit predictions, our group project aims to build a scalable time series forecasting system for the Massachusetts Bay Transportation Authority (MBTA) transit system. By combining modern data engineering and scalable Machine Learning operations (MLOps) methodologies, this research aims to address pressing challenges in infrastructure and transit reliability -- with broader implications for supply-chain optimization and logistics. By providing guidelines and solutions, our project serves as an instructive blueprint, and a substantive contribution to the ever-growing data engineering and urban mobility literature.
+1. **Project:** Amidst growing difficulties in urban mobility and the need for timely transit predictions, our group project aims to build a scalable prediction system for the Massachusetts Bay Transportation Authority (MBTA) transit system. By combining modern data engineering and scalable Machine Learning operations (MLOps) methodologies, this research aims to address pressing challenges in infrastructure and transit reliability -- with broader implications for supply-chain optimization and logistics. By providing guidelines and solutions, our project serves as an instructive blueprint, and a substantive contribution to the ever-growing data engineering and urban mobility literature.
 
 
 ## Architecture Highlights
 
 1. **Distributed Computing and Cloud Storage Integration**:
-    - Google Cloud Platform (GCP) Our primary cloud storage solution. By leveraging GCP, we can use a plethora of tools and services, including Google Colab Pro for expansive experimentation. Whilst wer selected GCP based on the markscheme, we tried to use platform agnostic tools and version controlled our code on Github to ensure our architecture isn't confined to one ecosystem or vendor, reflecting a broad, real-world approach where flexibility and scalability are paramount.
+    - Google Cloud Platform (GCP) Our primary cloud storage solution. By leveraging GCP, we can use a plethora of tools and services, including Google Colab Pro for expansive experimentation. Whilst we selected GCP based on the deliverable objectives, we tried to use platform agnostic tools and version controlled our code on Github to ensure our architecture isn't confined to one ecosystem or vendor, reflecting a broad, real-world approach where flexibility and scalability are paramount.
     - Data Pipeline: The design embodies robust extraction, transformation, and versioning capabilities. Examples of versioned datasets underline its effectiveness.
-1. **Data Management**: While our current phase primarily harnesses tools outside the TensorFlow ecosystem, our architectural decisions leave the door open for seamless integration with TensorFlow's utilities (like TF Data and TF Records) in future iterations.We have a robust and flexible architecture which allows us to use different libraries and tools and scale out our end-to-end architecture.
+1. **Data Management**: While our current phase primarily harnesses tools outside the TensorFlow ecosystem, our architectural decisions leave the door open for seamless integration with TensorFlow's utilities (like TF Data and TF Records) in future iterations. With regard to the current milestone, we decided against leveraging TF Data and Records since we are working with a small subset of data that can be run locally. As we expand our dataset, we will implement TF Data and Records if the dataset grows in size to the point where it would be beneficial. By design, we have a robust and flexible architecture allowing us to use different libraries and tools to scale out our end-to-end architecture.
 
 ## Machine Learning Workflow Implementation
 
@@ -38,7 +38,7 @@ Furthermore, the production-grade design of our architecture affords flexibility
    - **Functions**:
      - `create_date_features()`: Specialized feature engineering for date-time data.
      - `transform()`: ETL functions customized for delay-centric data.
-     - `data_checks_and_cleaning()`: Ensures data integrity through sanitation and cleaning.
+     - `data_checks_and_cleaning()`: Ensures data integrity through sanitization and cleaning.
 
 3. **ml_train.py**
    - **Purpose**: A central hub for GPU-optimized training, exhaustive model optimization, performance assessment, and model serialization.
@@ -51,10 +51,10 @@ Furthermore, the production-grade design of our architecture affords flexibility
 
 ## Concluding Remarks
 
-Our approach meets all requirements laid out in the Milestone 3 framework. We've forged a resilient and flexible architecture, ensuring we're poised to scale and adapt in forthcoming phases. As we look ahead, the upcoming milestones will see us delving into financial estimations concerning data quality control for the government. We are optimistic that our findings will foster tangible, positive impacts for citizens, extending beyond the confines of this project.
+Our approach meets all requirements laid out in the Milestone 3 framework. We've forged a resilient and flexible architecture, ensuring we're poised to scale and adapt in forthcoming phases. As we look ahead, the upcoming milestones will see us delving into financial estimations concerning data quality control for the government and integrating additional data to increase the robustness and accuracy of our predictions. We are optimistic that our findings has the potential to foster tangible, positive impacts for commuters, extending beyond the confines of this project.
 
-One of the highlights of our workflow is the monitoring and experiment tracking through the Weights and Biases (wandb) cloud platform. Below is a snapshot of the monitoring interface:
+One important feature of our workflow is monitoring and experiment tracking through the Weights and Biases (wandb) cloud platform. Below is a snapshot of the monitoring interface:
 
 ![WandB Monitoring](figures/wanddb_monitoring.png)
 
-This platform provides real-time feedback on our training sessions, assisting in keeping our models optimized and efficient and will enable us to continue scaling out our efforts.
+This platform provides real-time feedback on our training sessions, assisting in keeping our models optimized and efficient -- which will facilitate scaling out our prediction system.
