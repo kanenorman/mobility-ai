@@ -32,7 +32,8 @@ def _read_stream_from_kafka(spark: SparkSession, kafka_topic: str) -> DataFrame:
     server_1 = f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}"
     server_2 = f"{configs.KAFKA_HOST2}:{configs.KAFKA_PORT2}"
     server_3 = f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}"
-    bootstrap_servers = f"{server_1},{server_2},{server_3}"
+    server_4 = f"{configs.KAFKA_HOST4}:{configs.KAFKA_PORT4}"
+    bootstrap_servers = f"{server_1},{server_2},{server_3},{server_4}"
 
     return (
         spark.readStream.format("kafka")
@@ -154,12 +155,19 @@ def start_streaming_job() -> None:
         data_schema=schemas.parse_vehicles_topic,
         destination_table="vehicle",
     )
+    routes_stream = _stream(
+        spark=spark,
+        kafka_topic="routes",
+        data_schema=schemas.parse_routes_topic,
+        destination_table="route",
+    )
 
     schedule_stream.awaitTermination()
     trips_stream.awaitTermination()
     stops_stream.awaitTermination()
     shapes_stream.awaitTermination()
     vehicles_stream.awaitTermination()
+    routes_stream.awaitTermination()
 
     spark.stop()
 

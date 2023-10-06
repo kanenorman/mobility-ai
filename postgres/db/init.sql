@@ -127,3 +127,19 @@ CREATE TABLE IF NOT EXISTS vehicle (
     stop_id varchar(255),
     trip_id varchar(255)
 );
+
+
+CREATE TABLE IF NOT EXISTS  route (
+    id varchar(255) NOT NULL,
+    event VARCHAR(255) NOT NULL,
+    color CHAR(7),
+    description VARCHAR(255),
+    direction_destinations JSONB,
+    fare_class VARCHAR(255),
+    long_name VARCHAR(255),
+    short_name VARCHAR(255),
+    short_order int,
+    text_color CHAR(7),
+    type int,
+    PRIMARY KEY (id)
+);

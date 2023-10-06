@@ -23,12 +23,24 @@ def _create_kafka_producer() -> KafkaProducer:
         f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}",
         f"{configs.KAFKA_HOST2}:{configs.KAFKA_PORT2}",
         f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}",
+        f"{configs.KAFKA_HOST4}:{configs.KAFKA_PORT4}",
     ]
 
     return KafkaProducer(
         bootstrap_servers=bootstrap_servers,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
     )
+
+
+def on_send_success(record_metadata):
+    print(record_metadata.topic)
+    print(record_metadata.partition)
+    print(record_metadata.offset)
+    print(record_metadata.message)
+
+
+def on_send_error(excp):
+    print("I am an errback", exc_info=excp)
 
 
 async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> None:
@@ -48,7 +60,9 @@ async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> 
     -------
     None
     """
-    producer.send(topic, message)
+    producer.send(topic, message).add_callback(on_send_success).add_errback(
+        on_send_error
+    )
 
 
 async def _send_batch_to_kafka(
@@ -208,7 +222,9 @@ async def main() -> None:
     None
     """
     timeout = httpx.Timeout(connect=None, read=None, write=None, pool=None)
-    limits = httpx.Limits(max_keepalive_connections=None, keepalive_expiry=None)
+    limits = httpx.Limits(
+        max_connections=None, max_keepalive_connections=20, keepalive_expiry=None
+    )
 
     async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
         producer = _create_kafka_producer()
@@ -235,12 +251,21 @@ async def main() -> None:
             {
                 "topic": "shapes",
                 "end_point": "shapes",
-                "params": {"filter[route]": "Red"},
+                "params": {
+                    "filter[route]": "Green-D",
+                },
             },
             {
                 "topic": "vehicles",
                 "end_point": "vehicles",
                 "params": {"filter[route]": "Red"},
+            },
+            {
+                "topic": "routes",
+                "end_point": "routes",
+                "params": {
+                    "filter[id]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
+                },
             },
         )
 
