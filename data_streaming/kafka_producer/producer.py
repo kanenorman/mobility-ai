@@ -227,7 +227,10 @@ async def main() -> None:
             {
                 "topic": "stops",
                 "end_point": "stops",
-                "params": {"filter[route]": "Red", "include": "child_stops"},
+                "params": {
+                    "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
+                    "include": "child_stops",
+                },
             },
             {
                 "topic": "shapes",
