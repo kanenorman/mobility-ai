@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS  route (
     event VARCHAR(255) NOT NULL,
     color CHAR(7),
     description VARCHAR(255),
-    direction_destinations JSONB,
+    direction_destinations text[],
     fare_class VARCHAR(255),
     long_name VARCHAR(255),
     short_name VARCHAR(255),
