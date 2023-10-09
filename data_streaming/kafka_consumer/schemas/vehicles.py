@@ -51,7 +51,7 @@ def parse_vehicles_topic(
             T.StructField("latitude", T.DoubleType()),
             T.StructField("longitude", T.DoubleType()),
             T.StructField("occupancy_status", carriages_struct),
-            T.StructField("speed", T.IntegerType()),
+            T.StructField("speed", T.DoubleType()),
             T.StructField("updated_at", T.TimestampType()),
         ]
     )
