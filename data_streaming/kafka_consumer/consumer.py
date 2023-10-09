@@ -32,8 +32,7 @@ def _read_stream_from_kafka(spark: SparkSession, kafka_topic: str) -> DataFrame:
     server_1 = f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}"
     server_2 = f"{configs.KAFKA_HOST2}:{configs.KAFKA_PORT2}"
     server_3 = f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}"
-    server_4 = f"{configs.KAFKA_HOST4}:{configs.KAFKA_PORT4}"
-    bootstrap_servers = f"{server_1},{server_2},{server_3},{server_4}"
+    bootstrap_servers = f"{server_1},{server_2},{server_3}"
 
     return (
         spark.readStream.format("kafka")

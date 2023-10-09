@@ -23,7 +23,6 @@ def _create_kafka_producer() -> KafkaProducer:
         f"{configs.KAFKA_HOST1}:{configs.KAFKA_PORT1}",
         f"{configs.KAFKA_HOST2}:{configs.KAFKA_PORT2}",
         f"{configs.KAFKA_HOST3}:{configs.KAFKA_PORT3}",
-        f"{configs.KAFKA_HOST4}:{configs.KAFKA_PORT4}",
     ]
 
     return KafkaProducer(

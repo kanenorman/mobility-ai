@@ -10,8 +10,6 @@ class _Config:
     KAFKA_PORT2: str = os.environ["KAFKA_PORT2"]
     KAFKA_HOST3: str = os.environ["KAFKA_HOST3"]
     KAFKA_PORT3: str = os.environ["KAFKA_PORT3"]
-    KAFKA_HOST4: str = os.environ["KAFKA_HOST4"]
-    KAFKA_PORT4: str = os.environ["KAFKA_PORT4"]
     MBTA_API_KEY: str = os.environ["MBTA_API_KEY"]
 
 
