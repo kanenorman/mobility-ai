@@ -80,13 +80,15 @@ def parse_routes_topic(
     ).select(
         "json.event",
         "json.data.id",
-        "json.data.attributes.color",
         "json.data.attributes.description",
         "json.data.attributes.direction_destinations",
         "json.data.attributes.fare_class",
         "json.data.attributes.long_name",
         "json.data.attributes.short_name",
         "json.data.attributes.short_order",
-        "json.data.attributes.text_color",
         "json.data.attributes.type",
+        F.concat(F.lit("#"), F.col("json.data.attributes.color")).alias("color"),
+        F.concat(F.lit("#"), F.col("json.data.attributes.text_color")).alias(
+            "text_color"
+        ),
     )
