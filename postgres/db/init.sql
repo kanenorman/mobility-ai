@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS vehicle (
     latitude double precision,
     longitude double precision,
     occupancy_status varchar(255),
-    speed integer,
+    speed double precision,
     updated_at timestamp NOT NULL,
     route_id varchar(255),
     stop_id varchar(255),
