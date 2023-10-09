@@ -32,10 +32,11 @@ def _create_kafka_producer() -> KafkaProducer:
 
 
 def on_send_success(record_metadata):
-    print(record_metadata.topic)
+    print(f"SUCCESS {record_metadata.topic}")
     print(record_metadata.partition)
     print(record_metadata.offset)
     print(record_metadata.message)
+    print("--------------------")
 
 
 def on_send_error(excp):
@@ -59,9 +60,12 @@ async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> 
     -------
     None
     """
+    print(f"ATTEMPTED {topic=}")
     producer.send(topic, message).add_callback(on_send_success).add_errback(
         on_send_error
     )
+    print(f"SHOULD BE SENT {topic=}")
+    print("--------------")
 
 
 async def _send_batch_to_kafka(
@@ -127,7 +131,7 @@ def _iter_sse_retrying(
     last_event_id = ""
     reconnection_delay = 0.0
 
-    @retry(on=httpx.ReadError, attempts=5)
+    @retry(on=[httpx.ReadError, httpx.RemoteProtocolError], attempts=5)
     async def _aiter_sse():
         nonlocal last_event_id, reconnection_delay
 
@@ -232,12 +236,16 @@ async def main() -> None:
             {
                 "topic": "schedules",
                 "end_point": "schedules",
-                "params": {"filter[route]": "Red"},
+                "params": {
+                    "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
+                },
             },
             {
                 "topic": "trips",
                 "end_point": "trips",
-                "params": {"filter[route]": "Red"},
+                "params": {
+                    "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
+                },
             },
             {
                 "topic": "stops",
@@ -251,13 +259,15 @@ async def main() -> None:
                 "topic": "shapes",
                 "end_point": "shapes",
                 "params": {
-                    "filter[route]": "Green-D",
+                    "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
                 },
             },
             {
                 "topic": "vehicles",
                 "end_point": "vehicles",
-                "params": {"filter[route]": "Red"},
+                "params": {
+                    "filter[route]": "Green-B,Green-C,Green-D,Green-E",
+                },
             },
             {
                 "topic": "routes",
