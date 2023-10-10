@@ -62,19 +62,31 @@
     <!-- Plot the train tracks-->
     <script>
       const trainLines = {{train_lines | tojson | safe }};
-      const trainJSON = JSON.parse(trainLines);
-      const geoJson = L.geoJSON(trainJSON, {style: {"color": "#FF0000"}})
-      geoJson.addTo(map);
+
+      trainLines.forEach(function (train) {
+        const color = train[0];
+        const geometry = train[1];
+        L.geoJson(JSON.parse(geometry), {style: {"color": color}}).addTo(map);
+      });
     </script>
 
     <!-- Plot the markers for the train stop locations -->
     <script>
       const stops = {{stops | tojson | safe }};
 
+      const blackIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [12.5, 20.5],
+        iconAnchor: [6.25, 20.5],
+        popupAnchor: [0.5, -17],
+        shadowSize: [20.5, 20.5]
+      });
+
       stops.forEach(function (stop) {
-        const marker = L.marker([stop.latitude, stop.longitude]);
+        const marker = L.marker([stop.latitude, stop.longitude], {icon: blackIcon});
         marker.addTo(map);
-        marker.bindPopup(stop.name).openPopup();
+        marker.bindPopup(stop.name);
       });
     </script>
   </body>

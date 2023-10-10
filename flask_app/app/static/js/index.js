@@ -1,5 +1,10 @@
 const bostonCoordinates = [42.3601, -71.0589];
-const map = L.map("map").setView(bostonCoordinates, 12);
+const map = L.map("map", {
+  renderer: L.canvas(),
+  smoothWheelZoom: true,
+  smoothSensitivity: 2,
+});
+map.setView(bostonCoordinates, 12);
 var CartoDB_Voyager = L.tileLayer(
   "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
   {
