@@ -19,12 +19,14 @@ Instead of precise arrival times, we predict delay durations. This offers a
 more tractable modeling task: a 5-minute predicted delay can be added to the
 scheduled time, while negligible delays suggest on-time arrivals.
 """
+from typing import Dict, Tuple
+
 import h3
-from haversine import haversine, Unit
-from sklearn.preprocessing import LabelEncoder
 import numpy as np
-from typing import Tuple, Dict
 import pandas as pd
+from haversine import Unit, haversine
+from sklearn.preprocessing import LabelEncoder
+
 
 def create_date_features(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -41,20 +43,20 @@ def create_date_features(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame with additional date features.
     """
     # Convert the scheduled_time into a datetime object
-    df['scheduled_time'] = pd.to_datetime(df['scheduled_time'])
+    df["scheduled_time"] = pd.to_datetime(df["scheduled_time"])
 
     # Extract date features
-    df['month'] = df['scheduled_time'].dt.month
-    df['day_of_week'] = df['scheduled_time'].dt.dayofweek
-    df['day_of_year'] = df['scheduled_time'].dt.dayofyear
+    df["month"] = df["scheduled_time"].dt.month
+    df["day_of_week"] = df["scheduled_time"].dt.dayofweek
+    df["day_of_year"] = df["scheduled_time"].dt.dayofyear
 
     # Create sin/cos encoding for time
-    seconds_in_day = 24*60*60
-    df['sin_time'] = np.sin(2*np.pi*df['scheduled_time'].dt.second/seconds_in_day)
-    df['cos_time'] = np.cos(2*np.pi*df['scheduled_time'].dt.second/seconds_in_day)
+    seconds_in_day = 24 * 60 * 60
+    df["sin_time"] = np.sin(2 * np.pi * df["scheduled_time"].dt.second / seconds_in_day)
+    df["cos_time"] = np.cos(2 * np.pi * df["scheduled_time"].dt.second / seconds_in_day)
 
     # Determine season based on month
-    df['season'] = df['month'].apply(lambda x: (x%12 + 3)//3)
+    df["season"] = df["month"].apply(lambda x: (x % 12 + 3) // 3)
 
     return df
 
@@ -85,16 +87,34 @@ def transform(data_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, LabelEncod
     data_df["actual_arrival_time"] = pd.to_datetime(data_df["actual_arrival_time"])
 
     # Compute "predictor_delay_seconds" in seconds
-    data_df["predictor_delay_seconds"] = (data_df["actual_arrival_time"] - data_df["scheduled_time"]).dt.total_seconds()
+    data_df["predictor_delay_seconds"] = (
+        data_df["actual_arrival_time"] - data_df["scheduled_time"]
+    ).dt.total_seconds()
 
     # Compute the hex values for locations
     resolution = 9  # you can adjust the resolution as required
-    data_df['current_location_hex'] = data_df.apply(lambda row: h3.geo_to_h3(row['current_latitude'], row['current_longitude'], resolution), axis=1)
-    data_df['destination_location_hex'] = data_df.apply(lambda row: h3.geo_to_h3(row['destination_latitude'], row['destination_longitude'], resolution), axis=1)
+    data_df["current_location_hex"] = data_df.apply(
+        lambda row: h3.geo_to_h3(
+            row["current_latitude"], row["current_longitude"], resolution
+        ),
+        axis=1,
+    )
+    data_df["destination_location_hex"] = data_df.apply(
+        lambda row: h3.geo_to_h3(
+            row["destination_latitude"], row["destination_longitude"], resolution
+        ),
+        axis=1,
+    )
 
     # Encode categorical columns
     le_dict = {}
-    for col in ["vehicle_id", "destination", "platform_name", "current_location_hex", "destination_location_hex"]:
+    for col in [
+        "vehicle_id",
+        "destination",
+        "platform_name",
+        "current_location_hex",
+        "destination_location_hex",
+    ]:
         le = LabelEncoder()
         data_df[col] = le.fit_transform(data_df[col])
         le_dict[col] = le
@@ -102,25 +122,43 @@ def transform(data_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, LabelEncod
     # Compute distance of travel using haversine package and name it as "distance_travel_miles"
     data_df["distance_travel_miles"] = data_df.apply(
         lambda x: haversine(
-            (x['current_latitude'], x['current_longitude']),
-            (x['destination_latitude'], x['destination_longitude']),
-            unit=Unit.MILES
+            (x["current_latitude"], x["current_longitude"]),
+            (x["destination_latitude"], x["destination_longitude"]),
+            unit=Unit.MILES,
         ),
-        axis=1
+        axis=1,
     )
 
     # Extract date-based features
     data_df = create_date_features(data_df)
 
     # Drop unnecessary columns
-    cols_to_drop = ['time_stamp', 'current_status', 'trip_name', 'stop_id', 'trip_id', 'sch_stop_id', 'sch_trip_id',
-                    'actual_arrival_time', 'scheduled_time', 'current_latitude', 'current_longitude',
-                    'destination_latitude', 'destination_longitude', 'delay', 'distance_travel', 'predictor_delay_time']
-    transformed_df = data_df.drop(columns=cols_to_drop, errors='ignore')  # Added errors='ignore' to ensure it doesn't fail if a column is missing
+    cols_to_drop = [
+        "time_stamp",
+        "current_status",
+        "trip_name",
+        "stop_id",
+        "trip_id",
+        "sch_stop_id",
+        "sch_trip_id",
+        "actual_arrival_time",
+        "scheduled_time",
+        "current_latitude",
+        "current_longitude",
+        "destination_latitude",
+        "destination_longitude",
+        "delay",
+        "distance_travel",
+        "predictor_delay_time",
+    ]
+    transformed_df = data_df.drop(
+        columns=cols_to_drop, errors="ignore"
+    )  # Added errors='ignore' to ensure it doesn't fail if a column is missing
 
     return transformed_df, le_dict
 
-def data_checks_and_cleaning(df: pd.DataFrame, verbose: bool=True) -> pd.DataFrame:
+
+def data_checks_and_cleaning(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
     """
     Process the MBTA DataFrame to:
     1. Report and flag any erroneous data.
@@ -162,19 +200,21 @@ def data_checks_and_cleaning(df: pd.DataFrame, verbose: bool=True) -> pd.DataFra
     # Derive the number of seconds in 24 hours
     seconds_in_24_hours = 24 * 60 * 60
     # Check if 'predictor_delay_seconds' has extremely large values (more than 24 hours)
-    extreme_delay_count = (abs(df['predictor_delay_seconds']) > seconds_in_24_hours).sum()
+    extreme_delay_count = (
+        abs(df["predictor_delay_seconds"]) > seconds_in_24_hours
+    ).sum()
     if verbose:
         print(f"\nRows with delay exceeding 24 hours: {extreme_delay_count}")
 
     # Checking range of sin_time and cos_time values
-    sin_out_of_range = ((df['sin_time'] < -1) | (df['sin_time'] > 1)).sum()
-    cos_out_of_range = ((df['cos_time'] < -1) | (df['cos_time'] > 1)).sum()
+    sin_out_of_range = ((df["sin_time"] < -1) | (df["sin_time"] > 1)).sum()
+    cos_out_of_range = ((df["cos_time"] < -1) | (df["cos_time"] > 1)).sum()
     if verbose:
         print(f"\nRows with sin_time out of [-1,1] range: {sin_out_of_range}")
         print(f"Rows with cos_time out of [-1,1] range: {cos_out_of_range}")
 
     # Check for negative values in columns where they don't make sense
-    negative_distance_count = (df['distance_travel_miles'] < 0).sum()
+    negative_distance_count = (df["distance_travel_miles"] < 0).sum()
     if verbose:
         print(f"\nRows with negative distance values: {negative_distance_count}")
 
@@ -183,7 +223,9 @@ def data_checks_and_cleaning(df: pd.DataFrame, verbose: bool=True) -> pd.DataFra
     if len(zero_variance_cols) > 0:
         df = df.drop(columns=zero_variance_cols)
         if verbose:
-            print(f"\nDropping columns with zero variance: {', '.join(zero_variance_cols)}")
+            print(
+                f"\nDropping columns with zero variance: {', '.join(zero_variance_cols)}"
+            )
 
     if verbose:
         # Print shape after processing

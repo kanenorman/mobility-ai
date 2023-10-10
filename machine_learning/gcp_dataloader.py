@@ -1,13 +1,13 @@
 """ gcp_dataloader.py: Functions for extracting and preprocessing transit data from GCP,
 targeting machine learning & time series forecasting of bus arrivals and delays.
 """
-from google.colab import auth
-from google.cloud import storage
-from google.cloud import bigquery
-import pandas as pd
-import numpy as np
 import logging
 from datetime import datetime
+
+import numpy as np
+import pandas as pd
+from google.cloud import bigquery, storage
+from google.colab import auth
 
 
 def authenticate_gcp() -> None:
