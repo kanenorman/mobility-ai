@@ -272,9 +272,6 @@ async def main() -> None:
             {
                 "topic": "routes",
                 "end_point": "routes",
-                "params": {
-                    "filter[id]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
-                },
             },
         )
 
