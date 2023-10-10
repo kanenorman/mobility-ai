@@ -31,18 +31,6 @@ def _create_kafka_producer() -> KafkaProducer:
     )
 
 
-def on_send_success(record_metadata):
-    print(f"SUCCESS {record_metadata.topic}")
-    print(record_metadata.partition)
-    print(record_metadata.offset)
-    print(record_metadata.message)
-    print("--------------------")
-
-
-def on_send_error(excp):
-    print("I am an errback", exc_info=excp)
-
-
 async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> None:
     """
     Send a message to a Kafka topic using the provided producer.
@@ -60,12 +48,7 @@ async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> 
     -------
     None
     """
-    print(f"ATTEMPTED {topic=}")
-    producer.send(topic, message).add_callback(on_send_success).add_errback(
-        on_send_error
-    )
-    print(f"SHOULD BE SENT {topic=}")
-    print("--------------")
+    producer.send(topic, message)
 
 
 async def _send_batch_to_kafka(
