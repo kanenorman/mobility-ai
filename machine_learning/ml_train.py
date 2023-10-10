@@ -2,21 +2,21 @@
 It also incorporates functionality to evaluate model performance using various regression metrics.
 """
 import os
-import pandas as pd
-from pathlib import Path
 from datetime import datetime
-from permetrics import RegressionMetric
+from pathlib import Path
 from typing import Tuple
+
+import pandas as pd
 import sklearn.datasets
 import sklearn.metrics
-from sktime.forecasting.model_selection import temporal_train_test_split
-import xgboost as xgb
-from ray import train, tune
-from ray.train import get_context, RunConfig
-from ray import tune
-from ray.tune.logger import DEFAULT_LOGGERS
 import wandb  # Import W&B
+import xgboost as xgb
+from permetrics import RegressionMetric
+from ray import train, tune
 from ray.air.integrations.wandb import WandbLoggerCallback, setup_wandb
+from ray.train import RunConfig, get_context
+from ray.tune.logger import DEFAULT_LOGGERS
+from sktime.forecasting.model_selection import temporal_train_test_split
 
 global mbta_final_df
 
@@ -76,6 +76,7 @@ def compute_metrics_table(forecasts_df: pd.DataFrame) -> pd.DataFrame:
     results_df = pd.DataFrame(final_results).transpose()
 
     return results_df
+
 
 def retrain_best_xgboost(
     data: pd.DataFrame, config: dict, model_save_path: Path, test_size: float = 0.25
@@ -140,11 +141,12 @@ def retrain_best_xgboost(
     metrics_table = compute_metrics_table(forecasts_df)
     return bst, metrics_table
 
-def retrain_model_with_best_config(tuner, 
-                                   data: pd.DataFrame, 
-                                   model_save_path: str) -> Tuple[object, pd.DataFrame]:
+
+def retrain_model_with_best_config(
+    tuner, data: pd.DataFrame, model_save_path: str
+) -> Tuple[object, pd.DataFrame]:
     """
-    Retrieve the best configuration from a completed Ray Tune experiment 
+    Retrieve the best configuration from a completed Ray Tune experiment
     and retrain the model with this configuration.
 
     Parameters
@@ -164,31 +166,30 @@ def retrain_model_with_best_config(tuner,
         Table describing the model's performance.
 
     """
-    
+
     # Get all results from the tuner
     print("Retrieving best configuration from tuner results...")
     results = tuner.get_results()
 
     # Extract the best result based on RMSE
-    best_result = min(results, key=lambda x: x.metrics['rmse'])
+    best_result = min(results, key=lambda x: x.metrics["rmse"])
     best_config = best_result.config
 
     # Print best config for clarity
     print(f"Best configuration found:\n{best_config}")
-    
+
     # Retrain and save the model with the best hyperparameters
     print("Retraining model with the best configuration...")
     best_model, performance_table = retrain_best_xgboost(
-        data=data,
-        config=best_config,
-        model_save_path=model_save_path
+        data=data, config=best_config, model_save_path=model_save_path
     )
-    
+
     # Print performance table
     print("Performance of the retrained model:")
     print(performance_table)
-    
+
     return best_model, performance_table
+
 
 def train_mbta(config):
     """
@@ -234,6 +235,7 @@ def train_mbta(config):
     train.report({"rmse": rmse, "mae": mae, "r2": r2})
     wandb.log({"rmse": rmse, "mae": mae, "r2": r2, "config": config})
 
+
 if __name__ == "__main__":
     print(f"Model will be saved in: {MODEL_DIR}")
     print(f"Experiments will be stored in: {EXPERIMENT_DIR}")
@@ -254,7 +256,7 @@ if __name__ == "__main__":
         tune_config=tune.TuneConfig(
             metric="rmse",
             mode="min",
-            num_samples=NUM_TRIALS # specify number of experiments 
+            num_samples=NUM_TRIALS,  # specify number of experiments
         ),
         run_config=train.RunConfig(
             callbacks=[WandbLoggerCallback(project="ac215_harvard_mobility_ai")]
@@ -270,18 +272,18 @@ if __name__ == "__main__":
             "colsample_bytree": tune.uniform(0.4, 1.0),
         },
     )
-    tuner.fit()  
+    tuner.fit()
 
     # Get all results
     results = tuner.get_results()
 
     # Extract the best result based on RMSE
-    best_result = min(results, key=lambda x: x.metrics['rmse'])
+    best_result = min(results, key=lambda x: x.metrics["rmse"])
     best_config = best_result.config
 
     # Retrain and save the model with the best hyperparameters
     best_model, performance_table = retrain_model_with_best_config(
-      tuner=tuner, 
-      data=mbta_final_df, 
-      model_save_path=str(MODEL_DIR / "final_best_xgboost.json")
+        tuner=tuner,
+        data=mbta_final_df,
+        model_save_path=str(MODEL_DIR / "final_best_xgboost.json"),
     )
