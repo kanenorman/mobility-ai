@@ -88,30 +88,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  broker4:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: broker4
-    networks:
-      - network
-    hostname: ${KAFKA_HOST4}
-    ports:
-      - "${KAFKA_PORT4}:${KAFKA_PORT4}"
-    environment:
-      KAFKA_BROKER_ID: 4
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:${ZOOKEEPER_PORT}"
-      KAFKA_LISTENERS: "INTERNAL://${KAFKA_HOST4}:${KAFKA_PORT4}"
-      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://${KAFKA_HOST4}:${KAFKA_PORT4}"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
-      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST4} ${KAFKA_PORT4}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
   schema-registry:
     image: confluentinc/cp-schema-registry:7.5.0
     hostname: schema-registry
