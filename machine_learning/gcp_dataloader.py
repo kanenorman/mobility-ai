@@ -6,7 +6,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from google.cloud import bigquery, storage
+from google.cloud import bigquery
 from google.colab import auth
 
 
@@ -120,10 +120,10 @@ def extract_from_gcp(
 
     # Log the details and execution time
     if verbose:
-        print(f"Data successfully extracted from BigQuery.")
+        print("Data successfully extracted from BigQuery.")
         print(f"Source Table: {vehicle_table}")
         print(f"Google Cloud Project ID: {project_id}")
-        print(f"Service: BigQuery")
+        print("Service: BigQuery")
         print(f"Execution Time: {execution_time}")
 
     # After extracting data, close the client connection if close_connection is set to True
