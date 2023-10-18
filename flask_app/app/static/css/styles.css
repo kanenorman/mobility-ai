@@ -1,0 +1,60 @@
+.tabs li.is-active a {
+  font-weight: bold;
+}
+
+.tabs li.is-active a#red-line {
+  border-bottom-color: #da291c;
+  color: #da291c;
+}
+
+.tabs li.is-active a#blue-line {
+  border-bottom-color: #003da5;
+  color: #003da5;
+}
+
+.tabs li.is-active a#orange-line {
+  border-bottom-color: #ed8b00;
+  color: #ed8b00;
+}
+
+.tabs li.is-active a#green-line-b {
+  border-bottom-color: #00843d;
+  color: #00843d;
+}
+
+.tabs li.is-active a#green-line-c {
+  border-bottom-color: #00843d;
+  color: #00843d;
+}
+.tabs li.is-active a#green-line-d {
+  border-bottom-color: #00843d;
+  color: #00843d;
+}
+
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card-header {
+  background-color: transparent;
+  align-items: stretch;
+  box-shadow: none;
+  display: flex;
+}
+
+.table.is-borderless td,
+.table.is-borderless th {
+  border: 0;
+}
+
+.card {
+  min-height: 85vh;
+}
+
+.mapboxgl-popup-content {
+  text-align: center;
+  font-family: "Open Sans", sans-serif;
+  font-style: italic;
+  font-weight: bold;
+}
