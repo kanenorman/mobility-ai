@@ -1,11 +1,12 @@
-<img src="assets/figures/mobility_ai_logo.png" alt="Mobility AI Logo" width="400"/>
+<div align="center">
+  <img src="assets/figures/mobility_ai_logo.png" alt="Mobility AI Logo" width="400"/>
+</div>
 
 <hr>
 
 [![Python Badge](https://img.shields.io/badge/Python-3776ab?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
 [![Flask Badge](https://img.shields.io/badge/Flask-5DB036?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![PyTorch Badge](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![scikit-learn Badge](https://img.shields.io/badge/scikit_learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![Apache Spark Badge](https://img.shields.io/badge/Apache_Spark-FFFFFF?style=for-the-badge&logo=apachespark&logoColor=%23E35A1C)](https://spark.apache.org/)
 [![Docker Badge](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![PostgreSQL Badge](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -15,7 +16,6 @@
 ## Project Health
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/kanenorman/AC215_MBTArrivals-App/main.svg)](https://results.pre-commit.ci/latest/github/kanenorman/AC215_MBTArrivals-App/main)
-
 [![Unit Tests](https://github.com/kanenorman/AC215_MBTArrivals-App/actions/workflows/run-unit-test.yml/badge.svg)](https://github.com/kanenorman/AC215_MBTArrivals-App/actions/workflows/run-unit-test.yml)
 
 ## Project Introduction
