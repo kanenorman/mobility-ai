@@ -1,24 +1,27 @@
-""" 
+"""
 DNN_train_base.py: This module contains functions to train, build, and save DNN models.
 It also incorporates functionality to evaluate model performance using various metrics.
 """
 
 # Import necessary packages
 import os
-import pandas as pd
-from pathlib import Path
 from datetime import datetime
-import tensorflow as tf
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from tensorflow_addons.optimizers import AdamW
-from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
+from pathlib import Path
+
+import pandas as pd
+import psutil
 import ray
 import ray.tune as tune
-import wandb
-import psutil
+import tensorflow as tf
 import tensorflow_addons as tfa
-os.environ["WANDB_API_KEY"] ="610d13d9a43fffd83600c4d4e90ccaba1646acbd"
+import wandb
+from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+from tensorflow_addons.optimizers import AdamW
+
+os.environ["WANDB_API_KEY"] = "610d13d9a43fffd83600c4d4e90ccaba1646acbd"
+
 
 ## Prepare environment to train base model ##
 # Check and configure available computational resources
@@ -39,9 +42,10 @@ def check_resources():
     num_gpus = len(ray.get_gpu_ids())
 
     # Determine total system memory
-    total_memory_gb = psutil.virtual_memory().total / (1024 ** 3)  # in GB
+    total_memory_gb = psutil.virtual_memory().total / (1024**3)  # in GB
 
     return num_cpus, num_gpus, total_memory_gb
+
 
 # Define funciton to allocate computational resource
 def configure_ray_resources(num_cpus, num_gpus):
@@ -55,6 +59,7 @@ def configure_ray_resources(num_cpus, num_gpus):
     # Initialize Ray with available resources
     ray.shutdown()
     ray.init(num_cpus=num_cpus, num_gpus=num_gpus)
+
 
 # Determine computational resources
 num_cpus, num_gpus, total_memory_gb = check_resources()
@@ -85,28 +90,48 @@ optimizer = AdamW(learning_rate=0.001, weight_decay=1e-4)
 NUM_TRIALS = 10
 
 # Define Model Training Callbacks
-DNN_early_10 = EarlyStopping(monitor='val_loss', patience=10, mode='min')
-DNN_plateau_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.8, patience=6, verbose=1, mode='min', min_lr=0.0001)
-DNN_BestFit = ModelCheckpoint(filepath='DNN_best_fit.h5', save_best_only=True, save_weights_only=False, monitor='val_loss', mode='min')
+DNN_early_10 = EarlyStopping(monitor="val_loss", patience=10, mode="min")
+DNN_plateau_lr = ReduceLROnPlateau(
+    monitor="val_loss", factor=0.8, patience=6, verbose=1, mode="min", min_lr=0.0001
+)
+DNN_BestFit = ModelCheckpoint(
+    filepath="DNN_best_fit.h5",
+    save_best_only=True,
+    save_weights_only=False,
+    monitor="val_loss",
+    mode="min",
+)
+
 
 # Define function to create a simple DNN model
 def create_dnn_model(input_dim, dropout_rate):
-    model = tf.keras.Sequential([
-        tf.keras.layers.Dense(128, activation='relu', input_shape=(input_dim,)),
-        tf.keras.layers.BatchNormalization(), #Batch normalization to facilitate backpropogation
-        tf.keras.layers.Dropout(dropout_rate),  #Dropout_rate to improve generalization through regularization
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.BatchNormalization(), #Batch normalization to facilitate backpropogation
-        tf.keras.layers.Dropout(dropout_rate),  #Dropout_rate to improve generalization through regularization
-        tf.keras.layers.Dense(32, activation='relu'),
-        tf.keras.layers.BatchNormalization(), #Batch normalization to facilitate backpropogation
-        tf.keras.layers.Dropout(dropout_rate),  #Dropout_rate to improve generalization through regularization
-        tf.keras.layers.Dense(16, activation='relu'),
-        tf.keras.layers.BatchNormalization(), #Batch normalization to facilitate backpropogation
-        tf.keras.layers.Dropout(dropout_rate),  #Dropout_rate to improve generalization through regularization
-        tf.keras.layers.Dense(1)  # Regression (linear) layer
-    ])
+    model = tf.keras.Sequential(
+        [
+            tf.keras.layers.Dense(128, activation="relu", input_shape=(input_dim,)),
+            tf.keras.layers.BatchNormalization(),  # Batch normalization to facilitate backpropogation
+            tf.keras.layers.Dropout(
+                dropout_rate
+            ),  # Dropout_rate to improve generalization through regularization
+            tf.keras.layers.Dense(64, activation="relu"),
+            tf.keras.layers.BatchNormalization(),  # Batch normalization to facilitate backpropogation
+            tf.keras.layers.Dropout(
+                dropout_rate
+            ),  # Dropout_rate to improve generalization through regularization
+            tf.keras.layers.Dense(32, activation="relu"),
+            tf.keras.layers.BatchNormalization(),  # Batch normalization to facilitate backpropogation
+            tf.keras.layers.Dropout(
+                dropout_rate
+            ),  # Dropout_rate to improve generalization through regularization
+            tf.keras.layers.Dense(16, activation="relu"),
+            tf.keras.layers.BatchNormalization(),  # Batch normalization to facilitate backpropogation
+            tf.keras.layers.Dropout(
+                dropout_rate
+            ),  # Dropout_rate to improve generalization through regularization
+            tf.keras.layers.Dense(1),  # Regression (linear) layer
+        ]
+    )
     return model
+
 
 # Initialize Ray for parameter tuning
 ray.shutdown()
@@ -122,8 +147,9 @@ param_space = {
     "output_activation": "linear",
     "loss": "mean_squared_error",
     "dropout_rate": tune.uniform(0.0, 0.5),
-    "early_stopping_patience": tune.choice([5, 10, 15])
+    "early_stopping_patience": tune.choice([5, 10, 15]),
 }
+
 
 # Define function to train the DNN
 def train_dnn(data, model_save_path, config):
@@ -143,7 +169,7 @@ def train_dnn(data, model_save_path, config):
     hidden_layers = config["hidden_layers"]
     learning_rate = config["learning_rate"]
     batch_size = config["batch_size"]
-    epochs  = config["epochs"]
+    epochs = config["epochs"]
     activation = config["activation"]
     output_activation = config["output_activation"]
     loss = config["loss"]
@@ -151,40 +177,60 @@ def train_dnn(data, model_save_path, config):
     early_stopping_patience = config["early_stopping_patience"]
 
     # Set AdamW optimizer with the specified learning rate
-    optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate, weight_decay=1e-4)
+    optimizer = tf.keras.optimizers.AdamW(
+        learning_rate=learning_rate, weight_decay=1e-4
+    )
 
     # Split data into train and test sets
     train_df, test_df = train_test_split(data, test_size=0.3)
-    #Train data
+    # Train data
     train_x = train_df.drop("predictor_delay_seconds", axis=1)
     train_y = train_df["predictor_delay_seconds"]
-    #Test data
+    # Test data
     test_x = test_df.drop("predictor_delay_seconds", axis=1)
     test_y = test_df["predictor_delay_seconds"]
 
     # Create and compile DNN model
     input_dim = train_x.shape[1]
     dnn_model = create_dnn_model(input_dim, dropout_rate)
-    dnn_model.compile(loss='mean_squared_error', optimizer=optimizer, metrics=[tf.keras.metrics.MeanAbsoluteError(), tf.keras.metrics.RootMeanSquaredError()])
+    dnn_model.compile(
+        loss="mean_squared_error",
+        optimizer=optimizer,
+        metrics=[
+            tf.keras.metrics.MeanAbsoluteError(),
+            tf.keras.metrics.RootMeanSquaredError(),
+        ],
+    )
 
     # Train DNN model (+ save fit history)
-    history = dnn_model.fit(train_x, train_y, epochs=config["epochs"], batch_size=config["batch_size"], validation_data=(test_x, test_y), verbose=2, callbacks=[DNN_early_10, DNN_plateau_lr, DNN_BestFit])
+    history = dnn_model.fit(
+        train_x,
+        train_y,
+        epochs=config["epochs"],
+        batch_size=config["batch_size"],
+        validation_data=(test_x, test_y),
+        verbose=2,
+        callbacks=[DNN_early_10, DNN_plateau_lr, DNN_BestFit],
+    )
 
     # Save DNN model
     dnn_model.save(model_save_path)
-    print(f"Model saved to: {model_save_path}") #Report where it is saved for reference
+    print(
+        f"Model saved to: {model_save_path}"
+    )  # Report where it is saved for reference
 
     # Evaluate DNN model on test set
-    y_pred = dnn_model.predict(test_x) #Make predictions
-    mae = mean_absolute_error(test_y, y_pred) #Evaluate performance
-    rmse = mean_squared_error(test_y, y_pred, squared=False) #Evaluate performance
-    r2 = r2_score(test_y, y_pred) #Evaluate performance
+    y_pred = dnn_model.predict(test_x)  # Make predictions
+    mae = mean_absolute_error(test_y, y_pred)  # Evaluate performance
+    rmse = mean_squared_error(test_y, y_pred, squared=False)  # Evaluate performance
+    r2 = r2_score(test_y, y_pred)  # Evaluate performance
 
     # Report metrics to Ray and W&B
     train.report({"rmse": rmse, "mae": mae, "r2": r2})
     wandb.log({"rmse": rmse, "mae": mae, "r2": r2, "config": config})
 
     return dnn_model
+
 
 # Define function for hyperparameter tuning
 def trainable(config):
@@ -200,11 +246,12 @@ def trainable(config):
     # Initialize W&B for each model configuration
     wandb.init(project="mbtadnn")
     run_id = str(wandb.run.id)  # Convert wandb.run.id to a string
-    model_save_path = str(MODEL_DIR / f'dnn_model_{run_id}.h5')
+    model_save_path = str(MODEL_DIR / f"dnn_model_{run_id}.h5")
     print(f"Model will be saved in: {model_save_path}")
 
     # Train DNN model
     dnn_model = train_dnn(mbta_final_df, model_save_path, config)
+
 
 # Start hyperparameter tuning experiment
 analysis = tune.run(
@@ -212,11 +259,13 @@ analysis = tune.run(
     config=param_space,
     num_samples=NUM_TRIALS,
     name="dnn_tuning",
-    stop={"training_iteration": 5},  # Change 1 to the number of desired training iterations
+    stop={
+        "training_iteration": 5
+    },  # Change 1 to the number of desired training iterations
     local_dir=str(EXPERIMENT_DIR),  # Specify the directory to store results
     verbose=1,  # Increase the verbosity for logging
     metric="rmse",  # Specify the metric you want to optimize (e.g., "rmse")
-    mode="min"  # Specify the mode, which can be "min" or "max" depending on the optimization goal
+    mode="min",  # Specify the mode, which can be "min" or "max" depending on the optimization goal
 )
 
 # Report best hyperparameters and metrics
@@ -224,10 +273,11 @@ print("Best hyperparameters:", analysis.best_config)
 print("Best RMSE:", analysis.best_result["rmse"])
 
 # Close W&B after logging completes
-wandb.finish() 
+wandb.finish()
 
 # Define the best hyperparameters
 best_hyperparameters = analysis.best_config
+
 
 ## Train DNN with best fitting hyperparameters ##
 def train_best_dnn(data, model_save_path, best_hyperparameters):
@@ -257,24 +307,41 @@ def train_best_dnn(data, model_save_path, best_hyperparameters):
     early_stopping_patience = best_hyperparameters["early_stopping_patience"]
 
     # Initialize AdamW optimizer with the best learning rate
-    optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate, weight_decay=1e-4)
+    optimizer = tf.keras.optimizers.AdamW(
+        learning_rate=learning_rate, weight_decay=1e-4
+    )
 
     # Split the data into train and test sets
     train_df, test_df = train_test_split(data, test_size=0.3)
-    #Train data
+    # Train data
     train_x = train_df.drop("predictor_delay_seconds", axis=1)
     train_y = train_df["predictor_delay_seconds"]
-    #Test data
+    # Test data
     test_x = test_df.drop("predictor_delay_seconds", axis=1)
     test_y = test_df["predictor_delay_seconds"]
 
     # Create and compile the DNN model with the best hyperparameters
     input_dim = train_x.shape[1]
     dnn_model = create_dnn_model(input_dim, dropout_rate)
-    dnn_model.compile(loss='mean_squared_error', optimizer=optimizer, metrics=[tf.keras.metrics.MeanAbsoluteError(), tf.keras.metrics.RootMeanSquaredError()])
+    dnn_model.compile(
+        loss="mean_squared_error",
+        optimizer=optimizer,
+        metrics=[
+            tf.keras.metrics.MeanAbsoluteError(),
+            tf.keras.metrics.RootMeanSquaredError(),
+        ],
+    )
 
     # Train best fitting DNN model
-    history = dnn_model.fit(train_x, train_y, epochs=epochs, batch_size=batch_size, validation_data=(test_x, test_y), verbose=2, callbacks=[DNN_early_10, DNN_plateau_lr, DNN_BestFit])
+    history = dnn_model.fit(
+        train_x,
+        train_y,
+        epochs=epochs,
+        batch_size=batch_size,
+        validation_data=(test_x, test_y),
+        verbose=2,
+        callbacks=[DNN_early_10, DNN_plateau_lr, DNN_BestFit],
+    )
 
     # Save best fitting DNN model
     dnn_model.save(model_save_path)
@@ -292,9 +359,12 @@ def train_best_dnn(data, model_save_path, best_hyperparameters):
 
     return dnn_model
 
+
 # Train the DNN model with the best hyperparameters
-best_model_save_path = MODEL_DIR / 'best_dnn_model.h5'
-best_trained_dnn_model = train_best_dnn(mbta_final_df, best_model_save_path, best_hyperparameters)
+best_model_save_path = MODEL_DIR / "best_dnn_model.h5"
+best_trained_dnn_model = train_best_dnn(
+    mbta_final_df, best_model_save_path, best_hyperparameters
+)
 
 # Shut down Ray
 ray.shutdown()
