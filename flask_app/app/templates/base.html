@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>MBTA Transit Predictor</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Include  Bulma CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+
+    <!--MapBox-->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+    <!--Font Awesome-->
+    <script
+      src="https://kit.fontawesome.com/516b63bb3e.js"
+      crossorigin="anonymous"
+    ></script>
+    <!--Custom CSS-->
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+
+  <body>
+    <!--Two Column Content-->
+    <section class="section">
+      <div class="container is-fluid">
+        <div class="columns">
+          <div class="column">
+            {% include "navigation.html" %}
+            <div id="content" class="columns" style="height: 85vh">
+              {% block content %} {% endblock content %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,93 +1,134 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>MBTA Transit Predictor</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- Include  Bulma CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
-    />
+{% extends "base.html" %} {% block content %}
+<div class="column is-half">
+  <div id="map" style="height: 85vh"></div>
+</div>
+<div class="column is-half">
+  <div class="card" style="height: 85vh">
+    <div class="tabs is-centered">
+      <ul>
+        <li class="is-active" data-target="red-line-table">
+          <a id="red-line">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fa-solid fa-train-subway"></i> </span
+              ><span>Red</span>
+            </span>
+          </a>
+        </li>
+        <li data-target="blue-line-table">
+          <a id="blue-line">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fa-solid fa-train-subway"></i> </span
+              ><span>Blue</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a id="orange-line">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fa-solid fa-train-subway"></i> </span
+              ><span>Orange</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a id="green-line-b">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fa-solid fa-train-subway"></i> </span
+              ><span>Green-B</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a id="green-line-c">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fa-solid fa-train-subway"></i> </span
+              ><span>Green-C</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a id="green-line-d">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fa-solid fa-train-subway"></i> </span
+              ><span>Green-D</span>
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
 
-    <!--Leaflet-->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-  </head>
-
-  <body>
-    <section class="section">
-      <div class="container">
-        <div class="columns">
-          <div class="column">
-            <div id="map" style="height: 800px"></div>
-          </div>
-          <div class="column">
-            <div class="card">
-              <table class="table is-hoverable">
-                <thead>
-                  <tr>
-                    <th>Station</th>
-                    <th>Scheduled Arrival</th>
-                    <th>Predicted Arrival</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for schedule in data %}
-                  <tr>
-                    <td>{{ schedule.id }}</td>
-                    <td>{{ schedule.arrival_time }}</td>
-                    <td>{{ schedule.departure_time }}</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+    <div class="card-content has-text-centered">
+      <div class="content" id="tab-content">
+        <table
+          class="table is-hoverable center is-borderless"
+          id="red-line-table"
+        >
+          <thead>
+            <tr>
+              <th>Station</th>
+              <th>Scheduled Arrival</th>
+              <th>Predicted Arrival</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alewife</td>
+              <td>Arrival Time</td>
+              <td>Departure Time</td>
+            </tr>
+          </tbody>
+        </table>
+        <table
+          class="table is-hoverable is-hidden center is-borderless"
+          id="blue-line-table"
+        >
+          <thead>
+            <tr>
+              <th>Blue</th>
+              <th>Scheduled Arrival</th>
+              <th>Predicted Arrival</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alewife</td>
+              <td>Arrival Time</td>
+              <td>Departure Time</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </section>
-    <script src="static/js/index.js"></script>
+    </div>
+  </div>
+</div>
+<script src="static/js/index.js"></script>
+<script>
+  // render map
+  const bostonCoordinates = [-71.0738174384645, 42.356584808288495];
+  mapboxgl.accessToken = {{mapbox_token | tojson | safe }};
 
-    <!-- Plot the train tracks-->
-    <script>
-      const trainLines = {{train_lines | tojson | safe }};
+  const map = new mapboxgl.Map({
+    container: "map",
+    style: "mapbox://styles/kanenorman/clnntf4gd007a01qjdj3b5wvk",
+    center: bostonCoordinates,
+    zoom: 14,
+  });
+</script>
+<script>
+  <!-- Plot the markers for the train stop locations -->
+  const stops = {{stops | tojson | safe }};
 
-      trainLines.forEach(function (train) {
-        const color = train[0];
-        const geometry = train[1];
-        L.geoJson(JSON.parse(geometry), {style: {"color": color}}).addTo(map);
-      });
-    </script>
+  stops.forEach(function (stop) {
+    const popUp = new mapboxgl.Popup().setHTML(stop.name)
+    const marker = new mapboxgl.Marker({color: "black"}).setLngLat([stop.longitude, stop.latitude]).setPopup(popUp);
+    marker.addTo(map);
+  });
+</script>
 
-    <!-- Plot the markers for the train stop locations -->
-    <script>
-      const stops = {{stops | tojson | safe }};
-
-      const blackIcon = new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [12.5, 20.5],
-        iconAnchor: [6.25, 20.5],
-        popupAnchor: [0.5, -17],
-        shadowSize: [20.5, 20.5]
-      });
-
-      stops.forEach(function (stop) {
-        const marker = L.marker([stop.latitude, stop.longitude], {icon: blackIcon});
-        marker.addTo(map);
-        marker.bindPopup(stop.name);
-      });
-    </script>
-  </body>
-</html>
+{% endblock content %}

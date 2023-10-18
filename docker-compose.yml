@@ -201,6 +201,7 @@ services:
     environment:
       - DEV_POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       - PYTHONUNBUFFERED=1
+      - MAPBOX_TOKEN=${MAPBOX_TOKEN}
     depends_on:
       flask_database:
         condition: service_healthy

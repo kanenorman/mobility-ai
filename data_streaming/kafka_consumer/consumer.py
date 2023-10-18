@@ -158,6 +158,7 @@ def start_streaming_job() -> None:
         kafka_topic="routes",
         data_schema=schemas.parse_routes_topic,
         destination_table="route",
+        primary_key="id",
     )
 
     schedule_stream.awaitTermination()
