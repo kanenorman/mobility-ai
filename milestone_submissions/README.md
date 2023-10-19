@@ -320,3 +320,99 @@ One important feature of our workflow is monitoring and experiment tracking thro
 ![WandB Monitoring](../assets/figures/wanddb_monitoring.png)
 
 This platform provides real-time feedback on our training sessions, assisting in keeping our models optimized and efficient -- which will facilitate scaling out our prediction system.
+
+
+
+## Milestone 4: 
+
+### Key Files and Their Functions
+
+1. **DNN_train_base.py**
+
+*Description*: Trains, builds, and saves Deep Neural Network (DNN) models.
+
+**Environment Setup**:
+```python
+- Determines and configures available computational resources, including CPU cores and GPUs.
+- Allocates computational resources for Ray, promoting efficiency through parallel processing.
+- Defined file paths for model storage and results; ensures directories exist, creates them if not.
+```
+
+**Data Preparation**:
+```python
+- Extracts data from Google Cloud Platform (GCP) bucket.
+- Preprocesses and transforms data.
+- Conducts data checks and cleaning to prepare it for model training.
+```
+
+**DNN Model**:
+
+*Architecture*:
+```python
+- Creates DNN model with a linear activation function (regression) output layer; includes ReLU activation intermediate layers, as well as dropout rates and batch normalization to promote learning and generalization.
+- Defines model training callbacks for early stopping, dynamic learning rate reduction, and model checkpointing.
+```
+
+*Training*:
+```python
+- Configures hyperparameter search space and specifies parameters to be tuned.
+- Splits data into training and test sets.
+- Initializes Ray for hyperparameter tuning and optimization.
+- Trains the DNN model and saves the model.
+- Logs training results with Ray and WandB.
+- Conducts hyperparameter tuning experiment to optimize the DNN model's RMSE.
+- Evaluates model performance on the test set and calculates RMSE, MAE, and R².
+- Records the best hyperparameters and RMSE during the tuning process.
+- Retrains DNN model with best-fitting hyperparameters and logs with Ray and Wandb.
+- Shuts down computational resources allocated to Ray.
+```
+
+2. **Compress_teacher.py**
+
+*Description*: Prunes and fine-tunes model (best-fitting) to improve its performance and reduce its size.
+
+**Environment Setup**:
+```python
+- Determines and configures available computational resources, including CPU cores and GPUs.
+- Allocates computational resources for Ray, promoting efficiency through parallel processing.
+- Defined file paths for model storage and results; ensures directories exist, creates them if not.
+```
+
+**Compression**:
+```python
+- Defines functions for compressing and fine-tuning Keras models.
+- Conducts weight-pruning and neuron-pruning.
+- Uses Ray to optimize weight- and neuron-level pruning models.
+- Logs training results with Ray and WandB.
+- Selects the best pruned model based on a specified metric (in this case, RMSE).
+```
+
+3. **Distill_student.py**
+
+*Description*: Distills knowledge obtained by teacher model (best compressed model) into a smaller student model.
+
+**Environment Setup**:
+```python
+- Determines and configures available computational resources, including CPU cores and GPUs.
+- Allocates computational resources for Ray, promoting efficiency through parallel processing.
+- Defined file paths for model storage and results; ensures directories exist, creates them if not.
+```
+
+**Distillation**:
+
+*Architecture*:
+```python
+- Creates a simple student model for knowledge distillation with dense layers, batch normalization, and dropout for regularization.
+```
+
+*Training*:
+```python
+- Trains the student model utilizing a loss function that combines mean squared error and distillation loss.
+- Logs training results with Ray and WandB.
+- Configures a search space for hyperparameters, including dropout rate, distillation weight, learning rate, epochs, and batch size.
+- Evaluates model performance on the test set and calculates RMSE, MAE, and R².
+- Conducts a hyperparameter tuning experiment to optimize the student model's RMSE.
+- Records the best hyperparameters and RMSE during the tuning process.
+```
+
+This format should be easily pasted into GitHub markdown while preserving code-like formatting.
