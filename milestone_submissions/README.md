@@ -323,7 +323,7 @@ This platform provides real-time feedback on our training sessions, assisting in
 
 
 
-## Milestone 4: 
+## Milestone 4:
 
 ### Key Files and Their Functions
 
