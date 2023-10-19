@@ -379,12 +379,12 @@ This platform provides real-time feedback on our training sessions, assisting in
 
 *Description*: Distills knowledge obtained by teacher model (best compressed model) into a smaller student model.
 
-**Environment Setup**:
+Environment Setup:
 - Determines and configures available computational resources, including CPU cores and GPUs.
 - Allocates computational resources for Ray, promoting efficiency through parallel processing.
 - Defined file paths for model storage and results; ensures directories exist, creates them if not.
 
-**Distillation**:
+Distillation:
 
 *Architecture*:
 - Creates a simple student model for knowledge distillation with dense layers, batch normalization, and dropout for regularization.
