@@ -396,5 +396,3 @@ This platform provides real-time feedback on our training sessions, assisting in
 - Evaluates model performance on the test set and calculates RMSE, MAE, and R².
 - Conducts a hyperparameter tuning experiment to optimize the student model's RMSE.
 - Records the best hyperparameters and RMSE during the tuning process.
-
-This format should be easily pasted into GitHub markdown while preserving code-like formatting.
