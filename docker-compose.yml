@@ -156,6 +156,42 @@ services:
         condition: service_healthy
       broker3:
         condition: service_healthy
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:0.29.0
+    hostname: ksqldb-server
+    container_name: ksqldb-server
+    depends_on:
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
+    ports:
+      - "8088:8088"
+    networks:
+      - network
+    environment:
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: "${KAFKA_HOST1}:${KAFKA_PORT1},${KAFKA_HOST2}:${KAFKA_PORT2},${KAFKA_HOST3}:${KAFKA_PORT3}"
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:0.29.0
+    container_name: ksqldb-cli
+    networks:
+      - network
+    depends_on:
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
+      ksqldb-server:
+        condition: service_started
+    entrypoint: /bin/sh
+    tty: true
   consumer:
     container_name: consumer
     networks:
