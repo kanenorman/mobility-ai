@@ -327,22 +327,21 @@ This platform provides real-time feedback on our training sessions, assisting in
 
 ### Key Files and Their Functions
 
-1. **DNN_train_base.py**
+#### 1. **DNN_train_base.py**
 
 *Description*: Trains, builds, and saves Deep Neural Network (DNN) models.
 
-**Environment Setup**:
+Environment Setup:
 - Determines and configures available computational resources, including CPU cores and GPUs.
 - Allocates computational resources for Ray, promoting efficiency through parallel processing.
 - Defined file paths for model storage and results; ensures directories exist, creates them if not.
 
-**Data Preparation**:
+Data Preparation:
 - Extracts data from Google Cloud Platform (GCP) bucket.
 - Preprocesses and transforms data.
 - Conducts data checks and cleaning to prepare it for model training.
 
-**DNN Model**:
-
+DNN Model:
 *Architecture*:
 - Creates DNN model with a linear activation function (regression) output layer; includes ReLU activation intermediate layers, as well as dropout rates and batch normalization to promote learning and generalization.
 - Defines model training callbacks for early stopping, dynamic learning rate reduction, and model checkpointing.
@@ -359,23 +358,25 @@ This platform provides real-time feedback on our training sessions, assisting in
 - Retrains DNN model with best-fitting hyperparameters and logs with Ray and Wandb.
 - Shuts down computational resources allocated to Ray.
 
-2. **Compress_teacher.py**
+
+
+#### 2. **Compress_teacher.py**
 
 *Description*: Prunes and fine-tunes model (best-fitting) to improve its performance and reduce its size.
 
-**Environment Setup**:
+Environment Setup:
 - Determines and configures available computational resources, including CPU cores and GPUs.
 - Allocates computational resources for Ray, promoting efficiency through parallel processing.
 - Defined file paths for model storage and results; ensures directories exist, creates them if not.
 
-**Compression**:
+Compression:
 - Defines functions for compressing and fine-tuning Keras models.
 - Conducts weight-pruning and neuron-pruning.
 - Uses Ray to optimize weight- and neuron-level pruning models.
 - Logs training results with Ray and WandB.
 - Selects the best pruned model based on a specified metric (in this case, RMSE).
 
-3. **Distill_student.py**
+#### 3. **Distill_student.py**
 
 *Description*: Distills knowledge obtained by teacher model (best compressed model) into a smaller student model.
 
@@ -385,7 +386,6 @@ Environment Setup:
 - Defined file paths for model storage and results; ensures directories exist, creates them if not.
 
 Distillation:
-
 *Architecture*:
 - Creates a simple student model for knowledge distillation with dense layers, batch normalization, and dropout for regularization.
 
