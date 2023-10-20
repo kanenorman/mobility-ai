@@ -342,6 +342,7 @@ Data Preparation:
 - Conducts data checks and cleaning to prepare it for model training.
 
 DNN Model:
+
 *Architecture*:
 - Creates DNN model with a linear activation function (regression) output layer; includes ReLU activation intermediate layers, as well as dropout rates and batch normalization to promote learning and generalization.
 - Defines model training callbacks for early stopping, dynamic learning rate reduction, and model checkpointing.
@@ -386,6 +387,7 @@ Environment Setup:
 - Defined file paths for model storage and results; ensures directories exist, creates them if not.
 
 Distillation:
+
 *Architecture*:
 - Creates a simple student model for knowledge distillation with dense layers, batch normalization, and dropout for regularization.
 
