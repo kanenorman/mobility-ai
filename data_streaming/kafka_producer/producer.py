@@ -217,21 +217,21 @@ async def main() -> None:
 
         data_sources = (
             {
-                "topic": "schedules",
+                "topic": "schedule-topic",
                 "end_point": "schedules",
                 "params": {
                     "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
                 },
             },
             {
-                "topic": "trips",
+                "topic": "trip-topic",
                 "end_point": "trips",
                 "params": {
                     "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
                 },
             },
             {
-                "topic": "stops",
+                "topic": "stop-topic",
                 "end_point": "stops",
                 "params": {
                     "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
@@ -239,21 +239,21 @@ async def main() -> None:
                 },
             },
             {
-                "topic": "shapes",
+                "topic": "shape-topic",
                 "end_point": "shapes",
                 "params": {
                     "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
                 },
             },
             {
-                "topic": "vehicles",
+                "topic": "vehicle-topic",
                 "end_point": "vehicles",
                 "params": {
                     "filter[route]": "Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E",
                 },
             },
             {
-                "topic": "routes",
+                "topic": "route-topic",
                 "end_point": "routes",
             },
         )
