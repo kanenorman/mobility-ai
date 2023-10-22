@@ -359,7 +359,13 @@ DNN Model:
 - Retrains DNN model with best-fitting hyperparameters and logs with Ray and Wandb.
 - Shuts down computational resources allocated to Ray.
 
-
+   - **Functions**:
+     - `check_resources()`: Determines the total available computational resources.
+     - `configure_ray_resources()`: Sets the number of resources for training to total available computational resources
+     - `create_dnn_model()`: Creates regression neural network architecture
+     - `train_dnn()`: Trains neural network
+     - `trainable()`: Conducts hyperparameter tuning
+     - `train_best_dnn()`: Trains neural network with best fitting hyperparameters
 
 #### 2. **Compress_teacher.py**
 
@@ -376,6 +382,11 @@ Compression:
 - Uses Ray to optimize weight- and neuron-level pruning models.
 - Logs training results with Ray and WandB.
 - Selects the best pruned model based on a specified metric (in this case, RMSE).
+
+     - **Functions**:
+     - `check_resources()`: Determines the total available computational resources.
+     - `configure_ray_resources()`: Sets the number of resources for training to total available computational resources
+     - `prune_and_fine_tune()`: Conducts weight and neuron level pruning + fine-tuning
 
 #### 3. **Distill_student.py**
 
@@ -398,3 +409,11 @@ Distillation:
 - Evaluates model performance on the test set and calculates RMSE, MAE, and R².
 - Conducts a hyperparameter tuning experiment to optimize the student model's RMSE.
 - Records the best hyperparameters and RMSE during the tuning process.
+
+     - **Functions**:
+     - `check_resources()`: Determines the total available computational resources.
+     - `configure_ray_resources()`: Sets the number of resources for training to total available computational resources
+     - `create_student_model()`: Creates simple (student) regression neural network architecture
+     - `train_student_model()`: Distills knowledge from teacher to student model
+     - `trainable_student()`: Fine tunes hyperparameters for student model
+     - 'retrain_student_with_best_hyperparameters()': Retrains student model with best fitting hyperparameters
