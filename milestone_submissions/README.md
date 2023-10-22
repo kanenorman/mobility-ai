@@ -416,4 +416,4 @@ Distillation:
      - `create_student_model()`: Creates simple (student) regression neural network architecture
      - `train_student_model()`: Distills knowledge from teacher to student model
      - `trainable_student()`: Fine tunes hyperparameters for student model
-     - 'retrain_student_with_best_hyperparameters()': Retrains student model with best fitting hyperparameters
+     - `retrain_student_with_best_hyperparameters()`: Retrains student model with best fitting hyperparameters
