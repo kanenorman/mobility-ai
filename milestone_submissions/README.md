@@ -1,6 +1,8 @@
-<img src="../assets/figures/mobility_ai_logo.png" alt="Mobility AI Logo" width="400"/>
-
-#### *Navigate the future, today*
+<div align="center">
+  <img src="../assets/figures/mobility_ai_logo.png" alt="Mobility AI Logo" width="400"/>
+  
+<p style="color: #800080;"><em>Navigate the future, today</em></p>
+</div>
 
 ## MBTArrivals-App: Realtime navigation for transit systems in Massachusetts
 
