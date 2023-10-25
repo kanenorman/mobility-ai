@@ -121,41 +121,41 @@ def start_streaming_job() -> None:
 
     schedule_stream = _stream(
         spark=spark,
-        kafka_topic="schedules",
+        kafka_topic="schedule-topic",
         data_schema=schemas.parse_schedules_topic,
         destination_table="schedule",
         primary_key="id",
     )
     trips_stream = _stream(
         spark=spark,
-        kafka_topic="trips",
+        kafka_topic="trip-topic",
         data_schema=schemas.parse_trips_topic,
         destination_table="trip",
         primary_key="id",
     )
     stops_stream = _stream(
         spark=spark,
-        kafka_topic="stops",
+        kafka_topic="stop-topic",
         data_schema=schemas.parse_stops_topic,
         destination_table="stop",
         primary_key="id",
     )
     shapes_stream = _stream(
         spark=spark,
-        kafka_topic="shapes",
+        kafka_topic="shape-topic",
         data_schema=schemas.parse_shapes_topic,
         destination_table="shape",
         primary_key="id",
     )
     vehicles_stream = _stream(
         spark=spark,
-        kafka_topic="vehicles",
+        kafka_topic="vehicle-topic",
         data_schema=schemas.parse_vehicles_topic,
         destination_table="vehicle",
     )
     routes_stream = _stream(
         spark=spark,
-        kafka_topic="routes",
+        kafka_topic="route-topic",
         data_schema=schemas.parse_routes_topic,
         destination_table="route",
         primary_key="id",
