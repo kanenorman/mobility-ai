@@ -4,7 +4,6 @@ training & inference.
 import numpy as np
 import psutil
 import ray
-from google.oauth2.credentials import Credentials
 from google.oauth2.service_account import Credentials
 import wandb
 from mbta_ml.config import SERVICE_ACCOUNT_FILE, WANDB_API_KEY

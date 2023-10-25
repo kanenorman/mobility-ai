@@ -12,6 +12,7 @@ from mbta_ml.config import (
     EXPERIMENT_DIR,
     WANDB_API_KEY,
 )
+import mbta_ml.authenticate as auth
 import pandas as pd
 import sklearn.datasets
 import sklearn.metrics
@@ -232,17 +233,20 @@ def train_mbta(config):
 if __name__ == "__main__":
     print(f"Model will be saved in: {MODEL_DIR}")
     print(f"Experiments will be stored in: {EXPERIMENT_DIR}")
-    print(f"Running for number of trials: {NUM_TRIALS}")
+    print(f"Running for number of trials: {TUNING_NUM_TRIALS}")
 
-    # Load WandDB
-    wandb.login(relogin=False)
+    # Authenticate with Google Cloud Platform
+    auth.authenticate_with_gcp()
+
+    # Authenticate and initialize W&B
+    auth.authenticate_with_wandb()
 
     # Extract data
     raw_df = extract_from_gcp(verbose=False, close_connection=True)
     raw_df = preprocess_data(raw_df, verbose=False)
     transformed_df, le_dict = transform(raw_df)
     mbta_final_df = data_checks_and_cleaning(transformed_df, verbose=False)
-
+    
     # Define tuner and start tuning
     tuner = tune.Tuner(
         train_mbta,

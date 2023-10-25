@@ -3,28 +3,10 @@ targeting machine learning & time series forecasting of bus arrivals and delays.
 """
 import logging
 from datetime import datetime
-
 import numpy as np
 import pandas as pd
+import mbta_ml.authenticate as auth
 from google.cloud import bigquery
-from google.colab import auth
-
-
-def authenticate_gcp() -> None:
-    """
-    Authenticates the user for Google Cloud Platform (GCP).
-
-    Raises
-    ------
-    Exception
-        If authentication fails.
-    """
-    try:
-        auth.authenticate_user()
-        logging.info("Successfully authenticated for GCP.")
-    except Exception as e:
-        logging.error("GCP Authentication failed.")
-        raise e
 
 
 def extract_from_gcp(
@@ -66,7 +48,7 @@ def extract_from_gcp(
     Ensure you've authenticated using `authenticate_gcp()` before calling this function.
     """
     # Ensure user is authenticated
-    authenticate_gcp()
+    auth.authenticate_with_gcp()
 
     # Set up logging
     logging.basicConfig(level=logging.INFO)
