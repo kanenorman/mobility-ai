@@ -11,6 +11,7 @@ from mbta_ml.config import (
     MODEL_DIR,
     EXPERIMENT_DIR,
     WANDB_API_KEY,
+    GCP_SERVICE_ACCOUNT_FILE
 )
 import mbta_ml.authenticate as auth
 import pandas as pd
@@ -234,9 +235,11 @@ if __name__ == "__main__":
     print(f"Model will be saved in: {MODEL_DIR}")
     print(f"Experiments will be stored in: {EXPERIMENT_DIR}")
     print(f"Running for number of trials: {TUNING_NUM_TRIALS}")
+    
 
     # Authenticate with Google Cloud Platform
     auth.authenticate_with_gcp()
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GCP_SERVICE_ACCOUNT_FILE
 
     # Authenticate and initialize W&B
     auth.authenticate_with_wandb()

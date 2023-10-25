@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import mbta_ml.authenticate as auth
 from google.cloud import bigquery
+from mbta_ml.config import GCP_SERVICE_ACCOUNT_FILE
 
 
 def extract_from_gcp(
@@ -52,7 +53,7 @@ def extract_from_gcp(
 
     # Set up logging
     logging.basicConfig(level=logging.INFO)
-
+    
     # Start the timer for execution time
     start_time = datetime.now()
 

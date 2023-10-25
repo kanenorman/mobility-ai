@@ -6,11 +6,10 @@ import psutil
 import ray
 from google.oauth2.service_account import Credentials
 import wandb
-from mbta_ml.config import SERVICE_ACCOUNT_FILE, WANDB_API_KEY
+from mbta_ml.config import GCP_SERVICE_ACCOUNT_FILE, WANDB_API_KEY
 
 def check_resources():
-    """
-    Determine the total available computational resources.
+    """ Determine the total available computational resources.
 
     Returns
     -------
@@ -28,8 +27,7 @@ def check_resources():
     return num_cpus, num_gpus, total_memory_gb
 
 def configure_ray_resources(num_cpus, num_gpus):
-    """
-    Set the number of resources for Ray to the total available
+    """ Set the number of resources for Ray to the total available
     computational resources.
 
     Parameters
@@ -44,22 +42,23 @@ def configure_ray_resources(num_cpus, num_gpus):
     ray.shutdown()
     ray.init(num_cpus=num_cpus, num_gpus=num_gpus)
 
+from google.cloud import bigquery
+
 def authenticate_with_gcp():
-    """
-    Authenticate with Google Cloud Platform using a service account key.
+    """ Authenticate with Google Cloud Platform using a service account key.
 
     Returns
     -------
-    google.oauth2.service_account.Credentials
-        The credentials object for GCP.
+    google.cloud.bigquery.client.Client
+        The BigQuery client for GCP.
     """
-    credentials = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
-    return credentials
+    credentials = Credentials.from_service_account_file(GCP_SERVICE_ACCOUNT_FILE)
+    client = bigquery.Client(credentials=credentials)
+    return client
 
 
 def authenticate_with_wandb():
-    """
-    Authenticate with Weights & Biases using an API key.
+    """ Authenticate with Weights & Biases using an API key.
 
     Returns
     -------
