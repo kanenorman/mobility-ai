@@ -10,7 +10,6 @@ from mbta_ml.config import (
     BASE_DIR,
     MODEL_DIR,
     EXPERIMENT_DIR,
-    NUM_TRIALS,
     WANDB_API_KEY,
 )
 import pandas as pd

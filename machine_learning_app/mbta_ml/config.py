@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime
 
 # Define the paths
-BASE_DIR = Path(os.getcwd())  # Gets the current working directory
+BASE_DIR = Path(__file__).parent
 MODEL_DIR = BASE_DIR / "models"
 EXPERIMENT_DIR = BASE_DIR / "experiments" / datetime.now().strftime("%d_%m_%Y")
 
@@ -19,3 +19,6 @@ TUNING_NUM_TRIALS_CONFIG = {
 
 # API Key for Weights and Biases (wandb)
 WANDB_API_KEY = os.environ.get("WANDB_API_KEY")
+
+# API key for service account file
+SERVICE_ACCOUNT_FILE = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
