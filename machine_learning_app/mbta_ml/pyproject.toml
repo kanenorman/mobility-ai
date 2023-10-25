@@ -21,6 +21,7 @@ xgboost = "^2.0.1"
 permetrics = "^1.5.0"
 ray = {extras = ["train"], version = "^2.7.1"}
 sktime = "^0.24.0"
+google-auth = "^2.23.3"
 
 
 [build-system]
