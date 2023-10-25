@@ -1,6 +1,6 @@
 import asyncio
 import json
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 import httpx
 from httpx_sse import aconnect_sse
@@ -28,10 +28,13 @@ def _create_kafka_producer() -> KafkaProducer:
     return KafkaProducer(
         bootstrap_servers=bootstrap_servers,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+        key_serializer=lambda k: k.encode("utf-8"),
     )
 
 
-async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> None:
+async def _send_to_kafka(
+    producer: KafkaProducer, topic: str, value: Dict, key: str
+) -> None:
     """
     Send a message to a Kafka topic using the provided producer.
 
@@ -41,18 +44,19 @@ async def _send_to_kafka(producer: KafkaProducer, topic: str, message: Dict) -> 
         The Kafka producer instance.
     topic : str
         The Kafka topic to send the message to.
-    message : dict
+    value : dict
         The record to push into the Kafka topic.
-
+    key : str
+        The unique key for the Kafka record
     Returns
     -------
     None
     """
-    producer.send(topic, message)
+    producer.send(topic=topic, value=value, key=key)
 
 
 async def _send_batch_to_kafka(
-    producer: KafkaProducer, topic: str, event: str, batch_data: str
+    producer: KafkaProducer, topic: str, event: str, batch_data: List[Dict]
 ) -> None:
     """
     Send array of JSON objects to Kafka.
@@ -65,7 +69,7 @@ async def _send_batch_to_kafka(
         Kafka topic to write to.
     event : str
         Server Sent Event. Will be one of "reset", "add", "update", "remove"
-    batch_data : str
+    batch_data : List[Dict]
         Array of JSON data
 
     Returns
@@ -76,7 +80,8 @@ async def _send_batch_to_kafka(
         _send_to_kafka(
             producer=producer,
             topic=topic,
-            message={"event": event, "data": data},
+            value={"event": event, "data": data},
+            key=data["id"],
         )
         for data in batch_data
     )
@@ -193,7 +198,8 @@ async def _fetch_and_send_data(
             await _send_to_kafka(
                 producer=producer,
                 topic=topic,
-                message={"event": response_event, "data": response_data},
+                value={"event": response_event, "data": response_data},
+                key=response_data["id"],
             )
 
 

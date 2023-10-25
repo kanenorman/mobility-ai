@@ -1,57 +1,66 @@
 SET 'auto.offset.reset'='earliest';
 
-CREATE OR REPLACE STREAM VEHICLE_STREAM (
-  event STRING,
+/*
+  -----------BRONZE DATA LAYER-----------------
+  LOAD MBTA KAFKA TOPICS IN KAFKA STREAM
+  DEFINE SCHEMA BUT DO NOT APPLY TRANSFORMATIONS
+  ----------------------------------------------
+*/
+CREATE OR REPLACE STREAM VEHICLE_BRONZE (
+  id VARCHAR KEY,
+  event VARCHAR,
   data STRUCT<
     attributes STRUCT<
       bearing INT,
       carriages ARRAY<STRUCT<
-        label STRING,
+        label VARCHAR,
         occupancy_percentage INT,
-        occupancy_status STRING
+        occupancy_status VARCHAR
       >>,
-      current_status STRING,
+      current_status VARCHAR,
       current_stop_sequence INT,
       direction_id INT,
-      label STRING,
+      label VARCHAR,
       latitude DOUBLE,
       longitude DOUBLE,
-      occupancy_status STRING,
+      occupancy_status VARCHAR,
       speed INT,
-      updated_at STRING
+      updated_at VARCHAR
     >,
-    id STRING,
+    id VARCHAR,
     links STRUCT<
-      self STRING
+      self VARCHAR
     >,
     relationships STRUCT<
       route STRUCT<
         data STRUCT<
-          id STRING,
-          type STRING
+          id VARCHAR,
+          type VARCHAR
         >
       >,
       stop STRUCT<
         data STRUCT<
-          id STRING,
-          type STRING
+          id VARCHAR,
+          type VARCHAR
         >
       >,
       trip STRUCT<
         data STRUCT<
-          id STRING,
-          type STRING
+          id VARCHAR,
+          type VARCHAR
         >
       >
     >,
-    type STRING
+    type VARCHAR
   >
 ) WITH (
   KAFKA_TOPIC = 'vehicle-topic',
   VALUE_FORMAT = 'JSON'
 );
 
-CREATE OR REPLACE STREAM TRIP_STREAM (
+
+CREATE OR REPLACE STREAM TRIP_BRONZE (
+  id VARCHAR KEY,
   event STRING,
   data STRUCT<
     attributes STRUCT<
@@ -99,7 +108,8 @@ CREATE OR REPLACE STREAM TRIP_STREAM (
   VALUE_FORMAT = 'JSON'
 );
 
-CREATE OR REPLACE STREAM STOP_STREAM (
+CREATE OR REPLACE STREAM STOP_BRONZE (
+  id VARCHAR KEY,
   event STRING,
   data STRUCT<
     attributes STRUCT<
@@ -151,7 +161,8 @@ CREATE OR REPLACE STREAM STOP_STREAM (
   VALUE_FORMAT = 'JSON'
 );
 
-CREATE OR REPLACE STREAM SCHEDULE_STREAM (
+CREATE OR REPLACE STREAM SCHEDULE_BRONZE (
+  id VARCHAR KEY,
   event STRING,
   data STRUCT<
     attributes STRUCT<
@@ -192,7 +203,8 @@ CREATE OR REPLACE STREAM SCHEDULE_STREAM (
   VALUE_FORMAT = 'JSON'
 );
 
-CREATE OR REPLACE STREAM ROUTE_STREAM (
+CREATE OR REPLACE STREAM ROUTE_BRONZE (
+  id VARCHAR KEY,
   event STRING,
   data STRUCT<
     attributes STRUCT<
@@ -226,7 +238,8 @@ CREATE OR REPLACE STREAM ROUTE_STREAM (
   VALUE_FORMAT = 'JSON'
 );
 
-CREATE OR REPLACE STREAM SHAPE_STREAM (
+CREATE OR REPLACE STREAM SHAPE_BRONZE (
+  id VARCHAR KEY,
   event STRING,
   data STRUCT<
     attributes STRUCT<
@@ -242,3 +255,149 @@ CREATE OR REPLACE STREAM SHAPE_STREAM (
   KAFKA_TOPIC = 'shape-topic',
   VALUE_FORMAT = 'JSON'
 );
+
+/*
+  -----------SILVER DATA LAYER-----------------
+  BRONZE DATA COMES IN NESTED JSON FORMAT
+  APPLY TRANSFORMATIONS TO FLATTEN THE DATA
+  AND CAST CORRECT COLUMN TYPES
+  ----------------------------------------------
+*/
+
+CREATE OR REPLACE STREAM VEHICLE_SILVER AS
+SELECT
+    id,
+    event,
+    data->attributes->bearing AS bearing,
+    data->attributes->current_status AS current_status,
+    data->attributes->current_stop_sequence AS current_stop_sequence,
+    data->attributes->direction_id AS direction_id,
+    data->attributes->label AS label,
+    data->attributes->latitude AS latitude,
+    data->attributes->longitude AS longitude,
+    data->attributes->speed AS speed,
+    PARSE_TIMESTAMP(data->attributes->updated_at, 'yyyy-MM-dd''T''HH:mm:ssXXX') AS updated_at,
+    data->links->self AS self,
+    data->relationships->route->data->id AS route_id,
+    data->relationships->route->data->type AS route_type,
+    data->relationships->stop->data->id AS stop_id,
+    data->relationships->stop->data->type AS stop_type,
+    data->relationships->trip->data->id AS trip_id,
+    data->relationships->trip->data->type AS trip_type,
+    data->type AS type
+FROM
+    VEHICLE_BRONZE
+EMIT CHANGES;
+
+
+CREATE OR REPLACE STREAM TRIP_SILVER AS
+SELECT
+    id,
+    event,
+    data->attributes->bikes_allowed AS bikes_allowed,
+    data->attributes->block_id AS block_id,
+    data->attributes->direction_id AS direction_id,
+    data->attributes->headsign AS headsign,
+    data->attributes->name AS name,
+    data->attributes->wheelchair_accessible AS wheelchair_accessible,
+    data->links->self AS self,
+    data->relationships->shape->data->id AS shape_id,
+    data->relationships->shape->data->type AS shape_type,
+    data->relationships->service->data->id AS service_id,
+    data->relationships->service->data->type AS service_type,
+    data->relationships->route->data->id AS route_id,
+    data->relationships->route->data->type AS route_type,
+    data->relationships->route_pattern->data->id AS route_pattern_id,
+    data->relationships->route_pattern->data->type AS route_pattern_type,
+    data->type AS type
+FROM
+    TRIP_BRONZE
+EMIT CHANGES;
+
+
+CREATE OR REPLACE STREAM STOP_SILVER AS
+SELECT
+    id,
+    event,
+    data->attributes->address AS address,
+    data->attributes->at_street AS at_street,
+    data->attributes->description AS description,
+    data->attributes->latitude AS latitude,
+    data->attributes->location_type AS location_type,
+    data->attributes->longitude AS longitude,
+    data->attributes->municipality AS municipality,
+    data->attributes->name AS name,
+    data->attributes->on_street AS on_street,
+    data->attributes->platform_code AS platform_code,
+    data->attributes->platform_name AS platform_name,
+    data->attributes->vehicle_type AS vehicle_type,
+    data->attributes->wheelchair_boarding AS wheelchair_boarding,
+    data->links->self AS self,
+    data->relationships->facilities->self AS facilities_self,
+    data->relationships->parent_station->data->id AS parent_station_id,
+    data->relationships->parent_station->data->type AS parent_station_type,
+    data->relationships->zone->data->id AS zone_id,
+    data->relationships->zone->data->type AS zone_type,
+    data->type AS type
+FROM
+    STOP_BRONZE
+EMIT CHANGES;
+
+
+CREATE OR REPLACE STREAM SCHEDULE_SILVER AS
+SELECT
+    id,
+    event,
+    PARSE_TIMESTAMP(data->attributes->arrival_time, 'yyyy-MM-dd''T''HH:mm:ssXXX') AS arrival_time,
+    PARSE_TIMESTAMP(data->attributes->departure_time, 'yyyy-MM-dd''T''HH:mm:ssXXX') AS departure_time,
+    data->attributes->direction_id AS direction_id,
+    data->attributes->drop_off_type AS drop_off_type,
+    data->attributes->pickup_type AS pickup_type,
+    data->attributes->stop_headsign AS stop_headsign,
+    data->attributes->stop_sequence AS stop_sequence,
+    data->attributes->timepoint AS timepoint,
+    data->relationships->route->data->id AS route_id,
+    data->relationships->route->data->type AS route_type,
+    data->relationships->stop->data->id AS stop_id,
+    data->relationships->stop->data->type AS stop_type,
+    data->relationships->trip->data->id AS trip_id,
+    data->relationships->trip->data->type AS trip_type,
+    data->type AS type
+FROM
+    SCHEDULE_BRONZE
+EMIT CHANGES;
+
+
+CREATE OR REPLACE STREAM ROUTE_SILVER AS
+SELECT
+    id,
+    event,
+    data->attributes->color AS color,
+    data->attributes->description AS description,
+    data->attributes->direction_destinations AS direction_destinations,
+    data->attributes->direction_names AS direction_names,
+    data->attributes->fare_class AS fare_class,
+    data->attributes->long_name AS long_name,
+    data->attributes->short_name AS short_name,
+    data->attributes->short_order AS short_order,
+    data->attributes->text_color AS text_color,
+    data->attributes->type AS type,
+    data->links->self AS self,
+    data->relationships->line->data->id AS line_id,
+    data->relationships->line->data->type AS line_type
+FROM
+    ROUTE_BRONZE
+EMIT CHANGES;
+
+
+
+CREATE OR REPLACE STREAM SHAPE_SILVER AS
+SELECT
+    id,
+    event,
+    data->attributes->polyline AS polyline,
+    data->links->self AS self,
+    data->type
+FROM
+    SHAPE_BRONZE
+EMIT CHANGES;
