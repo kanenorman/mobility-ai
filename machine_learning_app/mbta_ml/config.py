@@ -1,6 +1,4 @@
-"""config.py: This module contains functions to distill the knowledge obtained
-by a teacher into a student model.
-"""
+"""config.py: Configuration module containing paths, hyperparameters, and other settings."""
 import os
 from pathlib import Path
 from datetime import datetime
@@ -14,5 +12,10 @@ EXPERIMENT_DIR = BASE_DIR / "experiments" / datetime.now().strftime("%d_%m_%Y")
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)
 
-NUM_TRIALS = 10
-WANDB_API_KEY = os.environ["WANDB_API_KEY"]
+# Configuration for tuning trials
+TUNING_NUM_TRIALS_CONFIG = {
+    "xgboost": 10
+}
+
+# API Key for Weights and Biases (wandb)
+WANDB_API_KEY = os.environ.get("WANDB_API_KEY")

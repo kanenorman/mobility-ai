@@ -1,11 +1,18 @@
-""" ml_train.py: This module contains functions to train, build, and save ML models.
+""" xgboost_trainer.py: This module contains functions to train, build, and save ML models.
 It also incorporates functionality to evaluate model performance using various regression metrics.
 """
 import os
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple
-
+from mbta_ml.config import (
+    TUNING_NUM_TRIALS_CONFIG,
+    BASE_DIR,
+    MODEL_DIR,
+    EXPERIMENT_DIR,
+    NUM_TRIALS,
+    WANDB_API_KEY,
+)
 import pandas as pd
 import sklearn.datasets
 import sklearn.metrics
@@ -15,26 +22,12 @@ from permetrics import RegressionMetric
 from ray import train, tune
 from ray.air.integrations.wandb import WandbLoggerCallback
 from sktime.forecasting.model_selection import temporal_train_test_split
+from mbta_ml.etl.delay_etl import data_checks_and_cleaning, transform
+from mbta_ml.etl.gcp_dataloader import extract_from_gcp, preprocess_data
 
-from .delay_etl import data_checks_and_cleaning, transform
-from .gcp_dataloader import extract_from_gcp, preprocess_data
-
+# Set global variables
+TUNING_NUM_TRIALS = TUNING_NUM_TRIALS_CONFIG["xgboost"]
 global mbta_final_df
-
-# Define the paths
-BASE_DIR = Path(os.getcwd())  # Gets the current working directory in Jupyter
-MODEL_DIR = BASE_DIR / "models"
-EXPERIMENT_DIR = BASE_DIR / "experiments" / datetime.now().strftime("%d_%m_%Y")
-
-# Ensure the directories exist
-MODEL_DIR.mkdir(parents=True, exist_ok=True)
-EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)
-NUM_TRIALS = 10
-
-WANDB_API_KEY = os.environ["WANDB_API_KEY"]
-
-global mbta_final_df
-
 
 def compute_metrics_table(forecasts_df: pd.DataFrame) -> pd.DataFrame:
     """
