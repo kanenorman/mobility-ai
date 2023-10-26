@@ -8,7 +8,6 @@ import pandas as pd
 import mbta_ml.authenticate as auth
 from google.cloud import bigquery
 from mbta_ml.config import (
-    GCP_SERVICE_ACCOUNT_FILE, 
     APP_DATA_DIR
 )
 from pathlib import Path
@@ -268,4 +267,4 @@ if __name__ == "__main__":
     preprocessed_data = preprocess_data(data_df)
 
     # Save the preprocessed data to the APP_DATA_DIR
-    save_to_csv(preprocessed_data, "preprocessed_transit_data.csv")
+    save_to_csv(preprocessed_data, "raw_transit_data.csv")

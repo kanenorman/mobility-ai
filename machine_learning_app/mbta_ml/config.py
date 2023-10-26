@@ -9,6 +9,8 @@ MODEL_DIR = BASE_DIR / "models"
 EXPERIMENT_DIR = BASE_DIR / "experiments" / datetime.now().strftime("%d_%m_%Y")
 APP_DATA_DIR = BASE_DIR / "data" 
 PROD_MODELS_DIR = BASE_DIR / "production_models" 
+RAW_DATA_PATH = APP_DATA_DIR / "raw_transit_data.csv"
+ML_TRAINING_DATA_PATH = APP_DATA_DIR / "ml_transit_training_data.csv"
 
 # Ensure the directories exist
 MODEL_DIR.mkdir(parents=True, exist_ok=True)

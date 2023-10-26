@@ -5,79 +5,74 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple
+# Internal app imports
 from mbta_ml.config import (
     TUNING_NUM_TRIALS_CONFIG,
-    BASE_DIR,
-    MODEL_DIR,
+    PROD_MODELS_DIR,
     EXPERIMENT_DIR,
-    WANDB_API_KEY,
-    GCP_SERVICE_ACCOUNT_FILE
+    ML_TRAINING_DATA_PATH,
+    RAW_DATA_PATH,
+    MODEL_DIR
 )
 import mbta_ml.authenticate as auth
+from mbta_ml.etl.delay_etl import data_checks_and_cleaning, transform
+from mbta_ml.ml.ml_utils import compute_metrics_table
+import mbta_ml.etl.gcp_dataloader as gcp_dataloader
+# Other imports
 import pandas as pd
-import sklearn.datasets
-import sklearn.metrics
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import wandb
 import xgboost as xgb
-from permetrics import RegressionMetric
 from ray import train, tune
 from ray.air.integrations.wandb import WandbLoggerCallback
 from sktime.forecasting.model_selection import temporal_train_test_split
-from mbta_ml.etl.delay_etl import data_checks_and_cleaning, transform
-from mbta_ml.etl.gcp_dataloader import extract_from_gcp, preprocess_data
 
 # Set global variables
 TUNING_NUM_TRIALS = TUNING_NUM_TRIALS_CONFIG["xgboost"]
 global mbta_final_df
 
-def compute_metrics_table(forecasts_df: pd.DataFrame) -> pd.DataFrame:
+def check_or_load_data(data_path: Path = ML_TRAINING_DATA_PATH) -> pd.DataFrame:
     """
-    Compute metrics table for regression modeling.
+    Check if the ML preprocessed data file exists. If not, run the GCP data loader 
+    to generate raw data and subsequently process it for ML training.
 
     Parameters
     ----------
-    forecasts_df : pd.DataFrame
-        DataFrame containing "algorithm", "y_pred", and "y_true" columns.
+    data_path : Path, optional
+        The path to the ML preprocessed data file. Defaults to ML_TRAINING_DATA_PATH.
 
     Returns
     -------
     pd.DataFrame
-        A table containing the evaluation metrics for each algorithm.
+        Loaded dataframe containing the preprocessed data suitable for ML training.
+
     """
+    if not data_path.exists():
+        print("ML training data file not found. Running GCP data loader...")
+        
+        # Check if raw data exists, otherwise load it
+        if not RAW_DATA_PATH.exists():
+            print("Raw data file not found. Fetching data from GCP...")
+            raw_df = gcp_dataloader.extract_from_gcp(verbose=False, close_connection=True)
+            raw_df.to_csv(RAW_DATA_PATH, index=False)
+        else:
+            print("Loading raw data from existing file...")
+            raw_df = pd.read_csv(RAW_DATA_PATH)
 
-    final_results = {}
-    unique_algorithms = forecasts_df["algorithm"].unique()
+        # Process raw data for ML
+        transformed_df, le_dict = transform(raw_df)
+        ml_ready_df = data_checks_and_cleaning(transformed_df, verbose=False)
+        ml_ready_df.to_csv(data_path, index=False)
+    else:
+        print(f"Loading ML training data from existing file at {data_path}...")
+        ml_ready_df = pd.read_csv(data_path)
 
-    for algorithm in unique_algorithms:
-        y_true = forecasts_df[forecasts_df["algorithm"] == algorithm]["y_true"].values
-        y_pred = forecasts_df[forecasts_df["algorithm"] == algorithm]["y_pred"].values
-
-        evaluator = RegressionMetric()
-        evaluators = {
-            "MAE": evaluator.MAE,
-            "RMSE": evaluator.RMSE,
-            "SMAPE": evaluator.SMAPE,
-            "ME": evaluator.ME,
-            "MedAE": evaluator.MedAE,
-        }
-
-        model_results = {}
-        for metric, evaluator_function in evaluators.items():
-            score = evaluator_function(y_true, y_pred, decimal=4)
-            model_results[metric] = score
-
-        final_results[algorithm] = model_results
-
-    results_df = pd.DataFrame(final_results).transpose()
-
-    return results_df
-
+    return ml_ready_df
 
 def retrain_best_xgboost(
     data: pd.DataFrame, config: dict, model_save_path: Path, test_size: float = 0.25
 ) -> Tuple[xgb.Booster, pd.DataFrame]:
-    """
-    Retrain XGBoost model with the best hyperparameters from tuning.
+    """ Retrain XGBoost model with the best hyperparameters from tuning.
 
     Parameters:
     -----------
@@ -140,8 +135,7 @@ def retrain_best_xgboost(
 def retrain_model_with_best_config(
     tuner, data: pd.DataFrame, model_save_path: str
 ) -> Tuple[object, pd.DataFrame]:
-    """
-    Retrieve the best configuration from a completed Ray Tune experiment
+    """ Retrieve the best configuration from a completed Ray Tune experiment
     and retrain the model with this configuration.
 
     Parameters
@@ -187,8 +181,7 @@ def retrain_model_with_best_config(
 
 
 def train_mbta(config):
-    """
-    Train an XGBoost model on MBTA data.
+    """ Train an XGBoost model on MBTA data.
 
     Parameters:
     - config (dict): Configuration for XGBoost training.
@@ -222,9 +215,9 @@ def train_mbta(config):
 
     # Calculate metrics
     y_pred = bst.predict(test_set)
-    rmse = sklearn.metrics.mean_squared_error(test_y, y_pred, squared=False)
-    mae = sklearn.metrics.mean_absolute_error(test_y, y_pred)
-    r2 = sklearn.metrics.r2_score(test_y, y_pred)
+    rmse = mean_squared_error(test_y, y_pred, squared=False)
+    mae = mean_absolute_error(test_y, y_pred)
+    r2 = r2_score(test_y, y_pred)
 
     # Report metrics to Ray and W&B
     train.report({"rmse": rmse, "mae": mae, "r2": r2})
@@ -236,18 +229,11 @@ if __name__ == "__main__":
     print(f"Experiments will be stored in: {EXPERIMENT_DIR}")
     print(f"Running for number of trials: {TUNING_NUM_TRIALS}")
     
-
-    # Authenticate with Google Cloud Platform
-    #auth.authenticate_gcp_implicit()
-
     # Authenticate and initialize W&B
     auth.authenticate_with_wandb()
 
     # Extract data
-    raw_df = extract_from_gcp(verbose=False, close_connection=True)
-    raw_df = preprocess_data(raw_df, verbose=False)
-    transformed_df, le_dict = transform(raw_df)
-    mbta_final_df = data_checks_and_cleaning(transformed_df, verbose=False)
+    mbta_final_df = check_or_load_data()
     
     # Define tuner and start tuning
     tuner = tune.Tuner(
@@ -284,5 +270,5 @@ if __name__ == "__main__":
     best_model, performance_table = retrain_model_with_best_config(
         tuner=tuner,
         data=mbta_final_df,
-        model_save_path=str(MODEL_DIR / "final_best_xgboost.json"),
+        model_save_path=str(PROD_MODELS_DIR / "final_best_xgboost.json"),
     )
