@@ -7,9 +7,11 @@ from datetime import datetime
 BASE_DIR = Path(__file__).parent
 MODEL_DIR = BASE_DIR / "models"
 EXPERIMENT_DIR = BASE_DIR / "experiments" / datetime.now().strftime("%d_%m_%Y")
+APP_DATA_DIR = BASE_DIR / "data" 
 
 # Ensure the directories exist
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
+APP_DATA_DIR.mkdir(parents=True, exist_ok=True)
 EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Configuration for tuning trials

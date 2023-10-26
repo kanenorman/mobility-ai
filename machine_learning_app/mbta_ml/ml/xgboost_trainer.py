@@ -238,8 +238,7 @@ if __name__ == "__main__":
     
 
     # Authenticate with Google Cloud Platform
-    auth.authenticate_with_gcp()
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GCP_SERVICE_ACCOUNT_FILE
+    #auth.authenticate_gcp_implicit()
 
     # Authenticate and initialize W&B
     auth.authenticate_with_wandb()

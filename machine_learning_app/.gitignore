@@ -1,6 +1,7 @@
 # Ignore models and experiments directories
 /models/
 /experiments/
+/data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

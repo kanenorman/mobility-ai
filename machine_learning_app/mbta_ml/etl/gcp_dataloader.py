@@ -7,8 +7,11 @@ import numpy as np
 import pandas as pd
 import mbta_ml.authenticate as auth
 from google.cloud import bigquery
-from mbta_ml.config import GCP_SERVICE_ACCOUNT_FILE
-
+from mbta_ml.config import (
+    GCP_SERVICE_ACCOUNT_FILE, 
+    APP_DATA_DIR
+)
+from pathlib import Path
 
 def extract_from_gcp(
     project_id: str = "ac215-transit-prediction",
@@ -48,17 +51,8 @@ def extract_from_gcp(
     -----
     Ensure you've authenticated using `authenticate_gcp()` before calling this function.
     """
-    # Ensure user is authenticated
-    auth.authenticate_with_gcp()
-
     # Set up logging
     logging.basicConfig(level=logging.INFO)
-    
-    # Start the timer for execution time
-    start_time = datetime.now()
-
-    # Initialize the BigQuery client
-    client = bigquery.Client(project=project_id)
 
     if verbose:
         logging.info("Starting data extraction from BigQuery...")
@@ -95,7 +89,12 @@ def extract_from_gcp(
     FROM training_data;
     """
 
-    query_job = client.query(sql_query)
+    # Start the timer for execution time
+    start_time = datetime.now()
+
+    # Ensure user is authenticated and get the client
+    bigquery_client = auth.authenticate_gcp_bigquery_implicit(project_id=project_id)
+    query_job = bigquery_client.query(sql_query)
     results = query_job.result()
 
     # Calculate execution time
@@ -111,7 +110,7 @@ def extract_from_gcp(
 
     # After extracting data, close the client connection if close_connection is set to True
     if close_connection:
-        client.close()
+        bigquery_client.close()
         if verbose:
             print("Closed BigQuery client connection.")
 
@@ -237,3 +236,36 @@ def preprocess_data(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
         print(df_copy.info())
 
     return df_copy
+
+
+def save_to_csv(df: pd.DataFrame, file_name: str, verbose: bool = True):
+    """ Save the dataframe to a CSV file.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe to be saved.
+    file_name : str
+        Name of the CSV file.
+    verbose : bool, optional
+        If True, will print a confirmation message.
+
+    Returns
+    -------
+    None
+    """
+    path = APP_DATA_DIR / file_name
+    df.to_csv(path, index=False)
+
+    if verbose:
+        print(f"Data saved to {path}")
+
+if __name__ == "__main__":
+    # Extract data from BigQuery
+    data_df = extract_from_gcp()
+
+    # Preprocess the data
+    preprocessed_data = preprocess_data(data_df)
+
+    # Save the preprocessed data to the APP_DATA_DIR
+    save_to_csv(preprocessed_data, "preprocessed_transit_data.csv")
