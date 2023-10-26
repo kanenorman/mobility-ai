@@ -1,0 +1,21 @@
+# Start with base image
+FROM python:3.11-slim
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Install the ML app dependencies
+COPY mbta_ml/pyproject.toml mbta_ml/poetry.lock /app/
+RUN pip install poetry \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-dev
+
+# Copy the application code into the image
+COPY mbta_ml/ /app/mbta_ml/
+
+# Handle training data
+COPY mbta_ml/data/ /app/mbta_ml/data/
+
+# Set an entrypoint or CMD for your image to run the training script by default
+CMD ["python", "-m", "mbta_ml.xgboost_trainer"]
+
