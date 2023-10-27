@@ -15,7 +15,7 @@ from mbta_ml.config import (
     MODEL_DIR
 )
 import mbta_ml.authenticate as auth
-from mbta_ml.etl.delay_etl import data_checks_and_cleaning, transform
+import mbta_ml.etl.xgboost_etl as xgboost_etl
 from mbta_ml.ml.ml_utils import compute_metrics_table
 import mbta_ml.etl.gcp_dataloader as gcp_dataloader
 # Other imports
@@ -60,8 +60,8 @@ def check_or_load_data(data_path: Path = ML_TRAINING_DATA_PATH) -> pd.DataFrame:
             raw_df = pd.read_csv(RAW_DATA_PATH)
 
         # Process raw data for ML
-        transformed_df, le_dict = transform(raw_df)
-        ml_ready_df = data_checks_and_cleaning(transformed_df, verbose=False)
+        transformed_df, le_dict = xgboost_etl.transform(raw_df)
+        ml_ready_df = xgboost_etl.data_checks_and_cleaning(transformed_df, verbose=False)
         ml_ready_df.to_csv(data_path, index=False)
     else:
         print(f"Loading ML training data from existing file at {data_path}...")
@@ -225,23 +225,25 @@ def train_mbta(config):
 
 
 if __name__ == "__main__":
+    print("+---------------------------------------------------+")
     print(f"Model will be saved in: {MODEL_DIR}")
     print(f"Experiments will be stored in: {EXPERIMENT_DIR}")
     print(f"Running for number of trials: {TUNING_NUM_TRIALS}")
-    
+    print("+---------------------------------------------------+")
     # Authenticate and initialize W&B
     auth.authenticate_with_wandb()
-
+    print("+---------------------------------------------------+")
     # Extract data
     mbta_final_df = check_or_load_data()
-    
+    print("+---------------------------------------------------+")
+
     # Define tuner and start tuning
     tuner = tune.Tuner(
         train_mbta,
         tune_config=tune.TuneConfig(
             metric="rmse",
             mode="min",
-            num_samples=NUM_TRIALS,  # specify number of experiments
+            num_samples=TUNING_NUM_TRIALS,  # specify number of experiments
         ),
         run_config=train.RunConfig(
             callbacks=[WandbLoggerCallback(project="ac215_harvard_mobility_ai")]
@@ -272,3 +274,7 @@ if __name__ == "__main__":
         data=mbta_final_df,
         model_save_path=str(PROD_MODELS_DIR / "final_best_xgboost.json"),
     )
+    print("+---------------------------------------------------+")
+    print("Succesfully completed training")
+    print("Saved model to:", str(PROD_MODELS_DIR / "final_best_xgboost.json"))
+    print("Terminating xgboost_trainer() succesfully")

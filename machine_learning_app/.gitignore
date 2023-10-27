@@ -1,7 +1,7 @@
 # Ignore models and experiments directories
 /models/
 /experiments/
-/data/
+# /data/ # ignore for now - assuming data is small enough to store in container for training
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

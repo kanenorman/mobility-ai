@@ -180,15 +180,31 @@ def preprocess_data(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
         .dt.tz_localize("UTC")
         .dt.tz_convert("US/Eastern")
     )
-
+    # Normalize time columns
+    df_copy["time_stamp"] = df_copy["time_stamp"].dt.floor('s')
+    df_copy["scheduled_departure"] = df_copy["scheduled_departure"].dt.floor('s')
+    df_copy["scheduled_arrival"] = df_copy["scheduled_arrival"].dt.floor('s')
+    df_copy["actual_arrival_time"] = df_copy["actual_arrival_time"].dt.floor('s')
+    
     # Create delay column
     df_copy["delay"] = (
         df_copy["actual_arrival_time"] - df_copy["scheduled_arrival"]
     ).dt.total_seconds() / 60  # delay in minutes
-
+    
+    # Assuming scheduled_departure column has NaNs wherever there's no value
     # Merge scheduled_departure and scheduled_arrival to form scheduled_time
-    df_copy["scheduled_time"] = df_copy["scheduled_arrival"]
+    df_copy["scheduled_time"] = df_copy.apply(
+        lambda row: row["scheduled_departure"]
+        if pd.notnull(row["scheduled_departure"])
+        else row["scheduled_arrival"],
+        axis=1,
+    )
+    
+    df_copy['scheduled_time'] = df_copy['scheduled_time'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    df_copy["scheduled_time"] = pd.to_datetime(df_copy["scheduled_time"])
+    df_copy["scheduled_time"] = df_copy["scheduled_time"].dt.floor('s')
 
+    
     # Drop scheduled_departure and scheduled_arrival
     df_copy.drop(columns=["scheduled_departure", "scheduled_arrival"], inplace=True)
 
