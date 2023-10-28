@@ -2,10 +2,15 @@
 name = "mbta-ml"
 version = "4"
 description = "Milestone 4 submission."
-authors = ["Philip Ndikum <philipndikum@fas.harvard.edu>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "mbta_ml"}]
+authors = [
+    "Kane Norman <kanenorman@g.harvard.edu>",
+    "Philip Ndikum <philipndikum@g.harvard.edu>",
+    "Juan Castillo <jcastillo@g.harvard.edu>",
+    "David Wintermeyer <dwintermeyer@g.harvard.edu>"
+]
+packages = [{include = "mbta_ml/**/*"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"

@@ -1,21 +1,59 @@
-# Start with base image
-FROM python:3.11-slim
+# Multi-stage Dockerfile for MBTA ML Training.
+# The multi-stage build process is used to create a lightweight final image 
+# by separating the build-time dependencies from the runtime dependencies.
+# The "builder" stage installs all necessary build tools and libraries,
+# while the final image copies just the essentials, ensuring a minimal image size.
+# --- BUILDER STAGE ---
 
-# Set working directory inside the container
+# Use the official lightweight Python image as the builder
+FROM python:3.10-slim as builder
+
+# Set the working directory inside the container
 WORKDIR /app
 
-# Install the ML app dependencies
-COPY mbta_ml/pyproject.toml mbta_ml/poetry.lock /app/
-RUN pip install poetry \
-    && poetry config virtualenvs.create false \
-    && poetry install --no-dev
+# Install system dependencies required for poetry and other build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && pip install --upgrade pip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the application code into the image
+# Install Poetry for dependency management
+RUN pip install poetry
+
+# Add poetry path to the PATH variable to ensure it's available for commands
+ENV PATH="/root/.poetry/bin:$PATH"
+
+# Copy the poetry.lock, pyproject.toml, and README files first for better caching.
+COPY poetry.lock pyproject.toml README.md /app/
+
+# Copy the entire mbta_ml directory into the builder container
 COPY mbta_ml/ /app/mbta_ml/
 
-# Handle training data
-COPY mbta_ml/data/ /app/mbta_ml/data/
+# Set the working directory to mbta_ml to install Python dependencies
+WORKDIR /app/mbta_ml
 
-# Set an entrypoint or CMD for your image to run the training script by default
-CMD ["python", "-m", "mbta_ml.xgboost_trainer"]
+# Install project dependencies without creating a new virtual environment
+# The "--no-dev" flag ensures that only production dependencies are installed.
+RUN poetry config virtualenvs.create false && poetry install --no-dev -vvv
+
+# --- FINAL STAGE ---
+
+# Use the official lightweight Python image for the runnable container
+FROM python:3.10-slim
+
+# Copy only the essentials from the builder stage, effectively discarding
+# all the build-time dependencies and intermediate files.
+COPY --from=builder /app /app
+
+# Copy README to the final image (if desired in the final image)
+# If you don't want the README in the final image, you can remove this line.
+COPY README.md /app/
+
+# Set the working directory
+WORKDIR /app/mbta_ml
+
+# Define the default command for this container, which is executing the training job
+CMD ["python3", "-m", "mbta_ml.ml.xgboost_trainer"]
 
