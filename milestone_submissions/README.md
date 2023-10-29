@@ -467,7 +467,7 @@ In the realm of machine learning deployment, transitioning from preliminary stag
 To provide evidence of our successful deployment to Vertex AI, please refer to the screenshot below:
 
 <div align="center">
-  <img src="assets/vertex_ai.jpg" alt="Screenshot of successful deployment to Vertex AI" width="900"/>
+  <img src="./vertex_ai.jpg" alt="Screenshot of successful deployment to Vertex AI" width="900"/>
 </div>
 
 ### Setting Permissions:
