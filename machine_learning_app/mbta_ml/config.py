@@ -22,7 +22,10 @@ PROD_MODELS_DIR.mkdir(parents=True, exist_ok=True)
 TUNING_NUM_TRIALS_CONFIG = {"xgboost": 10}
 
 # API Key for Weights and Biases (wandb)
-WANDB_API_KEY = os.environ.get("WANDB_API_KEY")
+#WANDB_API_KEY = os.environ.get("WANDB_API_KEY")
+# Hardcoding API key due to time constraints
+WANDB_API_KEY = "c681b54830ece75abfc914b6c09ed6cc9140f1d4"
+os.environ["WANDB_API_KEY"] = WANDB_API_KEY
 
 # API key for service account file
 GCP_SERVICE_ACCOUNT_FILE = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")

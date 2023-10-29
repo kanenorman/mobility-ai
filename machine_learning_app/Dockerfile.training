@@ -4,14 +4,12 @@
 # The "builder" stage installs all necessary build tools and libraries,
 # while the final image copies just the essentials, ensuring a minimal image size.
 # --- BUILDER STAGE ---
-
-# Use the official lightweight Python image as the builder
 FROM python:3.10-slim as builder
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Install system dependencies required for poetry and other build tools
+# Install system dependencies required for the build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
@@ -19,14 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry for dependency management
-RUN pip install poetry
-
-# Add poetry path to the PATH variable to ensure it's available for commands
-ENV PATH="/root/.poetry/bin:$PATH"
-
-# Copy the poetry.lock, pyproject.toml, and README files first for better caching.
-COPY poetry.lock pyproject.toml README.md /app/
+# Copy the requirements.txt and README files first for better caching.
+COPY requirements.txt README.md /app/
 
 # Copy the entire mbta_ml directory into the builder container
 COPY mbta_ml/ /app/mbta_ml/
@@ -34,37 +26,25 @@ COPY mbta_ml/ /app/mbta_ml/
 # Set the working directory to mbta_ml to install Python dependencies
 WORKDIR /app/mbta_ml
 
-# Install project dependencies without creating a new virtual environment
-# The "--no-dev" flag ensures that only production dependencies are installed.
-RUN poetry config virtualenvs.create false && poetry install --no-dev -vvv
-
-# Diagnostic commands
-RUN poetry show
-RUN which python
-RUN python -m site
-
+# Install project dependencies
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # --- FINAL STAGE ---
-
-# Use the official lightweight Python image for the runnable container
 FROM python:3.10-slim
 
 # Set PYTHONPATH to ensure the mbta_ml module is discoverable by Python
 ENV PYTHONPATH=/app:$PYTHONPATH
 
-# Copy only the essentials from the builder stage, effectively discarding
+# Copy the essentials from the builder stage, effectively discarding
 # all the build-time dependencies and intermediate files.
 COPY --from=builder /app /app
-COPY --from=builder /root/.local /root/.local
 
-# Ensure scripts in .local are usable:
-ENV PATH=/root/.local/bin:$PATH
-
-# Copy README 
-COPY README.md /app/
+# Copy Python packages installed in the builder stage
+COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 # Set the working directory
 WORKDIR /app/mbta_ml
 
 # Define the default command for this container, which is executing the training job
-CMD ["python3", "-m", "mbta_ml.ml.xgboost_trainer"]
+CMD ["python3", "/app/mbta_ml/ml/xgboost_trainer.py"]
