@@ -1,127 +1,184 @@
 # Milestone 4 
 
-## MLOps: Serverless Microservice Architecture
-
-Our machine learning application is meticulously architected using a serverless microservice pattern, proving advantageous in various aspects that empower contemporary application deployment and management standards. Let’s dive deep into its design intricacies:
-
-### Why Serverless?
-
-Serverless architecture is more than a buzzword; it's a strategic choice we made to optimize operational overhead. When deploying applications in traditional architectures, one has to be cautious about provisioning, maintaining, and scaling the servers. Serverless abstracts these concerns, letting us focus on the code and its functionality rather than infrastructural challenges.
-
-- **Seamless Deployment and Scaling**: With serverless, deploying our services becomes as simple as pushing the code. As the traffic to our service grows, serverless platforms automatically scale up our application, and when the traffic subsides, they scale it down. This elastic nature ensures optimal resource utilization without manual intervention.
-- **Cost-Efficiency**: In serverless models, we only pay for the compute time our code is running. This can lead to substantial cost savings, especially for applications with fluctuating traffic.
-
-### Modular Microservice Design:
-
-The adoption of a microservice structure for our machine learning application ensures that different components of our application are isolated, modular, and loosely coupled. This modularization offers numerous benefits:
-
-- **Independent Scalability**: Each service can be scaled independently based on its demand, ensuring efficient resource allocation. For instance, if our `xgboost_trainer.py` experiences a higher computational demand, it can be scaled independently without affecting other components.
-- **Enhanced Code Management**: With modular services, each service can be developed, tested, and deployed independently. This isolation means bugs in one service won't spill over to another, leading to easier debugging and maintenance.
-- **Flexibility in Tech Stack**: Different services can be written in different programming languages or use different data storage techniques. This flexibility ensures that the technology stack is always the best fit for the service's purpose.
-
-### Breaking Down the Directory Structure:
-
-- **Dockerfile.training**: This contains instructions to package our training environment into a container. Using containers ensures consistency across different stages of the application lifecycle, from development to production.
-- **mbta_ml**:
-    - **authenticate.py**: Centralized authentication service. Keeping this separate ensures secure and consistent access controls across services.
-    - **config.py**: Global configurations ensuring all modules remain in sync with system-wide parameters.
-    - **data**: Raw and processed datasets reside here, ensuring a clear separation between raw input and feature-engineered data.
-    - **dl**: Deep learning specific tasks, making it straightforward to identify and manage neural network-based operations.
-    - **etl**: Stands for Extract, Transform, Load. All data preparation, cleaning, and transformation tasks are handled here, ensuring data integrity and quality.
-    - **experiments**: Organized by date, this directory holds various experiment outcomes, making it easier to track and compare model performances over time.
-    - **ml**: Traditional machine learning tasks and utilities are isolated here, ensuring clarity between deep learning and traditional ML tasks.
-    - **models**: Intermediate model artifacts, including weights and structures, are stored here, providing a historical view of model iterations.
-    - **production_models**: Houses the final, production-ready models. This separation ensures quick access to deployable artifacts.
-    - **pyproject.toml & poetry.lock**: Dependency management, ensuring consistency across environments.
-    - **README.md**: Documentation, an essential aspect to provide insights into the system's design and functionality.
-    - **test_import.py**: Ensures module imports are functioning correctly.
-
-### Design Rationale:
-
-1. **Production-Grade Training**: By segregating ETL processes, traditional ML, and deep learning, we ensure that any changes or upgrades to the training algorithms don't hamper the data preparation stages and vice-versa. This separation is crucial for maintaining data integrity and model consistency.
-2. **Optimized Inference**: The clear demarcation between models and production_models ensures that only the most optimized and tested models are deployed for inference, ensuring efficient resource utilization and rapid response times.
-
-Moreover, it's worth noting that while our current deliverable utilizes the XGBoost model, the flexibility of our architecture accommodates the seamless integration and deployment of deep learning models or any other machine learning algorithms. This flexibility assures that our system remains future-proof, catering to evolving requirements without necessitating substantial overhauls. In essence, the design blueprint shown below ensures that our application remains agile, scalable, maintainable, and robust, striking a balance between innovation and stability. Leading well to our deployments in MS5 and MS6 which are nearly complete.
+In this milestone, we encapsulated our machine learning application within Docker containers and deployed them to the Google Artifact Registry (GAR). The structure of our application adheres to best practices for machine learning projects, ensuring modularity, scalability, and maintainability. 
 
 ```
 ➜  machine_learning_app 
 .
-├── Dockerfile.training
-└── mbta_ml
-    ├── authenticate.py
-    ├── config.py
-    ├── data
-    │   ├── ml_transit_training_data.csv
-    │   └── raw_transit_data.csv
-    ├── dl
-    │   ├── dnn_pruner.py
-    │   ├── dnn_trainer.py
-    │   ├── __init__.py
-    │   └── knowledge_distiller.py
-    ├── etl
-    │   ├── gcp_dataloader.py
-    │   └── xgboost_etl.py
-    ├── experiments
-    ├── __init__.py
-    ├── ml
-    │   ├── __init__.py
-    │   ├── ml_utils.py
-    │   └── xgboost_trainer.py
-    ├── models
-    ├── poetry.lock
-    ├── production_models
-    │   └── final_best_xgboost.json
-    ├── pyproject.toml
-    ├── README.md
+├── authenticate.py
+├── config.py
+├── data
+│   ├── ml_transit_training_data.csv
+│   └── raw_transit_data.csv
+├── dl
+│   ├── dnn_pruner.py
+│   ├── dnn_trainer.py
+│   ├── __init__.py
+│   └── knowledge_distiller.py
+├── etl
+│   ├── gcp_dataloader.py
+│   ├── __init__.py
+│   └── xgboost_etl.py
+├── experiments
+├── __init__.py
+├── ml
+│   ├── __init__.py
+│   ├── ml_utils.py
+│   └── xgboost_trainer.py
+├── models
+├── production_models
+    ├── final_best_xgboost.json
+    └── .gitkeep
 ```
-## Addressing the Markscheme
 
-- **Distillation/Quantization/Compression**: 
-    - Implemented knowledge distillation to transfer information from a complex model (teacher) to a simpler model (student).
-    - Weight and neuron pruning techniques were applied for model optimization to ensure efficient deployment in constrained environments.
-    - Refer to `compress_teacher.py` for weight and neuron pruning and `distill_student.py` for knowledge distillation.
+### Breaking Down the Directory Structure:
+Before diving into the detailed directory structure, it's important to emphasize our commitment to following industry best practices. This approach not only streamlines the development and deployment processes but also ensures the robustness and scalability of our application. The directory structure has been designed with clarity, modularity, and specific task orientation in mind.
 
-- **Vertex AI Pipelines (Kubeflow) and Cloud Functions Integration**:
-    - Incorporated Vertex AI Pipelines for orchestrating machine learning workflows.
-    - Integrated cloud functions to automate various processes, aligning with best cloud-native practices.
+- **Dockerfile.training**: This Dockerfile encapsulates the environment required for model training, catering to the computational and library dependencies necessary for this intensive task. By segmenting our Dockerfiles based on their use-cases, we enhance container efficiency and maintainability. In Milestone 6, we plan to introduce "Dockerfile.testing", tailored for inference operations. This ensures a lightweight and optimized container for real-time predictions, underscoring our principle of ensuring that each container is purposed for specific tasks, which is a hallmark of production-grade deployment practices.
+- **authenticate.py**: A centralized module for authentication. By isolating authentication, the application ensures a standardized, secure mechanism for verifying identity, which is crucial in maintaining data integrity and access controls across microservices or modules.
 
-## Best of Practice
+- **config.py**: This file serves as the hub for global configurations, establishing a unified interface for parameters. This practice promotes coherence across various modules, reducing the risk of discrepancies arising from localized configurations.
 
-By segregating our back-end data engineering, Flask app, and machine learning app, we follow the best industry practices. This modular structure allows for better maintainability, scalability, and independent feature enhancements.
+- **data**: This directory, reserved for datasets, ensures there's a single location where data assets reside. By categorically separating raw from processed datasets, the application mitigates confusion, streamlining data retrieval and ensuring that operations are performed on the correct version of data.
 
-## Tools and Libraries
+- **dl**: Tailored for deep learning operations:
+    - **dnn_pruner.py**: Emphasizes model efficiency by pruning unnecessary neural network parameters, which is crucial for deployment in resource-constrained environments.
+    - **dnn_trainer.py**: Dedicated to the intricate training lifecycle of deep neural networks, ensuring optimal convergence and model generalization.
+    - **knowledge_distiller.py**: Facilitates model compression by leveraging knowledge distillation techniques, essential for deploying large models on edge devices.
 
-- **WandB (Weights and Biases)**: Utilized for serverless performance tracking, enabling us to visualize metrics, compare experiments, and share insights.
-- **Ray**: Employed for hyperparameter tuning and experiment tracking. It offers the ability to scale and distribute model training across CPU and GPU resources.
+- **etl**: Standing for Extract, Transform, Load, this directory centralizes all data processing workflows. By distinctly managing these processes:
+    - **gcp_dataloader.py**: Demonstrates adaptability by providing specific utilities to fetch data from the Google Cloud Platform, leveraging cloud resources efficiently.
+    - **xgboost_etl.py**: Tailors ETL processes for XGBoost, showcasing the importance of model-specific data preparation.
 
-## Files and Code Overview
+- **experiments**: Organized chronologically, it serves as a living log of model experiments. By structuring it this way, it becomes simpler to track model evolution, and leveraging tools like `ray` & `wandb` t optimize experiment management and comparison.
 
-- `delay_etl.py`: 
-    - Preprocesses MBTA data.
-    - Features: date derivation, encoding categoricals, computing delays and distances, hex value computation, and data cleaning.
+- **ml**: This section is dedicated to classical machine learning tasks:
+    - **ml_utils.py**: Functions as a utility belt, offering an assortment of tools and functions, underscoring the need for reusable components in ML workflows.
+    - **xgboost_trainer.py**: Dedicated to the XGBoost training lifecycle, reflecting the importance of modularizing training tasks based on the algorithm. This conducts robust hyperparameter tuning and model saving. 
 
-- `gcp_dataoader.py`:
-    - Authenticates GCP.
-    - Extracts MBTA data from BigQuery.
-    - Handles NaNs and converts data types.
+- **models**: Acts as a repository for transitional model states. By cataloging these intermediate artifacts, the application provides a granular history of model evolution, allowing for rollback and comparison between iterations. These will be models can be pushed to the Google Artifact Registry (GAR) for inference in Milestone 6. 
 
-- `ml_train.py`:
-    - Computes evaluation metrics.
-    - Trains XGBoost model on MBTA data.
-    - Hyperparameter optimization and retraining with best hyperparameters.
+- **production_models**: Distinctly houses deployment-ready models. By isolating production-grade models, the structure ensures that only fully validated, optimal models are promoted to production environments, minimizing potential deployment risks.
 
-- `compress_teacher.py`:
-    - Performs weight and neuron pruning on the model.
-    - Fine-tunes pruned models.
-    - Evaluates and selects the best pruned model.
+- **README.md**: More than just a file, it embodies the principle of thorough documentation, essential for team collaboration, onboarding new members, and offering external entities an overview of the application's design and functionalities.
 
-- `DNN_train_base.py`:
-    - Trains a DNN model on MBTA data.
-    - Hyperparameter optimization for the DNN model.
 
-- `Distill_student.py`:
-    - Creates a student model.
-    - Distills knowledge from the teacher model.
-    - Hyperparameter optimization for the student model.
+## MLOps: Adopting a Serverless Microservice Architecture
 
-**Note**: For comprehensive code details, delve into the respective Python files provided in the application structure.
+In the evolving landscape of MLOps, we've strategically designed our machine learning application around a serverless microservice architecture. This design paradigm not only aligns with contemporary application deployment practices but also offers numerous operational and management benefits. Here's a deeper dive into our architectural choices and their implications:
+
+Serverless computing isn't just a trendy concept; it's a transformative architectural choice, focusing our attention on the application's core functionality, sidestepping concerns of infrastructure management and server provisioning typically associated with traditional architectures.
+
+- **Seamless Deployment and Scaling**: Serverless computing ensures our application effortlessly scales with demand. As traffic grows, the infrastructure scales up, and during lulls, it scales down — all without manual oversight.
+- **Cost-Efficiency**: Billing in serverless architectures revolves around compute time. This pay-as-you-use model can translate to significant cost savings, particularly for applications experiencing varied traffic.
+- **Production-Grade Training**: Our architecture distinctly separates ETL processes, traditional ML, and deep learning. This guarantees that updates to training algorithms don't inadvertently disrupt data preparation stages, preserving both data integrity and model reliability.
+- **Optimized Inference**: A clear division between intermediate `models` and deployment-ready `production_models` ensures that only vetted, performance-optimized models are used in inference scenarios.
+- **Independent Scalability**: The architecture supports the individual scaling of services. For example, a surge in computational needs for `xgboost_trainer.py` won't disrupt other services.
+- **Enhanced Code Management**: Our modular approach allows for the independent development, testing, and deployment of services. This contained structure means issues in one module don't cascade to others, streamlining debugging and upkeep.
+- **Tech Stack Flexibility**: The microservice approach permits disparate services to be built with varied tech stacks, aligning each service with its most suitable tools and frameworks.
+
+## Model Evolution & Continuous Improvement
+
+While our current system leverages the XGBoost model, our architecture's agility ensures it remains adaptable, ready to accommodate Bayesian, Machine, or Deep Learning models as requirements evolve. This forward-compatible design embodies a harmony between innovation and stability, perfectly setting the stage for our imminent deployments in MS5 and MS6.
+
+Integral to our design is the emphasis on continuous integration and delivery (CI/CD). We've embedded CI/CD practices directly within Github, adhering to industry best practices, which are poised for future enhancements. In tandem, we've retained the model tracking utilities introduced in prior milestones:
+
+- **WandB (Weights and Biases)**: An instrumental tool for performance visualization. WandB facilitates metric visualization, experiment comparison, and collaborative insights sharing.
+- **Ray**: A powerful utility for hyperparameter optimization and experiment versioning, allowing us to harness distributed training across diverse compute resources efficiently.
+
+## Model Selection & Design: Aligning with the Markscheme and Real-world Constraints
+
+While we primarily utilized `xgboost_trainer.py` for model training, our system's design and codebase adhere to industry-standard best practices, showcasing the flexibility inherent in our architecture. This strategic decision was motivated by the dual objectives of retaining simplicity, to ensure lightweight Docker containers for both training and production stages, and catering to the markscheme's requirements.
+
+Deep Learning (DL) models, especially for tasks like time-series forecasting, typically necessitate vast amounts of data to achieve production-grade optimization. Given the trade-offs associated with such intricate DL models, the more streamlined and computationally efficient XGBoost model was a judicious choice for our primary deployment. Nonetheless, to satisfy the comprehensive aspects of the markscheme, we ensured that our DL code was structured in an analogous manner, using `dl_trainer.py` as the counterpart to `xgboost_trainer.py`. Such consistent and clear naming conventions and structure attest to our commitment to adhering to proven Machine Learning Operations (MLOps) design patterns.
+
+### Markscheme: Distillation, Quantization, and Compression
+
+In the realm of model optimization and compression, we've incorporated a suite of techniques that reflect industry advancements:
+
+- **Distillation/Quantization/Compression**:
+    - **Knowledge Distillation**: This is a method where a simpler, smaller model (referred to as the 'student') is trained to replicate the behavior of a more complex, larger model (the 'teacher'). Our implementation facilitates an effective transfer of knowledge, ensuring the student model achieves comparable performance while being more efficient.
+    - **Pruning**: We've employed both weight and neuron pruning. These techniques selectively remove model weights or neurons that contribute least to the final predictions, optimizing the model for faster inferencing and reduced memory footprint, especially vital for deployment in resource-constrained environments.
+    - For detailed implementations, consult `compress_teacher.py` for pruning mechanisms and `distill_student.py` for the knowledge distillation process.
+
+- **Key Python Modules for the Markscheme**:
+    -  `dnn_pruner.py`:
+        - Conducts weight and neuron pruning operations on DL models.
+        - Executes fine-tuning on pruned models to recover any lost accuracy.
+        - Assesses pruned models, selecting the most optimized version based on performance and compression metrics.
+    
+    - `dnn_trainer.py`:
+        - Orchestrates training of deep neural networks on relevant datasets.
+        - Manages hyperparameter optimization to ensure optimal performance for the DL model.
+    
+    - `knowledge_distiller.py`:
+        - Employs an Object-Oriented Programming (OOP) approach to instantiate student models.
+        - Oversees the distillation process, transferring knowledge from the teacher model to the student.
+        - Spearheads hyperparameter tuning for the distilled student model.
+
+In essence, while we've made informed trade-offs for the project's primary deployment, we have meticulously ensured alignment with the markscheme's stipulations, embodying a blend of academic rigor and real-world pragmatism.
+
+## Markscheme: Vertex AI Pipelines (Kubeflow) and Cloud Functions Integration
+
+The transition from the early stages of the machine learning process to deployment can be complex, but by adhering to industry best practices from the beginning, we significantly reduce the deployment workload. This underscores the importance of maintaining a structured and systematic approach throughout the machine learning lifecycle. In this section, we'll delve into our deployment process on Vertex AI, emphasizing the importance of the preparatory steps we took that enabled a smoother deployment.
+
+To provide evidence of our successful deployment to Vertex AI, please refer to the screenshot below:
+
+<div align="center">
+  <img src="assets/vertex_ai.jpg" alt="Screenshot of successful deployment to Vertex AI" width="900"/>
+</div>
+
+### Setting Permissions:
+Before we delve into the deployment commands, it's paramount to ensure the appropriate permissions are granted.
+
+1. Navigate to the GCP console.
+2. Proceed to `IAM & Admin`.
+3. Identify and select the member (which could be your user account or a service account) executing the commands.
+4. Edit the member details and assign the role `Artifact Registry Writer` or confirm it possesses the `artifactregistry.repositories.uploadArtifacts` permission.
+
+### Local Testing:
+It's always a best practice to test your solution locally before deploying it to a remote server.
+
+```bash
+# Execute the xgboost_trainer locally to ensure ETL retrieves the correct data:
+python -m mbta_ml.ml.xgboost_trainer
+``` 
+
+### Deployment to Google Artifact Registry (GAR) and Vertex AI:
+```bash
+# Construct the Docker container:
+sudo docker build -f Dockerfile.training -t gcr.io/ac215-transit-prediction/mbta_ml:latest .
+
+# Execute the docker container for local testing:
+docker run -it --rm gcr.io/ac215-transit-prediction/mbta_ml:latest
+
+# If encountering issues, run interactively to diagnose:
+docker run -it --rm --entrypoint /bin/bash gcr.io/ac215-transit-prediction/mbta_ml:latest
+
+# Within the container, initiate the trainer script:
+python ml.xgboost_trainer.py
+```
+### Pushing Docker Image to GAR and Vertex AI:
+For a seamless deployment to the cloud, adhere to the following considerations:
+1. Refrain from utilizing `sudo` with Docker during Google Cloud deployment. This could circumvent user-specific configurations and vital permissions imperative for authentication. 
+2. Disable VPN when deploying or interfacing with cloud services to avert potential network disruptions or obstructed connections.
+
+```bash
+# Configure Docker authentication for Google Artifact Registry (GAR):
+gcloud auth configure-docker us-east1-docker.pkg.dev
+
+# Label your Docker image for GAR:
+docker tag gcr.io/ac215-transit-prediction/mbta_ml:latest us-east1-docker.pkg.dev/ac215-transit-prediction/mbta-ml-train/mbta-ml-train:latest
+
+# Upload Docker image to GAR. Avoid `sudo` as it might interfere with configuration credentials:
+docker push us-east1-docker.pkg.dev/ac215-transit-prediction/mbta-ml-train/mbta-ml-train:latest
+
+# Specify the project and region:
+gcloud config set project ac215-transit-prediction
+gcloud config set ai/region us-east1
+
+# Submit a Training Job to Vertex AI using gcloud CLI:
+gcloud beta ai custom-jobs create \
+  --display-name="MBTA ML Training Job" \
+  --worker-pool-spec=machine-type="n1-standard-4",replica-count=1,container-image-uri="us-east1-docker.pkg.dev/ac215-transit-prediction/mbta-ml-train/mbta-ml-train:latest"
+```
