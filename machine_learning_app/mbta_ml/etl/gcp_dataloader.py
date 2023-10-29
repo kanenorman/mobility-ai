@@ -3,14 +3,14 @@ targeting machine learning & time series forecasting of bus arrivals and delays.
 """
 import logging
 from datetime import datetime
+from pathlib import Path
+
+import mbta_ml.authenticate as auth
 import numpy as np
 import pandas as pd
-import mbta_ml.authenticate as auth
 from google.cloud import bigquery
-from mbta_ml.config import (
-    APP_DATA_DIR
-)
-from pathlib import Path
+from mbta_ml.config import APP_DATA_DIR
+
 
 def extract_from_gcp(
     project_id: str = "ac215-transit-prediction",
@@ -181,16 +181,16 @@ def preprocess_data(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
         .dt.tz_convert("US/Eastern")
     )
     # Normalize time columns
-    df_copy["time_stamp"] = df_copy["time_stamp"].dt.floor('s')
-    df_copy["scheduled_departure"] = df_copy["scheduled_departure"].dt.floor('s')
-    df_copy["scheduled_arrival"] = df_copy["scheduled_arrival"].dt.floor('s')
-    df_copy["actual_arrival_time"] = df_copy["actual_arrival_time"].dt.floor('s')
-    
+    df_copy["time_stamp"] = df_copy["time_stamp"].dt.floor("s")
+    df_copy["scheduled_departure"] = df_copy["scheduled_departure"].dt.floor("s")
+    df_copy["scheduled_arrival"] = df_copy["scheduled_arrival"].dt.floor("s")
+    df_copy["actual_arrival_time"] = df_copy["actual_arrival_time"].dt.floor("s")
+
     # Create delay column
     df_copy["delay"] = (
         df_copy["actual_arrival_time"] - df_copy["scheduled_arrival"]
     ).dt.total_seconds() / 60  # delay in minutes
-    
+
     # Assuming scheduled_departure column has NaNs wherever there's no value
     # Merge scheduled_departure and scheduled_arrival to form scheduled_time
     df_copy["scheduled_time"] = df_copy.apply(
@@ -199,12 +199,13 @@ def preprocess_data(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
         else row["scheduled_arrival"],
         axis=1,
     )
-    
-    df_copy['scheduled_time'] = df_copy['scheduled_time'].dt.strftime('%Y-%m-%d %H:%M:%S')
-    df_copy["scheduled_time"] = pd.to_datetime(df_copy["scheduled_time"])
-    df_copy["scheduled_time"] = df_copy["scheduled_time"].dt.floor('s')
 
-    
+    df_copy["scheduled_time"] = df_copy["scheduled_time"].dt.strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+    df_copy["scheduled_time"] = pd.to_datetime(df_copy["scheduled_time"])
+    df_copy["scheduled_time"] = df_copy["scheduled_time"].dt.floor("s")
+
     # Drop scheduled_departure and scheduled_arrival
     df_copy.drop(columns=["scheduled_departure", "scheduled_arrival"], inplace=True)
 
@@ -254,7 +255,7 @@ def preprocess_data(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
 
 
 def save_to_csv(df: pd.DataFrame, file_name: str, verbose: bool = True):
-    """ Save the dataframe to a CSV file.
+    """Save the dataframe to a CSV file.
 
     Parameters
     ----------
@@ -274,6 +275,7 @@ def save_to_csv(df: pd.DataFrame, file_name: str, verbose: bool = True):
 
     if verbose:
         print(f"Data saved to {path}")
+
 
 if __name__ == "__main__":
     # Extract data from BigQuery

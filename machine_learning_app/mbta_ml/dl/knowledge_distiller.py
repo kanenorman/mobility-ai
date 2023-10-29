@@ -2,8 +2,8 @@
 knowledge_distillation.py: This module provides an OOP implementation to distill knowledge
 from a teacher model into a student model.
 """
-import tensorflow as tf
 import ray  # For distributed computing
+import tensorflow as tf
 import wandb  # For experiment tracking
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
@@ -19,6 +19,7 @@ class KnowledgeDistillation:
     Attributes:
         STUDENT_PARAM_SPACE (dict): Hyperparameters search space for student model.
     """
+
     STUDENT_PARAM_SPACE = {
         "dropout_rate": ray.tune.uniform(0.0, 0.5),
         "distillation_weight": ray.tune.uniform(0.0, 1.0),
@@ -72,7 +73,9 @@ class KnowledgeDistillation:
         """
         # Initialize environment for knowledge distillation
         input_dim = data.shape[1] - 1  # Determine the input dimension
-        dropout_rate = config["dropout_rate"]  # Get the dropout rate from the configuration
+        dropout_rate = config[
+            "dropout_rate"
+        ]  # Get the dropout rate from the configuration
         train_df, test_df = train_test_split(
             data, test_size=0.3
         )  # Split the data into training and testing sets
@@ -149,7 +152,9 @@ class KnowledgeDistillation:
 
         run_id = str(wandb.run.id)  # Convert wandb.run.id to a string
         model_save_path = str(MODEL_DIR / f"student_model_{run_id}.h5")
-        print(f"Student model will be saved in: {model_save_path}")  # report for reference
+        print(
+            f"Student model will be saved in: {model_save_path}"
+        )  # report for reference
 
         # Use the trainable function to train the student model
         rmse, mae, r2 = train_student_model(
@@ -159,7 +164,6 @@ class KnowledgeDistillation:
         # Report metrics to Ray and WandB
         ray.train.report({"rmse": rmse, "mae": mae, "r2": r2})  # Report 'rmse' metric
         wandb.log({"rmse": rmse, "mae": mae, "r2": r2, "config": config})
-
 
     def retrain_student_with_best_hyperparameters(self, data, best_hyperparameters):
         """Retrains the student model with the best hyperparameters.
@@ -205,14 +209,16 @@ if __name__ == "__main__":
         local_dir=str(EXPERIMENT_DIR),
         verbose=1,
         metric="rmse",
-        mode="min"
+        mode="min",
     )
 
     # Get best hyperparameters
     best_student_hyperparameters = student_analysis.best_config
 
     # Retrain with best hyperparameters using the knowledge distillation object
-    kd.retrain_student_with_best_hyperparameters(mbta_final_df, best_student_hyperparameters)
+    kd.retrain_student_with_best_hyperparameters(
+        mbta_final_df, best_student_hyperparameters
+    )
 
     wandb.finish()
     ray.shutdown()

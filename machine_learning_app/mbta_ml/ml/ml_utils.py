@@ -1,11 +1,12 @@
 """ ml_utils.py: This module contains functions to train, build, and save ML models.
 """
-import pandas as pd 
+import pandas as pd
+from mbta_ml.config import ML_TRAINING_DATA_PATH, MODEL_DIR, RAW_DATA_PATH
 from permetrics import RegressionMetric
-from mbta_ml.config import ML_TRAINING_DATA_PATH, RAW_DATA_PATH, MODEL_DIR
+
 
 def compute_metrics_table(forecasts_df: pd.DataFrame) -> pd.DataFrame:
-    """ Compute metrics table for regression modeling.
+    """Compute metrics table for regression modeling.
 
     Parameters
     ----------
@@ -39,4 +40,3 @@ def compute_metrics_table(forecasts_df: pd.DataFrame) -> pd.DataFrame:
         final_results[algorithm] = model_results
     results_df = pd.DataFrame(final_results).transpose()
     return results_df
-

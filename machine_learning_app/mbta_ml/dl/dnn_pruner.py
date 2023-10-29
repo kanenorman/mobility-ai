@@ -1,15 +1,17 @@
 """deep_learning_pruner.py: This module contains a class to prune and fine-tune the best
 fitting base model to improve its performance and decrease model size.
 """
-from utils import check_resources, configure_ray_resources
-import ray
-import tensorflow_model_optimization as tfmot
-from sktime.forecasting.model_selection import temporal_train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from pathlib import Path
 
+import ray
+import tensorflow_model_optimization as tfmot
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sktime.forecasting.model_selection import temporal_train_test_split
+from utils import check_resources, configure_ray_resources
+
+
 class DLModelPruner:
-    """ A class used to prune and fine-tune deep learning models.
+    """A class used to prune and fine-tune deep learning models.
 
     Attributes
     ----------
@@ -51,7 +53,9 @@ class DLModelPruner:
             "prune_frequency": 1,
         }
 
-    def prune_and_fine_tune(self, best_model, data, config, pruning_params, is_neuron_pruning=False):
+    def prune_and_fine_tune(
+        self, best_model, data, config, pruning_params, is_neuron_pruning=False
+    ):
         """
         Prunes and fine-tunes the provided model based on the given parameters.
 
@@ -157,9 +161,7 @@ class DLModelPruner:
 
         # Save pruned model
         pruned_model.save(pruned_model_save_path)
-        print(
-            f"Pruned model saved to: {pruned_model_save_path}"
-        )  
+        print(f"Pruned model saved to: {pruned_model_save_path}")
 
         # Evaluate pruned model performance on the test set
         y_pred = pruned_model.predict(test_x)  # Make predictions

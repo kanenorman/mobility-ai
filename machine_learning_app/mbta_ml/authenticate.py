@@ -1,26 +1,27 @@
-"""authenticate.py: Authentication utility functions for ETL & Deep & Machine Learning model 
+"""authenticate.py: Authentication utility functions for ETL & Deep & Machine Learning model
 training & inference.
 """
 import numpy as np
 import psutil
 import ray
-from mbta_ml.config import GCP_SERVICE_ACCOUNT_FILE, WANDB_API_KEY
-from google.oauth2.service_account import Credentials
-from google.cloud import bigquery, storage
 import wandb
+from google.cloud import bigquery, storage
+from google.oauth2.service_account import Credentials
+from mbta_ml.config import GCP_SERVICE_ACCOUNT_FILE, WANDB_API_KEY
+
 
 def authenticate_gcp_storage_implicit(project_id="ac215-transit-prediction"):
-    """ Authenticate with Google Cloud Storage using Application Default Credentials (ADC).
-    
-    This method leverages implicit authentication provided by the `gcloud` CLI. 
+    """Authenticate with Google Cloud Storage using Application Default Credentials (ADC).
+
+    This method leverages implicit authentication provided by the `gcloud` CLI.
     It's primarily useful for GCS operations like listing buckets or uploading/downloading files.
-    
+
     Note:
     Before using this method, set up ADC as described in:
     https://cloud.google.com/docs/authentication/external/set-up-adc
 
     Ensure the authenticated account has "storage.buckets.list" permission for listing buckets.
-    
+
     Parameters
     ----------
     project_id : str, optional
@@ -33,29 +34,30 @@ def authenticate_gcp_storage_implicit(project_id="ac215-transit-prediction"):
     """
     storage_client = storage.Client(project=project_id)
     buckets = storage_client.list_buckets()
-    
+
     print("GCS Buckets:")
     for bucket in buckets:
         print(bucket.name)
     print("Listed all storage buckets.")
     return storage_client
 
+
 def authenticate_gcp_bigquery_implicit(project_id="ac215-transit-prediction"):
-    """ Authenticate with Google BigQuery using Application Default Credentials (ADC).
-    
-    This method leverages implicit authentication provided by the `gcloud` CLI. 
+    """Authenticate with Google BigQuery using Application Default Credentials (ADC).
+
+    This method leverages implicit authentication provided by the `gcloud` CLI.
     It's primarily useful for BigQuery operations like running SQL queries and accessing datasets.
-    
+
     Note:
     Before using this method, set up ADC as described in:
     https://cloud.google.com/docs/authentication/external/set-up-adc
 
     Ensure the authenticated account has appropriate BigQuery permissions for the desired operations.
-    
+
     Parameters
     ----------
     project_id : str, optional
-        Google Cloud Project ID where the BigQuery dataset resides. If not provided, 
+        Google Cloud Project ID where the BigQuery dataset resides. If not provided,
         the default from ADC is used.
 
     Returns
@@ -67,17 +69,18 @@ def authenticate_gcp_bigquery_implicit(project_id="ac215-transit-prediction"):
     print("Authenticated with BigQuery.")
     return bigquery_client
 
+
 def authenticate_gcp_bigquery_explicit(project_id=None):
-    """ Authenticate with Google Cloud Platform's BigQuery service using a service account key with 
+    """Authenticate with Google Cloud Platform's BigQuery service using a service account key with
     explicit authentication & local environment variables.
-    
-    This method uses explicit service account credentials. 
+
+    This method uses explicit service account credentials.
     It's useful when running in environments without the `gcloud` CLI or ADC setup.
-    
+
     Parameters
     ----------
     project_id : str, optional
-        Google Cloud Project ID where the BigQuery dataset resides. If not provided, 
+        Google Cloud Project ID where the BigQuery dataset resides. If not provided,
         the default project from the service account credentials is used.
 
     Returns
@@ -90,8 +93,9 @@ def authenticate_gcp_bigquery_explicit(project_id=None):
     print("Authenticated with BigQuery using explicit credentials.")
     return bigquery_client
 
+
 def authenticate_with_wandb():
-    """ Authenticate with Weights & Biases using an API key.
+    """Authenticate with Weights & Biases using an API key.
 
     Returns
     -------
@@ -100,8 +104,9 @@ def authenticate_with_wandb():
     """
     return wandb.login(key=WANDB_API_KEY)
 
+
 def check_resources():
-    """ Determine the total available computational resources.
+    """Determine the total available computational resources.
 
     Returns
     -------
@@ -116,8 +121,9 @@ def check_resources():
     total_memory_gb = np.float32(psutil.virtual_memory().total / (1024**3))
     return num_cpus, num_gpus, total_memory_gb
 
+
 def configure_ray_resources(num_cpus, num_gpus):
-    """ Set the number of resources for Ray to the total available
+    """Set the number of resources for Ray to the total available
     computational resources.
 
     Parameters
@@ -127,10 +133,11 @@ def configure_ray_resources(num_cpus, num_gpus):
     num_gpus : int
         The total number of GPU cores available.
     """
-    
+
     # Initialize Ray with available resources
     ray.shutdown()
     ray.init(num_cpus=num_cpus, num_gpus=num_gpus)
+
 
 def run_authentication_tasks():
     """
@@ -155,9 +162,14 @@ def run_authentication_tasks():
     else:
         print("Weights & Biases authentication failed.")
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Authentication Utility with Optional Ray Configuration")
-    parser.add_argument("--ray", "-r", action="store_true", help="Run configure_ray_resources")
+    parser = argparse.ArgumentParser(
+        description="Authentication Utility with Optional Ray Configuration"
+    )
+    parser.add_argument(
+        "--ray", "-r", action="store_true", help="Run configure_ray_resources"
+    )
 
     args = parser.parse_args()
 
@@ -166,6 +178,7 @@ def main():
     if args.ray:
         num_cpus, num_gpus, total_memory_gb = check_resources()
         configure_ray_resources(num_cpus, num_gpus)
+
 
 if __name__ == "__main__":
     main()

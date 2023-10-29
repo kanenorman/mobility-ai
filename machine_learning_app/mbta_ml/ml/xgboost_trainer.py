@@ -5,35 +5,39 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple
-# Internal app imports
-from mbta_ml.config import (
-    TUNING_NUM_TRIALS_CONFIG,
-    PROD_MODELS_DIR,
-    EXPERIMENT_DIR,
-    ML_TRAINING_DATA_PATH,
-    RAW_DATA_PATH,
-    MODEL_DIR
-)
+
 import mbta_ml.authenticate as auth
-import mbta_ml.etl.xgboost_etl as xgboost_etl
-from mbta_ml.ml.ml_utils import compute_metrics_table
 import mbta_ml.etl.gcp_dataloader as gcp_dataloader
+import mbta_ml.etl.xgboost_etl as xgboost_etl
+
 # Other imports
 import pandas as pd
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import wandb
 import xgboost as xgb
+
+# Internal app imports
+from mbta_ml.config import (
+    EXPERIMENT_DIR,
+    ML_TRAINING_DATA_PATH,
+    MODEL_DIR,
+    PROD_MODELS_DIR,
+    RAW_DATA_PATH,
+    TUNING_NUM_TRIALS_CONFIG,
+)
+from mbta_ml.ml.ml_utils import compute_metrics_table
 from ray import train, tune
 from ray.air.integrations.wandb import WandbLoggerCallback
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sktime.forecasting.model_selection import temporal_train_test_split
 
 # Set global variables
 TUNING_NUM_TRIALS = TUNING_NUM_TRIALS_CONFIG["xgboost"]
 global mbta_final_df
 
+
 def check_or_load_data(data_path: Path = ML_TRAINING_DATA_PATH) -> pd.DataFrame:
     """
-    Check if the ML preprocessed data file exists. If not, run the GCP data loader 
+    Check if the ML preprocessed data file exists. If not, run the GCP data loader
     to generate raw data and subsequently process it for ML training.
 
     Parameters
@@ -49,11 +53,13 @@ def check_or_load_data(data_path: Path = ML_TRAINING_DATA_PATH) -> pd.DataFrame:
     """
     if not data_path.exists():
         print("ML training data file not found. Running GCP data loader...")
-        
+
         # Check if raw data exists, otherwise load it
         if not RAW_DATA_PATH.exists():
             print("Raw data file not found. Fetching data from GCP...")
-            raw_df = gcp_dataloader.extract_from_gcp(verbose=False, close_connection=True)
+            raw_df = gcp_dataloader.extract_from_gcp(
+                verbose=False, close_connection=True
+            )
             raw_df.to_csv(RAW_DATA_PATH, index=False)
         else:
             print("Loading raw data from existing file...")
@@ -61,7 +67,9 @@ def check_or_load_data(data_path: Path = ML_TRAINING_DATA_PATH) -> pd.DataFrame:
 
         # Process raw data for ML
         transformed_df, le_dict = xgboost_etl.transform(raw_df)
-        ml_ready_df = xgboost_etl.data_checks_and_cleaning(transformed_df, verbose=False)
+        ml_ready_df = xgboost_etl.data_checks_and_cleaning(
+            transformed_df, verbose=False
+        )
         ml_ready_df.to_csv(data_path, index=False)
     else:
         print(f"Loading ML training data from existing file at {data_path}...")
@@ -69,10 +77,11 @@ def check_or_load_data(data_path: Path = ML_TRAINING_DATA_PATH) -> pd.DataFrame:
 
     return ml_ready_df
 
+
 def retrain_best_xgboost(
     data: pd.DataFrame, config: dict, model_save_path: Path, test_size: float = 0.25
 ) -> Tuple[xgb.Booster, pd.DataFrame]:
-    """ Retrain XGBoost model with the best hyperparameters from tuning.
+    """Retrain XGBoost model with the best hyperparameters from tuning.
 
     Parameters:
     -----------
@@ -135,7 +144,7 @@ def retrain_best_xgboost(
 def retrain_model_with_best_config(
     tuner, data: pd.DataFrame, model_save_path: str
 ) -> Tuple[object, pd.DataFrame]:
-    """ Retrieve the best configuration from a completed Ray Tune experiment
+    """Retrieve the best configuration from a completed Ray Tune experiment
     and retrain the model with this configuration.
 
     Parameters
@@ -181,7 +190,7 @@ def retrain_model_with_best_config(
 
 
 def train_mbta(config):
-    """ Train an XGBoost model on MBTA data.
+    """Train an XGBoost model on MBTA data.
 
     Parameters:
     - config (dict): Configuration for XGBoost training.
