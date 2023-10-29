@@ -2,6 +2,20 @@
 
 In this milestone, we encapsulated our machine learning application within Docker containers and deployed them to the Google Artifact Registry (GAR). The structure of our application adheres to best practices for machine learning projects, ensuring modularity, scalability, and maintainability. 
 
+## Table of Contents
+
+- [Milestone 4](#milestone-4)
+  - [Breaking Down the Directory Structure](#breaking-down-the-directory-structure)
+- [MLOps: Adopting a Serverless Microservice Architecture](#mlops-adopting-a-serverless-microservice-architecture)
+- [Model Evolution & Continuous Improvement](#model-evolution--continuous-improvement)  
+- [Model Selection & Design: Aligning with the Markscheme and Real-world Constraints](#model-selection--design-aligning-with-the-markscheme-and-real-world-constraints)
+  - [Markscheme: Distillation, Quantization, and Compression](#markscheme-distillation-quantization-and-compression)
+  - [Markscheme: Vertex AI Pipelines (Kubeflow) Deployment Approach](#markscheme-vertex-ai-pipelines-kubeflow-deployment-approach)
+    - [Setting Permissions](#setting-permissions)
+    - [Local Testing](#local-testing) 
+    - [Deployment to Google Artifact Registry (GAR) and Vertex AI](#deployment-to-google-artifact-registry-gar-and-vertex-ai)
+    - [Pushing Docker Image to GAR and Vertex AI](#pushing-docker-image-to-gar-and-vertex-ai)
+
 ```
 ➜  machine_learning_app 
 .
@@ -118,9 +132,13 @@ In the realm of model optimization and compression, we've incorporated a suite o
 
 In essence, while we've made informed trade-offs for the project's primary deployment, we have meticulously ensured alignment with the markscheme's stipulations, embodying a blend of academic rigor and real-world pragmatism.
 
-## Markscheme: Vertex AI Pipelines (Kubeflow) and Cloud Functions Integration
+## Markscheme: Vertex AI Pipelines (Kubeflow) Deployment Approach
 
-The transition from the early stages of the machine learning process to deployment can be complex, but by adhering to industry best practices from the beginning, we significantly reduce the deployment workload. This underscores the importance of maintaining a structured and systematic approach throughout the machine learning lifecycle. In this section, we'll delve into our deployment process on Vertex AI, emphasizing the importance of the preparatory steps we took that enabled a smoother deployment.
+In the realm of machine learning deployment, transitioning from preliminary stages to production-ready solutions can be intricate. However, by grounding our methodology on industry best practices right from inception, we drastically diminish potential deployment intricacies. This emphasizes the vital role of a consistent and organized methodology throughout the machine learning lifecycle:
+
+1. Our deployment to Vertex AI does not rely on Cloud Functions. Instead, we embraced a Dockerfile and command-line driven approach, utilizing the gCloud CLI tool. This methodological decision is grounded in its inherent flexibility, which renders our deployment infrastructure-agnostic. By this, we mean our deployment strategy is not tethered to Google Cloud but can easily adapt and transition across diverse cloud vendors such as AWS, Microsoft Azure, and more.
+2. Such an approach is particularly significant in real-world scenarios where vendor lock-in is a concern. Businesses often prioritize flexibility to seamlessly migrate between cloud providers, preventing undue reliance on a single vendor and fostering competition. Therefore, while our approach aligns with the Markscheme, it further extends to capture real-world best practices, ensuring that our design decisions resonate with industry standards.
+3.  It's crucial to underscore that while we have diligently adhered to the Markscheme's guidelines, our choices are also informed by the broader context of industry preferences, ensuring that our solutions not only meet academic standards but are also aligned with real-world industry constraints and expectations.
 
 To provide evidence of our successful deployment to Vertex AI, please refer to the screenshot below:
 
