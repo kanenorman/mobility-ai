@@ -164,15 +164,12 @@ python -m mbta_ml.ml.xgboost_trainer
 ### Deployment to Google Artifact Registry (GAR) and Vertex AI:
 ```bash
 # Construct the Docker container:
-sudo docker build -f Dockerfile.training -t gcr.io/ac215-transit-prediction/mbta_ml:latest .
+sudo docker build -f Dockerfile.training -t gcr.io/ac215-transit-prediction/mbta_ml:latest 
 
-# Execute the docker container for local testing:
-docker run -it --rm gcr.io/ac215-transit-prediction/mbta_ml:latest
-
-# If encountering issues, run interactively to diagnose:
+# (OPTIONAL) If encountering issues, run interactively to diagnose:
 docker run -it --rm --entrypoint /bin/bash gcr.io/ac215-transit-prediction/mbta_ml:latest
 
-# Within the container, initiate the trainer script:
+#  (OPTIONAL) Within the container, initiate the trainer script for debugging:
 python ml.xgboost_trainer.py
 ```
 ### Pushing Docker Image to GAR and Vertex AI:
