@@ -113,7 +113,6 @@ In the realm of model optimization and compression, we've incorporated a suite o
 - **Distillation/Quantization/Compression**:
     - **Knowledge Distillation**: This is a method where a simpler, smaller model (referred to as the 'student') is trained to replicate the behavior of a more complex, larger model (the 'teacher'). Our implementation facilitates an effective transfer of knowledge, ensuring the student model achieves comparable performance while being more efficient.
     - **Pruning**: We've employed both weight and neuron pruning. These techniques selectively remove model weights or neurons that contribute least to the final predictions, optimizing the model for faster inferencing and reduced memory footprint, especially vital for deployment in resource-constrained environments.
-    - For detailed implementations, consult `compress_teacher.py` for pruning mechanisms and `distill_student.py` for the knowledge distillation process.
 
 - **Key Python Modules for the Markscheme**:
     -  `dnn_pruner.py`:
