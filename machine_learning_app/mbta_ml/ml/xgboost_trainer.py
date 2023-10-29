@@ -1,4 +1,4 @@
-""" ml_train.py: This module contains functions to train, build, and save ML models.
+""" xgboost_trainer.py: This module contains functions to train, build, and save ML models.
 It also incorporates functionality to evaluate model performance using various regression metrics.
 """
 import os
@@ -6,84 +6,82 @@ from datetime import datetime
 from pathlib import Path
 from typing import Tuple
 
+import mbta_ml.authenticate as auth
+import mbta_ml.etl.gcp_dataloader as gcp_dataloader
+import mbta_ml.etl.xgboost_etl as xgboost_etl
+
+# Other imports
 import pandas as pd
-import sklearn.datasets
-import sklearn.metrics
 import wandb
 import xgboost as xgb
-from permetrics import RegressionMetric
+
+# Internal app imports
+from mbta_ml.config import (
+    EXPERIMENT_DIR,
+    ML_TRAINING_DATA_PATH,
+    MODEL_DIR,
+    PROD_MODELS_DIR,
+    RAW_DATA_PATH,
+    TUNING_NUM_TRIALS_CONFIG,
+)
+from mbta_ml.ml.ml_utils import compute_metrics_table
 from ray import train, tune
 from ray.air.integrations.wandb import WandbLoggerCallback
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sktime.forecasting.model_selection import temporal_train_test_split
 
-from .delay_etl import data_checks_and_cleaning, transform
-from .gcp_dataloader import extract_from_gcp, preprocess_data
-
-global mbta_final_df
-
-# Define the paths
-BASE_DIR = Path(os.getcwd())  # Gets the current working directory in Jupyter
-MODEL_DIR = BASE_DIR / "models"
-EXPERIMENT_DIR = BASE_DIR / "experiments" / datetime.now().strftime("%d_%m_%Y")
-
-# Ensure the directories exist
-MODEL_DIR.mkdir(parents=True, exist_ok=True)
-EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)
-NUM_TRIALS = 10
-
-WANDB_API_KEY = os.environ["WANDB_API_KEY"]
-
+# Set global variables
+TUNING_NUM_TRIALS = TUNING_NUM_TRIALS_CONFIG["xgboost"]
 global mbta_final_df
 
 
-def compute_metrics_table(forecasts_df: pd.DataFrame) -> pd.DataFrame:
+def check_or_load_data(data_path: Path = ML_TRAINING_DATA_PATH) -> pd.DataFrame:
     """
-    Compute metrics table for regression modeling.
+    Check if the ML preprocessed data file exists. If not, run the GCP data loader
+    to generate raw data and subsequently process it for ML training.
 
     Parameters
     ----------
-    forecasts_df : pd.DataFrame
-        DataFrame containing "algorithm", "y_pred", and "y_true" columns.
+    data_path : Path, optional
+        The path to the ML preprocessed data file. Defaults to ML_TRAINING_DATA_PATH.
 
     Returns
     -------
     pd.DataFrame
-        A table containing the evaluation metrics for each algorithm.
+        Loaded dataframe containing the preprocessed data suitable for ML training.
+
     """
+    if not data_path.exists():
+        print("ML training data file not found. Running GCP data loader...")
 
-    final_results = {}
-    unique_algorithms = forecasts_df["algorithm"].unique()
+        # Check if raw data exists, otherwise load it
+        if not RAW_DATA_PATH.exists():
+            print("Raw data file not found. Fetching data from GCP...")
+            raw_df = gcp_dataloader.extract_from_gcp(
+                verbose=False, close_connection=True
+            )
+            raw_df.to_csv(RAW_DATA_PATH, index=False)
+        else:
+            print("Loading raw data from existing file...")
+            raw_df = pd.read_csv(RAW_DATA_PATH)
 
-    for algorithm in unique_algorithms:
-        y_true = forecasts_df[forecasts_df["algorithm"] == algorithm]["y_true"].values
-        y_pred = forecasts_df[forecasts_df["algorithm"] == algorithm]["y_pred"].values
+        # Process raw data for ML
+        transformed_df, le_dict = xgboost_etl.transform(raw_df)
+        ml_ready_df = xgboost_etl.data_checks_and_cleaning(
+            transformed_df, verbose=False
+        )
+        ml_ready_df.to_csv(data_path, index=False)
+    else:
+        print(f"Loading ML training data from existing file at {data_path}...")
+        ml_ready_df = pd.read_csv(data_path)
 
-        evaluator = RegressionMetric()
-        evaluators = {
-            "MAE": evaluator.MAE,
-            "RMSE": evaluator.RMSE,
-            "SMAPE": evaluator.SMAPE,
-            "ME": evaluator.ME,
-            "MedAE": evaluator.MedAE,
-        }
-
-        model_results = {}
-        for metric, evaluator_function in evaluators.items():
-            score = evaluator_function(y_true, y_pred, decimal=4)
-            model_results[metric] = score
-
-        final_results[algorithm] = model_results
-
-    results_df = pd.DataFrame(final_results).transpose()
-
-    return results_df
+    return ml_ready_df
 
 
 def retrain_best_xgboost(
     data: pd.DataFrame, config: dict, model_save_path: Path, test_size: float = 0.25
 ) -> Tuple[xgb.Booster, pd.DataFrame]:
-    """
-    Retrain XGBoost model with the best hyperparameters from tuning.
+    """Retrain XGBoost model with the best hyperparameters from tuning.
 
     Parameters:
     -----------
@@ -146,8 +144,7 @@ def retrain_best_xgboost(
 def retrain_model_with_best_config(
     tuner, data: pd.DataFrame, model_save_path: str
 ) -> Tuple[object, pd.DataFrame]:
-    """
-    Retrieve the best configuration from a completed Ray Tune experiment
+    """Retrieve the best configuration from a completed Ray Tune experiment
     and retrain the model with this configuration.
 
     Parameters
@@ -193,8 +190,7 @@ def retrain_model_with_best_config(
 
 
 def train_mbta(config):
-    """
-    Train an XGBoost model on MBTA data.
+    """Train an XGBoost model on MBTA data.
 
     Parameters:
     - config (dict): Configuration for XGBoost training.
@@ -228,9 +224,9 @@ def train_mbta(config):
 
     # Calculate metrics
     y_pred = bst.predict(test_set)
-    rmse = sklearn.metrics.mean_squared_error(test_y, y_pred, squared=False)
-    mae = sklearn.metrics.mean_absolute_error(test_y, y_pred)
-    r2 = sklearn.metrics.r2_score(test_y, y_pred)
+    rmse = mean_squared_error(test_y, y_pred, squared=False)
+    mae = mean_absolute_error(test_y, y_pred)
+    r2 = r2_score(test_y, y_pred)
 
     # Report metrics to Ray and W&B
     train.report({"rmse": rmse, "mae": mae, "r2": r2})
@@ -238,18 +234,17 @@ def train_mbta(config):
 
 
 if __name__ == "__main__":
+    print("+---------------------------------------------------+")
     print(f"Model will be saved in: {MODEL_DIR}")
     print(f"Experiments will be stored in: {EXPERIMENT_DIR}")
-    print(f"Running for number of trials: {NUM_TRIALS}")
-
-    # Load WandDB
-    wandb.login(relogin=False)
-
+    print(f"Running for number of trials: {TUNING_NUM_TRIALS}")
+    print("+---------------------------------------------------+")
+    # Authenticate and initialize W&B
+    auth.authenticate_with_wandb()
+    print("+---------------------------------------------------+")
     # Extract data
-    raw_df = extract_from_gcp(verbose=False, close_connection=True)
-    raw_df = preprocess_data(raw_df, verbose=False)
-    transformed_df, le_dict = transform(raw_df)
-    mbta_final_df = data_checks_and_cleaning(transformed_df, verbose=False)
+    mbta_final_df = check_or_load_data()
+    print("+---------------------------------------------------+")
 
     # Define tuner and start tuning
     tuner = tune.Tuner(
@@ -257,7 +252,7 @@ if __name__ == "__main__":
         tune_config=tune.TuneConfig(
             metric="rmse",
             mode="min",
-            num_samples=NUM_TRIALS,  # specify number of experiments
+            num_samples=TUNING_NUM_TRIALS,  # specify number of experiments
         ),
         run_config=train.RunConfig(
             callbacks=[WandbLoggerCallback(project="ac215_harvard_mobility_ai")]
@@ -286,5 +281,9 @@ if __name__ == "__main__":
     best_model, performance_table = retrain_model_with_best_config(
         tuner=tuner,
         data=mbta_final_df,
-        model_save_path=str(MODEL_DIR / "final_best_xgboost.json"),
+        model_save_path=str(PROD_MODELS_DIR / "final_best_xgboost.json"),
     )
+    print("+---------------------------------------------------+")
+    print("Succesfully completed training")
+    print("Saved model to:", str(PROD_MODELS_DIR / "final_best_xgboost.json"))
+    print("Terminating xgboost_trainer() succesfully")

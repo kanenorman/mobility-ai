@@ -1,4 +1,4 @@
-"""  delay_etl.py: Provides functions to preprocess transit data for ML-driven
+"""  xgboost_etl.py: Provides functions to preprocess transit data for ML-driven
 bus delay prediction.
 
 Explanation of modelling approach:
@@ -19,6 +19,7 @@ Instead of precise arrival times, we predict delay durations. This offers a
 more tractable modeling task: a 5-minute predicted delay can be added to the
 scheduled time, while negligible delays suggest on-time arrivals.
 """
+import warnings
 from typing import Dict, Tuple
 
 import h3
@@ -29,8 +30,7 @@ from sklearn.preprocessing import LabelEncoder
 
 
 def create_date_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Extract date features from scheduled_time column.
+    """Extract date features from scheduled_time column.
 
     Parameters:
     -----------
@@ -42,8 +42,16 @@ def create_date_features(df: pd.DataFrame) -> pd.DataFrame:
     df : pd.DataFrame
         DataFrame with additional date features.
     """
-    # Convert the scheduled_time into a datetime object
-    df["scheduled_time"] = pd.to_datetime(df["scheduled_time"])
+    num_nat_before = df["scheduled_time"].isna().sum()
+    df["scheduled_time"] = pd.to_datetime(df["scheduled_time"], errors="coerce")
+    num_nat_after = df["scheduled_time"].isna().sum()
+
+    # Handle any NaT values after coercion
+    if num_nat_after > 0:
+        warnings.warn(
+            f"Number of NaT values in scheduled_time before conversion: {num_nat_before}. "
+            f"Number of NaT values in scheduled_time after conversion: {num_nat_after}."
+        )
 
     # Extract date features
     df["month"] = df["scheduled_time"].dt.month
@@ -51,19 +59,22 @@ def create_date_features(df: pd.DataFrame) -> pd.DataFrame:
     df["day_of_year"] = df["scheduled_time"].dt.dayofyear
 
     # Create sin/cos encoding for time
+    seconds_since_midnight = (
+        df["scheduled_time"].dt.hour * 3600
+        + df["scheduled_time"].dt.minute * 60
+        + df["scheduled_time"].dt.second
+    )
     seconds_in_day = 24 * 60 * 60
-    df["sin_time"] = np.sin(2 * np.pi * df["scheduled_time"].dt.second / seconds_in_day)
-    df["cos_time"] = np.cos(2 * np.pi * df["scheduled_time"].dt.second / seconds_in_day)
+    df["sin_time"] = np.sin(2 * np.pi * seconds_since_midnight / seconds_in_day)
+    df["cos_time"] = np.cos(2 * np.pi * seconds_since_midnight / seconds_in_day)
 
     # Determine season based on month
     df["season"] = df["month"].apply(lambda x: (x % 12 + 3) // 3)
-
     return df
 
 
 def transform(data_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, LabelEncoder]]:
-    """
-    Transform MBTA data for ML tasks on transport times & distances.
+    """Transform MBTA data for ML tasks on transport times & distances.
 
     The key column is "predictor_delay_seconds", a numerical value
     representing delay (or being ahead) in seconds. Positive values
@@ -82,14 +93,32 @@ def transform(data_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, LabelEncod
     le_dict : Dict[str, LabelEncoder]
         Mappings used for transformation.
     """
-    # Convert "scheduled_time" and "actual_arrival_time" to datetime format
-    data_df["scheduled_time"] = pd.to_datetime(data_df["scheduled_time"])
-    data_df["actual_arrival_time"] = pd.to_datetime(data_df["actual_arrival_time"])
+    print("+---------------------------------------------------+")
+    print("Transforming baseline data-set to data to be used by xgboost model...")
+    # Rename the 'delay' column to 'predictor_delay_seconds'
+    data_df["predictor_delay_seconds"] = data_df["delay"]
+    data_df.drop("delay", axis=1)
 
+    # After conversions, print the number of NaT values
+    print(f"DataFrame shape: {data_df.shape}")
+    print(
+        "Number of NaT values in scheduled_time:",
+        data_df["scheduled_time"].isna().sum(),
+    )
+    print(
+        "Number of NaT values in actual_arrival_time:",
+        data_df["actual_arrival_time"].isna().sum(),
+    )
+    print(
+        "Number of NaN values in predictor_delay_seconds:",
+        data_df["predictor_delay_seconds"].isna().sum(),
+    )
     # Compute "predictor_delay_seconds" in seconds
-    data_df["predictor_delay_seconds"] = (
-        data_df["actual_arrival_time"] - data_df["scheduled_time"]
-    ).dt.total_seconds()
+    # data_df["predictor_delay_seconds"] = (
+    #     data_df["actual_arrival_time"] - data_df["scheduled_time"]
+    # ).dt.total_seconds()
+
+    # After computation, print the number of NaN values in predictor_delay_seconds
 
     # Compute the hex values for locations
     resolution = 9  # you can adjust the resolution as required
@@ -159,11 +188,10 @@ def transform(data_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, LabelEncod
 
 
 def data_checks_and_cleaning(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
-    """
-    Process the MBTA DataFrame to:
-    1. Report and flag any erroneous data.
-    2. Drop duplicates and columns with low variance.
-    3. Return a dataset ready for ML modeling.
+    """Process the MBTA DataFrame to:
+        1. Report and flag any erroneous data.
+        2. Drop duplicates and columns with low variance.
+        3. Return a dataset ready for ML modeling.
 
     Parameters:
     -----------
