@@ -337,7 +337,6 @@ SELECT
     data->relationships->parent_station->data->id AS parent_station_id,
     data->relationships->parent_station->data->type AS parent_station_type,
     data->relationships->zone->data->id AS zone_id,
-    data->relationships->zone->data->type AS zone_type,
     data->type AS type
 FROM
     STOP_BRONZE
