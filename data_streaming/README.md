@@ -6,24 +6,26 @@ This README provides a comprehensive overview of our data streaming procedure, u
 
 ![image](../assets/figures/data-streaming.svg)
 
-## Data Streaming Workflow
+Data Streaming Workflow
+### 1. Continuous Data Retrieval from MBTA
+- Initiation: A Python script initiates an SSE (Server-Sent Events) connection to MBTA's API.
+- Authentication & Parameters: The script authenticates using API keys and specifies parameters to tailor the data feed.
+Data Format: The MBTA API streams data in a JSON format, providing real-time updates on transit statuses.
 
-### 1. Continuous Data Retrieval
+### 2. Kafka Producer Integration
+- Data Dispatch: The JSON data is sent to a predefined Kafka topic.
+- Configuration: The Kafka producer is finely tuned for message serialization, error handling, and partitioning to ensure efficient data transmission.
 
-The data streaming process commences with a request to the MBTA API. This request is facilitated through a script that performs HTTP requests to the relevant MBTA API endpoints, supplying the necessary API credentials and parameters. The data retrieved from the API is presented in JSON format.
+### 3. Kafka Topic as a Buffer
+Decoupling: Acts as a bridge between data sources (MBTA API) and consumers, ensuring system resilience.
+Data Integrity: Guarantees that data is retained even in the event of downstream failures, preventing data loss.
 
-### 2. Kafka Producer
+### 4. Stream Processing with Kafka Consumer
+- Real-time Processing: A Kafka consumer application continuously listens to the topic, ready for immediate data processing.
+- Operations:
+  - Data Transformation: Reformats data for compatibility with database storage and machine learning models.
+  - Data Enrichment: Adds additional context or computations to the raw data, enhancing its value.
 
-Upon obtaining the JSON data from the MBTA API, it is dispatched to a Kafka topic. The Kafka producer is responsible for disseminating this data to the topic. The Kafka producer can be configured to manage various aspects, including message serialization, error handling, and partitioning strategies.
-
-### 3. Kafka Topic
-
-The Kafka topic serves as a buffer for incoming data. Kafka topics enable the decoupling of data producers and consumers, ensuring that data remains accessible for consumption even if the consumer experiences temporary downtime.
-
-### 4. Kafka Consumer
-
-A Kafka consumer application actively listens to the Kafka topic, consuming incoming data as it arrives. Once received, the consumer processes the data using Apache Spark, preparing it for storage in PostgreSQL.
-
-### 5. PostgreSQL Database
-
-The processed data is subsequently written to a PostgreSQL database. The consumer application interfaces with the database, performing tasks such as data visualization and facilitating machine learning predictions.
+### 5. PostgreSQL Database Storage
+- Data Storage: The enriched data is stored in a PostgreSQL database.
+- Functionality: Beyond storage, the database supports querying capabilities for data analysis and machine learning model inputs.

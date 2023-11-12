@@ -6,12 +6,17 @@
 
 [![Python Badge](https://img.shields.io/badge/Python-3776ab?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
 [![Flask Badge](https://img.shields.io/badge/Flask-5DB036?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![PyTorch Badge](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![Apache Spark Badge](https://img.shields.io/badge/Apache_Spark-FFFFFF?style=for-the-badge&logo=apachespark&logoColor=%23E35A1C)](https://spark.apache.org/)
+![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
+![Fast API](https://img.shields.io/badge/fastapi-109989?style=for-the-badge&logo=FASTAPI&logoColor=white)
+![Weights & Biases](https://img.shields.io/badge/Weights_&_Biases-FFBE00?style=for-the-badge&logo=WeightsAndBiases&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/kubernetes-326ce5.svg?&style=for-the-badge&logo=kubernetes&logoColor=white)
+![Ansible](https://img.shields.io/badge/Ansible-000000?style=for-the-badge&logo=ansible&logoColor=white)
+![Open Street Map](https://img.shields.io/badge/OpenStreetMap-7EBC6F?style=for-the-badge&logo=OpenStreetMap&logoColor=white)
 [![Docker Badge](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![PostgreSQL Badge](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 ![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-000?style=for-the-badge&logo=apachekafka)
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![Github Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
 
 ## Project Health
 
@@ -50,11 +55,15 @@ The primary objective of the MBTA Data Streaming and Prediction Project is to le
 ## Technologies Used
 
 - Python
-- PySpark
+- Javascript
 - Kafka
-- Machine Learning Libraries (e.g., scikit-learn, TensorFlow)
-- Flask (for web dashboard)
+- KSQL
+- Machine Learning Libraries
+- Flask
 - Docker
+- Mapbox
+- Postgres
+- FastAPI
 - GitHub Actions (for CI/CD)
 
 ## Project Impact
@@ -64,10 +73,6 @@ The MBTA Data Streaming and Prediction Project aims to provide commuters with re
 ## Getting Started
 
 To get started with this project, follow the instructions in the project documentation (Coming Soon) to set up the required environment, run the data streaming pipeline, deploy the predictive models, and access the real-time dashboard.
-
-## Feedback
-
-Feedback to this project is always welcome. For feedback or questions, feel free to reach out to me directly.
 
 ## Disclaimer
 
