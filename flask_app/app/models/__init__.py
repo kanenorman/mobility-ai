@@ -1,4 +1,3 @@
-from .alert import Alert
 from .route import Route
 from .schedule import Schedule
 from .shape import Shape
