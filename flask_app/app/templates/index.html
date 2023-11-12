@@ -115,7 +115,7 @@
 
   const map = new mapboxgl.Map({
     container: "map",
-    style: "mapbox://styles/kanenorman/clnntf4gd007a01qjdj3b5wvk",
+    style: "mapbox://styles/kanenorman/clouu2c3100mv01qsa51rfug6",
     center: bostonCoordinates,
     zoom: 14,
   });
@@ -125,8 +125,8 @@
   const stops = {{stops | tojson | safe }};
 
   stops.forEach(function (stop) {
-    const popUp = new mapboxgl.Popup().setHTML(stop.name)
-    const marker = new mapboxgl.Marker({color: "black"}).setLngLat([stop.longitude, stop.latitude]).setPopup(popUp);
+    const popUp = new mapboxgl.Popup().setHTML(stop.stop_name)
+    const marker = new mapboxgl.Marker({color: stop.color, size: "small"}).setLngLat([stop.longitude, stop.latitude]).setPopup(popUp);
     marker.addTo(map);
   });
 </script>

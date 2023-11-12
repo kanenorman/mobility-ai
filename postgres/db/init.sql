@@ -37,11 +37,11 @@ CREATE TABLE IF NOT EXISTS stop (
     parent_station_id VARCHAR(255),
     parent_station_type VARCHAR(255),
     parent_station VARCHAR(255),
-    location_type VARCHAR(255),
+    location_type INTEGER,
     zone_id VARCHAR(255),
     platform_code VARCHAR(255),
     platform_name VARCHAR(255),
-    vehicle_type VARCHAR(255),
+    vehicle_type INTEGER,
     wheelchair_boarding INTEGER,
     facilities_self VARCHAR(255),
     description VARCHAR(255),
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS route (
     event VARCHAR(255),
     long_name VARCHAR(255),
     short_name VARCHAR(255),
-    type INTEGER,
+    type VARCHAR(255),
     color CHAR(7),
     text_color CHAR(7),
     description VARCHAR(255),
@@ -137,3 +137,40 @@ CREATE TABLE IF NOT EXISTS route (
     self VARCHAR(255),
     PRIMARY KEY (id)
 );
+
+CREATE OR REPLACE VIEW location AS
+WITH cte AS (
+    SELECT
+        stop.name AS stop_name,
+        MIN(stop.longitude) AS longitude,
+        MIN(stop.latitude) AS latitude,
+        ARRAY(
+            SELECT DISTINCT e
+            FROM unnest(array_agg(route.color)) AS a(e)
+        ) AS colors
+    FROM
+        schedule
+    INNER JOIN
+        stop
+    ON
+        schedule.stop_id = stop.id
+    INNER JOIN
+        route
+    ON
+        schedule.route_id = route.id
+    WHERE
+        stop.vehicle_type IN(0,1,2)
+    GROUP BY
+        stop.name
+)
+
+SELECT
+    stop_name,
+    longitude,
+    latitude,
+    CASE
+        WHEN array_length(colors, 1) = 2 THEN '#000000'
+        ELSE colors[1]
+    END AS color
+FROM
+    cte;

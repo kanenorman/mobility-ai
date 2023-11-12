@@ -3,7 +3,7 @@ import os
 from flask import Blueprint, render_template
 
 from .extensions import database as db
-from .models import Schedule, Stop
+from .models import Location, Schedule
 
 main = Blueprint("main", __name__)
 
@@ -11,7 +11,7 @@ main = Blueprint("main", __name__)
 @main.route("/")
 def index():
     """Index route for homepage."""
-    stops = db.session.query(Stop).filter(Stop.parent_station.is_(None)).all()
+    stops = db.session.query(Location).all()
     schedule_data = db.session.query(Schedule).limit(10).all()
     # TODO: Setup Token Management Before Production
     mapbox_token = os.environ["MAPBOX_TOKEN"]
