@@ -151,7 +151,7 @@ CREATE OR REPLACE STREAM STOP_BRONZE (
       on_street STRING,
       platform_code STRING,
       platform_name STRING,
-      vehicle_type STRING,
+      vehicle_type INT,
       wheelchair_boarding INT
     >,
     id STRING,
@@ -429,7 +429,7 @@ AS
 SELECT
     id,
     event,
-    data->attributes->color AS color,
+    '#'+ data->attributes->color AS color,
     data->attributes->description AS description,
     data->attributes->direction_destinations AS direction_destinations,
     data->attributes->direction_names AS direction_names,
@@ -437,7 +437,7 @@ SELECT
     data->attributes->long_name AS long_name,
     data->attributes->short_name AS short_name,
     data->attributes->short_order AS short_order,
-    data->attributes->text_color AS text_color,
+    '#' + data->attributes->text_color AS text_color,
     data->attributes->type AS type,
     data->links->self AS self,
     data->relationships->line->data->id AS line_id,
