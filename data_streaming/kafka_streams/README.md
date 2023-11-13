@@ -4,6 +4,10 @@
 
 This README outlines the purpose and functionality of the Kafka Streams component within our MBTA project. KSQL is used for processing and analyzing the real-time data streamed from the MBTA API, enabling efficient and scalable data manipulation.
 
+<div align="center">
+  <img src="/assets/architecture/kafka-stream.svg" alt="Kafka Stream" width="800"/>
+</div>
+
 ## Kafka Streams Workflow
 
 ### Stream Processing
