@@ -1,5 +1,5 @@
 /*******************************************************
-SQL SCHEMA DEFINITION FOR MOBILITY AI DATABASE
+     SQL SCHEMA DEFINITION FOR MOBILITY AI DATABASE
 
 This SQL file defines the schema for the Mobility AI database. 
 It includes the creation of tables, extensions, views, 
