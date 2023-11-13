@@ -6,7 +6,7 @@ This README provides information about the Kafka producer component of the appli
 The Kafka producer is responsible for publishing data retrieved from the MBTA API to a Kafka topic, serving as a crucial link in the data streaming pipeline.
 
 <div align="center">
-  <img src="/assets/architecture/kafka-producer.svg" alt="Kafka Producer" width="400"/>
+  <img src="/assets/architecture/kafka-producer.svg" alt="Kafka Producer" width="700"/>
 </div>
 
 ## Kafka Producer Workflow
