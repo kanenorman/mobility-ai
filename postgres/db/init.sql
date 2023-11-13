@@ -1,6 +1,24 @@
-/*
-Postgres equivalent of CREATE DATABASE IF NOT EXISTS
- */
+/*******************************************************
+SQL SCHEMA DEFINITION FOR MOBILITY AI DATABASE
+
+This SQL file defines the schema for the Mobility AI database. 
+It includes the creation of tables, extensions, views, 
+and indexes necessary to organize and query MBTA-related data.
+
+The schema encompasses tables for stops, trips, schedules, vehicles, 
+routes, and location views, with relevant columns and primary keys.
+Additionally, indexes are created on key join fields to optimize query performance.
+
+Author: Kane Norman
+Date: 2023
+*******************************************************/
+
+
+
+/*******************************************************
+                  DATABSE CREATION
+POSTGRES EQUIVALENT OF CREATE DATABASE IF NOT EXISTS
+********************************************************/
 DO $do$
 DECLARE
     db_name text := 'mbta';
@@ -19,9 +37,17 @@ END IF;
 END
 $do$;
 
+/*****************************
+      DATABSE EXTENSIONS
+*****************************/
+
 \c mbta;
 CREATE EXTENSION IF NOT EXISTS POSTGIS;
 
+
+/*****************************
+       DATABASE TABLES
+*****************************/
 
 CREATE TABLE IF NOT EXISTS stop (
     id VARCHAR(255),
@@ -137,6 +163,33 @@ CREATE TABLE IF NOT EXISTS route (
     self VARCHAR(255),
     PRIMARY KEY (id)
 );
+
+/*****************************
+        DATABASE INDEXES
+*****************************/
+
+CREATE INDEX IF NOT EXISTS idx_schedule_stop_id
+ON schedule (stop_id);
+
+CREATE INDEX IF NOT EXISTS idx_schedule_route_id
+ON schedule (route_id);
+
+CREATE INDEX IF NOT EXISTS idx_trip_route_id
+ON trip (route_id);
+
+CREATE INDEX IF NOT EXISTS idx_vehicle_stop_id
+ON vehicle (stop_id);
+
+CREATE INDEX IF NOT EXISTS idx_schedule_trip_id
+ON schedule (trip_id);
+
+CREATE INDEX IF NOT EXISTS idx_route_route_id
+ON route (route_id);
+
+
+/*****************************
+        DATABASE VIEWS
+*****************************/
 
 CREATE OR REPLACE VIEW location AS
 WITH cte AS (
