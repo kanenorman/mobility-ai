@@ -1,6 +1,34 @@
+/****************************************************
+MBTA DATA PROCESSING SCRIPT
+
+This KSQL script is responsible for processing data
+related to the Massachusetts Bay Transportation Authority (MBTA).
+
+The script is organized into three data layers:
+
+1. Bronze Data Layer:
+   - Loads data from Kafka topics into streams.
+   - Defines the schema without applying transformations.
+   
+2. Silver Data Layer:
+   - Applies transformations to flatten the nested JSON data structure.
+   - Casts columns to the correct data types.
+   - Registers the resulting schema in the schema registry.
+
+3. Gold Data Layer:
+   - Creates tables that store the latest state of data for each key.
+
+Each section is clearly labeled and commented for clarity.
+
+Author: Kane Norman
+Date: 2023
+
+****************************************************/
+
+-- CONSUME MESSAGE STARTING FROM BEGINNING
 SET 'auto.offset.reset'='earliest';
 
-/*
+/****************************************************
   -----------BRONZE DATA LAYER-----------------
   LOAD MBTA KAFKA TOPICS IN KAFKA STREAM
   DEFINE SCHEMA BUT DO NOT APPLY TRANSFORMATIONS
@@ -30,8 +58,7 @@ SET 'auto.offset.reset'='earliest';
   | bar  | add     | {"spam":"ham"}  |
   ------------------------------------
 
-  ----------------------------------------------
-*/
+****************************************************/
 
 CREATE OR REPLACE STREAM VEHICLE_BRONZE (
   id VARCHAR KEY,
@@ -283,7 +310,7 @@ CREATE OR REPLACE STREAM SHAPE_BRONZE (
   VALUE_FORMAT = 'JSON'
 );
 
-/*
+/*****************************************************
   --------------- SILVER DATA LAYER ---------------
   In the Silver Data Layer, incoming bronze data is
   in a nested JSON format. We apply transformations
@@ -309,8 +336,7 @@ CREATE OR REPLACE STREAM SHAPE_BRONZE (
   | 2  | baz  | ham   |
   ---------------------
 
-  -----------------------------------------------
-*/
+****************************************************/
 
 CREATE OR REPLACE STREAM VEHICLE_SILVER
 WITH (VALUE_FORMAT='JSON_SR')
@@ -462,7 +488,7 @@ FROM
 EMIT CHANGES;
 
 
-/*
+/****************************************************
   --------------- GOLD DATA LAYER ---------------
   In the Silver Data Layer, data is saved as a stream,
   which represents an unbounded series of events.
@@ -490,8 +516,7 @@ EMIT CHANGES;
   | 2  | AMY  | MIAMI    | 7:30  |
   --------------------------------
 
-  -----------------------------------------------
-*/
+****************************************************/
 
 
 CREATE OR REPLACE TABLE STOP_GOLD
