@@ -1,5 +1,5 @@
 /****************************************************
-MBTA DATA PROCESSING SCRIPT
+            MBTA DATA PROCESSING SCRIPT
 
 This KSQL script is responsible for processing data
 related to the Massachusetts Bay Transportation Authority (MBTA).
