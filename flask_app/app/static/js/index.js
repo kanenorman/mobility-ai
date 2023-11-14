@@ -1,20 +1,42 @@
-// tab selection
-const tabs = document.querySelectorAll(".tabs li");
-const tabContentBoxes = document.querySelectorAll("#tab-content > table");
+/************************************************************
+                        TABS
+ ************************************************************/
 
-tabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
-    tabs.forEach((item) => item.classList.remove("is-active"));
-    tab.classList.add("is-active");
+const tabButtons = document.querySelectorAll(".tabs li");
+const tabContentBoxes = document.querySelectorAll(
+  "#tab-content > div.schedule",
+);
 
-    const target = tab.dataset.target;
-    console.log(target);
-    tabContentBoxes.forEach((box) => {
-      if (box.getAttribute("id") === target) {
-        box.classList.remove("is-hidden");
+tabButtons.forEach((tabButton) => {
+  tabButton.addEventListener("click", () => {
+    tabButtons.forEach((button) => button.classList.remove("is-active"));
+    tabButton.classList.add("is-active");
+    const targetContentId = tabButton.dataset.target;
+
+    tabContentBoxes.forEach((contentBox) => {
+      if (contentBox.getAttribute("id") === targetContentId) {
+        contentBox.classList.remove("is-hidden");
       } else {
-        box.classList.add("is-hidden");
+        contentBox.classList.add("is-hidden");
       }
     });
   });
 });
+
+/************************************************************
+                        ACCORDIANS
+ ************************************************************/
+
+let accordions = document.getElementsByClassName("accordion");
+
+for (let accordion of accordions) {
+  accordion.addEventListener("click", function () {
+    this.classList.toggle("active");
+    let panel = this.nextElementSibling;
+    if (panel.style.maxHeight) {
+      panel.style.maxHeight = null;
+    } else {
+      panel.style.maxHeight = panel.scrollHeight + "px";
+    }
+  });
+}

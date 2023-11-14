@@ -1,5 +1,11 @@
 FROM python:3.10
 
+# Prevent apt from showing prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Python wants UTF-8 locale
+ENV LANG=C.UTF-8
+
 WORKDIR /app
 
 COPY requirements.txt .

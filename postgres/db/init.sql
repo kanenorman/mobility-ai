@@ -1,11 +1,11 @@
 /*******************************************************
      SQL SCHEMA DEFINITION FOR MOBILITY AI DATABASE
 
-This SQL file defines the schema for the Mobility AI database. 
-It includes the creation of tables, extensions, views, 
+This SQL file defines the schema for the Mobility AI database.
+It includes the creation of tables, extensions, views,
 and indexes necessary to organize and query MBTA-related data.
 
-The schema encompasses tables for stops, trips, schedules, vehicles, 
+The schema encompasses tables for stops, trips, schedules, vehicles,
 routes, and location views, with relevant columns and primary keys.
 Additionally, indexes are created on key join fields to optimize query performance.
 
@@ -183,8 +183,6 @@ ON vehicle (stop_id);
 CREATE INDEX IF NOT EXISTS idx_schedule_trip_id
 ON schedule (trip_id);
 
-CREATE INDEX IF NOT EXISTS idx_route_route_id
-ON route (route_id);
 
 
 /*****************************
@@ -227,3 +225,52 @@ SELECT
     END AS color
 FROM
     cte;
+
+
+
+CREATE OR REPLACE VIEW  scheduled_arrival AS
+WITH train_schedule AS
+(
+   SELECT
+      route.id AS route_id,
+      stop.name AS stop_name,
+      COALESCE(schedule.arrival_time, schedule.departure_time)  AS scheduled_arrival,
+      schedule.stop_sequence,
+      schedule.direction_id
+   FROM
+      schedule
+      INNER JOIN
+         stop
+         ON schedule.stop_id = stop.id
+      INNER JOIN
+         route
+         ON schedule.route_id = route.id
+   WHERE
+      stop.vehicle_type IN (0, 1, 2)
+)
+SELECT
+   route_id,
+   stop_name,
+   stop_sequence,
+   direction_id,
+   ARRAY(
+      SELECT e
+      FROM UNNEST(
+          ARRAY_AGG(
+              train_schedule.scheduled_arrival
+              ORDER BY train_schedule.scheduled_arrival)
+          ) AS a(e)
+  ) AS arrival_times
+FROM
+   train_schedule
+WHERE
+   scheduled_arrival BETWEEN NOW() - INTERVAL '5 minutes' AND NOW() + INTERVAL '30 minutes'
+GROUP BY
+   route_id,
+   stop_name,
+   direction_id,
+   stop_sequence
+ORDER BY
+   route_id,
+   direction_id,
+   stop_sequence;
