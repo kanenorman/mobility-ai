@@ -3,10 +3,10 @@
   <div id="map" style="height: 85vh"></div>
 </div>
 <div class="column is-half">
-  <div class="card" style="height: 85vh">
+  <div class="card" style="height: 85vh; contain: content">
     <div class="tabs is-centered">
       <ul>
-        <li class="is-active" data-target="red-line-table">
+        <li class="is-active" data-target="red-target">
           <a id="red-line">
             <span class="icon-text">
               <span class="icon">
@@ -15,7 +15,7 @@
             </span>
           </a>
         </li>
-        <li data-target="blue-line-table">
+        <li data-target="blue-target">
           <a id="blue-line">
             <span class="icon-text">
               <span class="icon">
@@ -24,7 +24,7 @@
             </span>
           </a>
         </li>
-        <li>
+        <li data-target="orange-target">
           <a id="orange-line">
             <span class="icon-text">
               <span class="icon">
@@ -33,7 +33,7 @@
             </span>
           </a>
         </li>
-        <li>
+        <li data-target="green-b-target">
           <a id="green-line-b">
             <span class="icon-text">
               <span class="icon">
@@ -42,7 +42,7 @@
             </span>
           </a>
         </li>
-        <li>
+        <li data-target="green-c-target">
           <a id="green-line-c">
             <span class="icon-text">
               <span class="icon">
@@ -51,7 +51,7 @@
             </span>
           </a>
         </li>
-        <li>
+        <li data-target="green-d-target">
           <a id="green-line-d">
             <span class="icon-text">
               <span class="icon">
@@ -63,55 +63,164 @@
       </ul>
     </div>
 
-    <div class="card-content has-text-centered">
+    <div
+      class="card-content has-text-centered"
+      style="max-height: 80vh; overflow-y: auto"
+    >
       <div class="content" id="tab-content">
-        <table
-          class="table is-hoverable center is-borderless"
-          id="red-line-table"
-        >
-          <thead>
-            <tr>
-              <th>Station</th>
-              <th>Scheduled Arrival</th>
-              <th>Predicted Arrival</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Alewife</td>
-              <td>Arrival Time</td>
-              <td>Departure Time</td>
-            </tr>
-          </tbody>
-        </table>
-        <table
-          class="table is-hoverable is-hidden center is-borderless"
-          id="blue-line-table"
-        >
-          <thead>
-            <tr>
-              <th>Blue</th>
-              <th>Scheduled Arrival</th>
-              <th>Predicted Arrival</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Alewife</td>
-              <td>Arrival Time</td>
-              <td>Departure Time</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="red-schedule schedule" id="red-target">
+          {% for s in red_schedule %}
+          <button class="accordion">{{ s[0] }}</button>
+          <div class="panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scheduled Arrival</th>
+                  <th>Predicted Arrival</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for time in s[1] %}
+                <tr>
+                  <td>{{ time }}</td>
+                  <td>-</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="blue-schedule is-hidden schedule" id="blue-target">
+          {% for s in blue_schedule %}
+          <button class="accordion">{{ s[0] }}</button>
+          <div class="panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scheduled Arrival</th>
+                  <th>Predicted Arrival</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for time in s[1] %}
+                <tr>
+                  <td>{{ time }}</td>
+                  <td>-</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="orange-schedule is-hidden schedule" id="orange-target">
+          {% for s in orange_schedule %}
+          <button class="accordion">{{ s[0] }}</button>
+          <div class="panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scheduled Arrival</th>
+                  <th>Predicted Arrival</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for time in s[1] %}
+                <tr>
+                  <td>{{ time }}</td>
+                  <td>-</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="green-b-schedule is-hidden schedule" id="green-b-target">
+          {% for s in green_b_schedule %}
+          <button class="accordion">{{ s[0] }}</button>
+          <div class="panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scheduled Arrival</th>
+                  <th>Predicted Arrival</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for time in s[1] %}
+                <tr>
+                  <td>{{ time }}</td>
+                  <td>-</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="green-c-schedule is-hidden schedule" id="green-c-target">
+          {% for s in green_c_schedule %}
+          <button class="accordion">{{ s[0] }}</button>
+          <div class="panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scheduled Arrival</th>
+                  <th>Predicted Arrival</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for time in s[1] %}
+                <tr>
+                  <td>{{ time }}</td>
+                  <td>-</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="green-d-schedule is-hidden schedule" id="green-d-target">
+          {% for s in green_d_schedule %}
+          <button class="accordion">{{ s[0] }}</button>
+          <div class="panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scheduled Arrival</th>
+                  <th>Predicted Arrival</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for time in s[1] %}
+                <tr>
+                  <td>{{ time }}</td>
+                  <td>-</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
 </div>
+
 <script src="static/js/index.js"></script>
 <script>
   // render map
   const bostonCoordinates = [-71.0738174384645, 42.356584808288495];
-  mapboxgl.accessToken = {{mapbox_token | tojson | safe }};
+  mapboxgl.accessToken = {{ mapbox_token | tojson | safe }};
 
   const map = new mapboxgl.Map({
     container: "map",
@@ -122,11 +231,11 @@
 </script>
 <script>
   <!-- Plot the markers for the train stop locations -->
-  const stops = {{stops | tojson | safe }};
+  const stops = {{ stops | tojson | safe }};
 
   stops.forEach(function (stop) {
     const popUp = new mapboxgl.Popup().setHTML(stop.stop_name)
-    const marker = new mapboxgl.Marker({color: stop.color, size: "small"}).setLngLat([stop.longitude, stop.latitude]).setPopup(popUp);
+    const marker = new mapboxgl.Marker({ color: stop.color, size: "small" }).setLngLat([stop.longitude, stop.latitude]).setPopup(popUp);
     marker.addTo(map);
   });
 </script>

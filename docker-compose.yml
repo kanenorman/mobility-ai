@@ -294,6 +294,8 @@ services:
   flask_app:
     restart: always
     container_name: flask_app
+    volumes:
+      - ./flask_app/app/:/app/flask_app/app/
     networks:
       - network
     build:

@@ -26,6 +26,7 @@
   border-bottom-color: #00843d;
   color: #00843d;
 }
+
 .tabs li.is-active a#green-line-d {
   border-bottom-color: #00843d;
   color: #00843d;
@@ -57,4 +58,75 @@ table.center {
   font-family: "Open Sans", sans-serif;
   font-style: italic;
   font-weight: bold;
+}
+
+/* Style the buttons that are used to open and close the accordion panel */
+.accordion {
+  background-color: white;
+  color: #000000;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.red-schedule .active,
+.red-schedule .accordion:hover {
+  background-color: #da291c;
+  color: #FFFFFF;
+}
+
+.blue-schedule .active,
+.blue-schedule .accordion:hover {
+  background-color: #003da5;
+  color: #FFFFFF;
+}
+
+.orange-schedule .active,
+.orange-schedule .accordion:hover {
+  background-color: #ed8b00;
+  color: #FFFFFF;
+}
+
+.green-b-schedule .active,
+.green-b-schedule .accordion:hover {
+  background-color: #00843d;
+  color: #FFFFFF;
+}
+
+.green-c-schedule .active,
+.green-c-schedule .accordion:hover {
+  background-color: #00843d;
+  color: #FFFFFF;
+}
+
+.green-d-schedule .active,
+.green-d-schedule .accordion:hover {
+  background-color: #00843d;
+  color: #FFFFFF;
+}
+
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+.accordion:after {
+  content: "\25BC";
+  font-size: 13px;
+  color: #000000;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\25B2";
+  color: #FFFFFF;
 }
