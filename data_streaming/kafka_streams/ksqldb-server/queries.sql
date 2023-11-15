@@ -675,3 +675,36 @@ FROM
 GROUP BY
     id
 EMIT CHANGES;
+
+/*****************************************************
+  Data for ML XGBooost model
+****************************************************/
+CREATE OR REPLACE TABLE ML_GOLD
+WITH (VALUE_FORMAT='JSON_SR')
+AS
+SELECT
+    vehicle_id,
+    MAX(time_stamp) AS time_stamp,
+    LATEST_BY_OFFSET(current_status) AS current_status,
+    LATEST_BY_OFFSET(current_latitude) AS current_latitude,
+    LATEST_BY_OFFSET(current_longitude) AS current_longitude,
+    LATEST_BY_OFFSET(destination) AS destination,
+    LATEST_BY_OFFSET(platform_name) AS platform_name,
+    LATEST_BY_OFFSET(destination_latitude) AS destination_latitude,
+    LATEST_BY_OFFSET(destination_longitude) AS destination_longitude,
+    LATEST_BY_OFFSET(trip_name) AS trip_name,
+    LATEST_BY_OFFSET(scheduled_departure) AS scheduled_departure,
+    LATEST_BY_OFFSET(scheduled_arrival) AS scheduled_arrival,
+    LATEST_BY_OFFSET(stop_id) AS stop_id,
+    LATEST_BY_OFFSET(trip_id) AS trip_id,
+    LATEST_BY_OFFSET(sch_stop_id) AS sch_stop_id,
+    LATEST_BY_OFFSET(sch_trip_id) AS sch_trip_id,
+    MAX(CASE WHEN current_status = 'STOPPED_AT' THEN time_stamp ELSE NULL END) AS actual_arrival_time
+FROM
+    VEHICLE_SILVER
+LEFT JOIN TRIP_SILVER ON VEHICLE_SILVER.vehicle_id = TRIP_SILVER.id
+LEFT JOIN STOP_SILVER ON VEHICLE_SILVER.vehicle_id = STOP_SILVER.id
+LEFT JOIN SCHEDULE_SILVER ON VEHICLE_SILVER.vehicle_id = SCHEDULE_SILVER.id
+GROUP BY
+    vehicle_id
+EMIT CHANGES;
