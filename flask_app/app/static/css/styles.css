@@ -77,37 +77,37 @@ table.center {
 .red-schedule .active,
 .red-schedule .accordion:hover {
   background-color: #da291c;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .blue-schedule .active,
 .blue-schedule .accordion:hover {
   background-color: #003da5;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .orange-schedule .active,
 .orange-schedule .accordion:hover {
   background-color: #ed8b00;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .green-b-schedule .active,
 .green-b-schedule .accordion:hover {
   background-color: #00843d;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .green-c-schedule .active,
 .green-c-schedule .accordion:hover {
   background-color: #00843d;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .green-d-schedule .active,
 .green-d-schedule .accordion:hover {
   background-color: #00843d;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .panel {
@@ -128,5 +128,10 @@ table.center {
 
 .active:after {
   content: "\25B2";
-  color: #FFFFFF;
+  color: #ffffff;
+}
+
+.content table td,
+.content table th {
+  border: 0px !important;
 }
