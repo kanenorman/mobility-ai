@@ -18,7 +18,7 @@ def _get_train_schedule(route: str) -> List[Tuple[str, List[datetime]]]:
     Parameters
     ----------
     route : str
-        Valid MBTA route name (e.g `Red`, `Blue`, `Green-B`, `Green-B`, `Green-C`)
+        Valid MBTA route name (e.g `Red`, `Blue`, `Green-B`, `Green-C`, `Green-D`)
 
     Returns
     -------
@@ -49,7 +49,7 @@ def index():
     orange_schedule = _get_train_schedule("Orange")
     green_b_schedule = _get_train_schedule("Green-B")
     green_c_schedule = _get_train_schedule("Green-C")
-    green_d_schedule = _get_train_schedule("Green-C")
+    green_d_schedule = _get_train_schedule("Green-D")
 
     return render_template(
         "index.html",
