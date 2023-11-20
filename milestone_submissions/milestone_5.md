@@ -195,37 +195,36 @@ Our `docker-compose.yml` contains all the instructions required to deploy our ap
 
 Our team has meticulously designed and implemented a robust backend-to-frontend infrastructure within our Flask application. This architecture is strategically developed to ensure an efficient and seamless flow of data from Kafka streams to our PostgreSQL database, and ultimately to the frontend UI. Full set-up instructions are shown in `SETUP_INSTRUCTIONS.md`. The following is a detailed summary of the integral components and their specific roles:
 
-### Models Directory
-- **Purpose**: Hosts the definitions of our data models, which are directly mapped to database tables via FlaskSQLAlchemy. These models are vital for our data structure and handling.
-- **Key Files**: Comprises location.py, route.py, scheduled_arrival.py, schedule.py, stop.py, trip.py, and vehicle.py.
-- **Functionality**: These models precisely structure the data received from Kafka and stored in our PostgreSQL database, forming the core of our data management strategy.
+- **Models Directory**
+  - *Purpose*: Hosts the definitions of our data models, which are directly mapped to database tables via FlaskSQLAlchemy. These models are vital for our data structure and handling.
+  - *Key Files*: Comprises location.py, route.py, scheduled_arrival.py, schedule.py, stop.py, trip.py, and vehicle.py.
+  - *Functionality*: These models precisely structure the data received from Kafka and stored in our PostgreSQL database, forming the core of our data management strategy.
 
-### Views.py
-- **Role**: Central to defining route configurations for our Flask application, acting as a gateway for data requests and responses.
-- **Integration**: Facilitates the interaction between the frontend and our Flask backend. It includes routes for retrieving data from the database, handling updates streamed from Kafka.
-- **Key Functionality**: The index route is pivotal in rendering the homepage with train schedules and stop information, sourced from the database.
+- **Views.py**
+  - *Role*: Central to defining route configurations for our Flask application, acting as a gateway for data requests and responses.
+  - *Integration*: Facilitates the interaction between the frontend and our Flask backend. It includes routes for retrieving data from the database, handling updates streamed from Kafka.
+  - *Key Functionality*: The index route is pivotal in rendering the homepage with train schedules and stop information, sourced from the database.
 
-### Extensions.py
-- **Usage**: Contains the FlaskSQLAlchemy extension, crucial for database operations.
-- **Significance**: This extension is used for all database interactions, making it an essential component of our backend infrastructure.
+- **Extensions.py**
+  - *Usage*: Contains the FlaskSQLAlchemy extension, crucial for database operations.
+  - *Significance*: This extension is used for all database interactions, making it an essential component of our backend infrastructure.
 
-### Dockerfile
-- **Objective**: Outlines the containerization strategy for our Flask application.
-- **Insight**: Provides a clear view of the runtime environment, especially highlighting the use of Python 3.10 and the port exposure for the Flask app.
+- **Dockerfile**
+  - *Objective*: Outlines the containerization strategy for our Flask application.
+  - *Insight*: Provides a clear view of the runtime environment, especially highlighting the use of Python 3.10 and the port exposure for the Flask app.
 
-### init.py in the App Directory
-- **Function**: Serves as the entry point for creating and configuring the Flask application.
-- **Features**: Initializes and registers the Flask app, database, and routes. It also sets the app environment and ensures database tables are created at startup.
+- **init.py in the App Directory**
+  - *Function*: Serves as the entry point for creating and configuring the Flask application.
+  - *Features*: Initializes and registers the Flask app, database, and routes. It also sets the app environment and ensures database tables are created at startup.
 
-### Data Flow Overview
+- **Data Flow Overview**
+  - *Kafka to Flask*
+    - *Process*: Data ingested by our Kafka producer is sent to Kafka topics, from where it is consumed by our service.
+    - *Data Handling*: The consumed data is processed and stored in the PostgreSQL database using the structures defined in our models directory.
+  - *Flask to Frontend*
+    - *Mechanism*: Data is retrieved from the database through routes in views.py, which then transmit this data to the frontend.
+    - *Presentation*: The frontend leverages HTML and JavaScript from the static and templates directories to display the data, ensuring an interactive user interface.
 
-#### Kafka to Flask
-- **Process**: Data ingested by our Kafka producer is sent to Kafka topics, from where it is consumed by our service.
-- **Data Handling**: The consumed data is processed and stored in the PostgreSQL database using the structures defined in our models directory.
-
-#### Flask to Frontend
-- **Mechanism**: Data is retrieved from the database through routes in views.py, which then transmit this data to the frontend.
-- **Presentation**: The frontend leverages HTML and JavaScript from the static and templates directories to display the data, ensuring an interactive user interface.
 
 ## Conclusion 
 
