@@ -121,9 +121,10 @@
 
 ## App Design, Setup, and Code Organization
 
+We adopted a microservices-based approach for modularity and future scalability. Our code organization is meticulously structured, promoting ease of maintenance and clarity. Docker and Docker Compose are pivotal in maintaining consistency across various deployment stages.
+
 ![High Level Architecture](../assets/figures/high-level.svg)
 
-We adopted a microservices-based approach for modularity and future scalability. Our code organization is meticulously structured, promoting ease of maintenance and clarity. Docker and Docker Compose are pivotal in maintaining consistency across various deployment stages. 
 - **Kafka Producer**: We implemented a Kafka Producer to initiate data ingestion, channeling data streams efficiently to the Kafka Message Brokers.
 - **Kafka Message Broker**: This serves as the backbone of our architecture, adeptly managing data flow between components, ensuring both robustness and scalability.
 - **Data Processing to PostgreSQL**: We process and store data in a PostgreSQL database, ensuring effective data management and retrieval capabilities.
