@@ -5,145 +5,110 @@
 ```
 .
 ├── assets
-│   ├── architecture
-│   │   ├── kafka-producer.svg
-│   │   └── kafka-stream.svg
-│   └── figures
-│       ├── data-streaming.svg
-│       ├── high-level.svg
-│       ├── mobility_ai_logo.png
-│       ├── wanddb_monitoring.pdf
-│       └── wanddb_monitoring.png
+│   ├── architecture
+│   │   ├── kafka-producer.svg
+│   │   └── kafka-stream.svg
+│   └── figures
+│       ├── data-streaming.svg
+│       ├── high-level.svg
+│       ├── mobility_ai_logo.png
+│       ├── wanddb_monitoring.pdf
+│       └── wanddb_monitoring.png
 ├── data_streaming
-│   ├── kafka_producer
-│   │   ├── config.py
-│   │   ├── Dockerfile
-│   │   ├── __init__.py
-│   │   ├── producer.py
-│   │   └── README.md
-│   ├── kafka_streams
-│   │   ├── kafka-connect-jdbc
-│   │   │   └── build_connectors.sh
-│   │   ├── ksqldb-server
-│   │   │   └── queries.sql
-│   │   └── README.md
-│   └── README.md
+│   ├── kafka_producer
+│   │   ├── config.py
+│   │   ├── Dockerfile
+│   │   ├── __init__.py
+│   │   ├── producer.py
+│   │   └── README.md
+│   ├── kafka_streams
+│   │   ├── kafka-connect-jdbc
+│   │   │   └── build_connectors.sh
+│   │   ├── ksqldb-server
+│   │   │   └── queries.sql
+│   │   └── README.md
+│   └── README.md
 ├── dev-requirements.txt
 ├── docker-compose.yml
 ├── flask_app
-│   ├── app
-│   │   ├── config
-│   │   │   ├── config.py
-│   │   │   ├── __init__.py
-│   │   │   └── __pycache__
-│   │   │       ├── config.cpython-310.pyc
-│   │   │       └── __init__.cpython-310.pyc
-│   │   ├── extensions.py
-│   │   ├── __init__.py
-│   │   ├── models
-│   │   │   ├── __init__.py
-│   │   │   ├── location.py
-│   │   │   ├── __pycache__
-│   │   │   │   ├── __init__.cpython-310.pyc
-│   │   │   │   ├── location.cpython-310.pyc
-│   │   │   │   ├── route.cpython-310.pyc
-│   │   │   │   ├── schedule.cpython-310.pyc
-│   │   │   │   ├── scheduled_arrival.cpython-310.pyc
-│   │   │   │   ├── stop.cpython-310.pyc
-│   │   │   │   └── trip.cpython-310.pyc
-│   │   │   ├── route.py
-│   │   │   ├── scheduled_arrival.py
-│   │   │   ├── schedule.py
-│   │   │   ├── stop.py
-│   │   │   ├── trip.py
-│   │   │   └── vehicle.py
-│   │   ├── __pycache__
-│   │   │   ├── extensions.cpython-310.pyc
-│   │   │   ├── __init__.cpython-310.pyc
-│   │   │   └── views.cpython-310.pyc
-│   │   ├── static
-│   │   │   ├── about.txt
-│   │   │   ├── android-chrome-192x192.png
-│   │   │   ├── android-chrome-512x512.png
-│   │   │   ├── apple-touch-icon.png
-│   │   │   ├── css
-│   │   │   │   └── styles.css
-│   │   │   ├── favicon-16x16.png
-│   │   │   ├── favicon-32x32.png
-│   │   │   ├── favicon.ico
-│   │   │   ├── images
-│   │   │   │   ├── mobility_ai_logo.png
-│   │   │   │   └── train-icon.png
-│   │   │   ├── js
-│   │   │   │   ├── index.js
-│   │   │   │   └── stops.js
-│   │   │   └── site.webmanifest
-│   │   ├── templates
-│   │   │   ├── about.html
-│   │   │   ├── base.html
-│   │   │   ├── copyright.html
-│   │   │   ├── index.html
-│   │   │   ├── navigation.html
-│   │   │   └── terms.html
-│   │   └── views.py
-│   └── Dockerfile
+│   ├── app
+│   │   ├── config
+│   │   │   ├── config.py
+│   │   │   └── __init__.py
+│   │   ├── extensions.py
+│   │   ├── __init__.py
+│   │   ├── models
+│   │   │   ├── __init__.py
+│   │   │   ├── location.py
+│   │   │   ├── route.py
+│   │   │   ├── scheduled_arrival.py
+│   │   │   ├── schedule.py
+│   │   │   ├── stop.py
+│   │   │   ├── trip.py
+│   │   │   └── vehicle.py
+│   │   ├── static
+│   │   │   ├── about.txt
+│   │   │   ├── android-chrome-192x192.png
+│   │   │   ├── android-chrome-512x512.png
+│   │   │   ├── apple-touch-icon.png
+│   │   │   ├── css
+│   │   │   │   └── styles.css
+│   │   │   ├── favicon-16x16.png
+│   │   │   ├── favicon-32x32.png
+│   │   │   ├── favicon.ico
+│   │   │   ├── images
+│   │   │   │   ├── mobility_ai_logo.png
+│   │   │   │   └── train-icon.png
+│   │   │   ├── js
+│   │   │   │   ├── index.js
+│   │   │   │   └── stops.js
+│   │   │   └── site.webmanifest
+│   │   ├── templates
+│   │   │   ├── about.html
+│   │   │   ├── base.html
+│   │   │   ├── copyright.html
+│   │   │   ├── index.html
+│   │   │   ├── navigation.html
+│   │   │   └── terms.html
+│   │   └── views.py
+│   └── Dockerfile
 ├── LICENSE
 ├── machine_learning_app
-│   ├── assets
-│   │   └── vertex_ai.jpg
-│   ├── Dockerfile.training
-│   ├── mbta_ml
-│   │   ├── authenticate.py
-│   │   ├── config.py
-│   │   ├── data
-│   │   │   ├── ml_transit_training_data.csv
-│   │   │   └── raw_transit_data.csv
-│   │   ├── etl
-│   │   │   ├── gcp_dataloader.py
-│   │   │   ├── __init__.py
-│   │   │   ├── __pycache__
-│   │   │   │   ├── delay_etl.cpython-311.pyc
-│   │   │   │   ├── gcp_dataloader.cpython-311.pyc
-│   │   │   │   ├── __init__.cpython-311.pyc
-│   │   │   │   └── xgboost_etl.cpython-311.pyc
-│   │   │   └── xgboost_etl.py
-│   │   ├── experiments
-│   │   │   ├── 25_10_2023
-│   │   │   ├── 26_10_2023
-│   │   │   └── 27_10_2023
-│   │   ├── __init__.py
-│   │   ├── ml
-│   │   │   ├── __init__.py
-│   │   │   ├── ml_utils.py
-│   │   │   ├── __pycache__
-│   │   │   │   ├── __init__.cpython-310.pyc
-│   │   │   │   ├── __init__.cpython-311.pyc
-│   │   │   │   ├── ml_utils.cpython-311.pyc
-│   │   │   │   ├── xgboost_trainer.cpython-310.pyc
-│   │   │   │   └── xgboost_trainer.cpython-311.pyc
-│   │   │   └── xgboost_trainer.py
-│   │   ├── models
-│   │   ├── production_models
-│   │   │   └── final_best_xgboost.json
-│   │   └── __pycache__
-│   │       ├── authenticate.cpython-310.pyc
-│   │       ├── authenticate.cpython-311.pyc
-│   │       ├── config.cpython-310.pyc
-│   │       ├── config.cpython-311.pyc
-│   │       ├── __init__.cpython-310.pyc
-│   │       ├── __init__.cpython-311.pyc
-│   │       └── test_import.cpython-311.pyc
-│   ├── poetry.lock
-│   ├── pyproject.toml
-│   ├── README.md
-│   └── requirements.txt
+│   ├── assets
+│   │   └── vertex_ai.jpg
+│   ├── Dockerfile.training
+│   ├── mbta_ml
+│   │   ├── authenticate.py
+│   │   ├── config.py
+│   │   ├── data
+│   │   │   ├── ml_transit_training_data.csv
+│   │   │   └── raw_transit_data.csv
+│   │   ├── etl
+│   │   │   ├── gcp_dataloader.py
+│   │   │   └── __init__.py
+│   │   ├── experiments
+│   │   │   ├── 25_10_2023
+│   │   │   ├── 26_10_2023
+│   │   │   └── 27_10_2023
+│   │   ├── ml
+│   │   │   ├── __init__.py
+│   │   │   ├── ml_utils.py
+│   │   │   └── xgboost_trainer.py
+│   │   ├── models
+│   │   ├── production_models
+│   │   │   └── final_best_xgboost.json
+│   │   └── README.md
+│   ├── poetry.lock
+│   ├── pyproject.toml
+│   ├── README.md
+│   └── requirements.txt
 ├── milestone_submissions
-│   ├── README.md
-│   └── vertex_ai.jpg
+│   ├── README.md
+│   └── vertex_ai.jpg
 ├── postgres
-│   ├── db
-│   │   └── init.sql
-│   └── Dockerfile
+│   ├── db
+│   │   └── init.sql
+│   └── Dockerfile
 ├── pytest.ini
 ├── README.md
 ├── requirements.txt
@@ -151,6 +116,7 @@
 └── tests
     ├── __init__.py
     └── kafka_producer_configs_test.py
+
 ```
 
 ## App Design, Setup, and Code Organization
