@@ -136,10 +136,7 @@ In designing the architecture of our application, we have meticulously embraced 
 - **Frontend Design**: The intuitive and responsive design of our frontend, integrated seamlessly with backend APIs, ensures real-time data interactions. This approach to frontend design reflects a deep understanding of user needs and industry trends, prioritizing accessibility and responsiveness.
 - **User Interface**: The integration of MapBox and Google Client within the user interface offers an interactive and informative user experience. This aspect of our project not only enhances user engagement but also serves as a model for effective data presentation in web applications.
 
-<p style="text-align:center;">
-  <img src="../assets/figures/high-level.svg" alt="High Level Architecture" width="500">
-</p>
-
+![High Level Architecture](../assets/figures/high-level.svg)
 
 Our architecture's flexibility and scalability make it suitable not just for the MBTA in Boston but also for potential expansion across America. The robustness of our design ensures that our state-of-the-art architecture can be scaled and adapted to various scenarios, making it an exemplary model in the realm of real-time data processing and visualization applications.
 
