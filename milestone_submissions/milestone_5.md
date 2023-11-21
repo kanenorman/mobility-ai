@@ -129,16 +129,15 @@ We adopted a microservices-based approach for modularity and future scalability.
 - **Kafka Message Broker**: This serves as the backbone of our architecture, adeptly managing data flow between components, ensuring both robustness and scalability.
 - **Data Processing to PostgreSQL**: We process and store data in a PostgreSQL database, ensuring effective data management and retrieval capabilities.
 - **FlaskSQLAlchemy Integration**: By integrating FlaskSQLAlchemy, we facilitate seamless interaction between our Flask applications and the PostgreSQL database.
-- **Flask with MapBox and Google Client**: Our Flask application is enriched with dynamic data visualization tools like MapBox and Google Client, enhancing user interaction on the frontend.
-- **FastAPI for Model Serving**: We employ FastAPI to expose our XGBoost model via a RESTful API, ensuring streamlined communication across services.
+- **Flask with MapBox**: Our Flask application is enriched with dynamic data visualization tools like MapBox, enhancing user interaction on the frontend.
 - **XGBoost Model on Google Vertex AI**: Hosted on Google Vertex AI, our XGBoost model benefits from Kubernetes-powered autoscaling and efficient model serving.
-- **API Development**: We focused on developing robust APIs using FastAPI and Flask, ensuring effective backend-frontend communication.
+- **API Development**: We focused on developing robust APIs using Flask, ensuring effective backend-frontend communication.
 - **Frontend Design**: Our frontend is designed to be intuitive and responsive, integrated seamlessly with backend APIs for real-time data interactions.
-- **User Interface**: The integration of MapBox and Google Client offers users an interactive and informative experience.
+- **User Interface**: The integration of MapBox offers users an interactive and informative experience.
 
 ## Deployment Strategy and CI/CD
 
-As an alternative to using Ansible as suggested by the markscheme, we adopted GitHub Actions and GitHub for our Continuous Integration and Continuous Deployment (CI/CD) pipeline, complemented by deployment on Google Cloud Platform (GCP). This strategic decision was driven by the desire to align with industry best practices, which increasingly favor the use of integrated CI/CD tools and cloud-native solutions for deployment. GitHub Actions provide a powerful, flexible, and developer-friendly environment for automating software workflows, directly within our code repository ecosystem. Coupled with GCP's scalable and reliable infrastructure, this approach not only meets but exceeds the robustness and efficiency requirements of modern application deployment strategies.
+As an alternative to using Ansible as suggested by the markscheme, we plan on using GitHub Actions for our Continuous Integration and Continuous Deployment (CI/CD) pipeline, complemented by deployment on Google Cloud Platform (GCP) (MS6 Requirement). This strategic decision was driven by the desire to align with industry best practices, which increasingly favor the use of integrated CI/CD tools and cloud-native solutions for deployment. GitHub Actions provide a powerful, flexible, and developer-friendly environment for automating software workflows, directly within our code repository ecosystem. Coupled with GCP's scalable and reliable infrastructure, this approach not only meets but exceeds the robustness and efficiency requirements of modern application deployment strategies.
 
 - **GitHub Actions & GitHub for CI/CD**: Leveraging these tools allowed us to automate our software development processes, from testing to deployment, within the GitHub ecosystem.
 - **GCP Deployment**: Utilizing the robust and scalable infrastructure of Google Cloud Platform enabled us to achieve a high level of efficiency and reliability in our application deployment.
@@ -159,38 +158,41 @@ Our `docker-compose.yml` contains all the instructions required to deploy our ap
 - **PgAdmin**: Based on `dpage/pgadmin4`, it depends on the `flask_database` service, exposes port 5050, and is configured with PGAdmin default email and password.
 - **The entire deployment is organized within a custom network named `network`**, and a volume named `postgres_data` is defined for database persistence. This setup implies a sophisticated and integrated environment, primarily focused on Kafka-based data processing and management, with Flask serving as the web framework.
 
-
 ## Backend Data Infrastructure to Front Flask App Connections
 
 Our team has meticulously designed and implemented a robust backend-to-frontend infrastructure within our Flask application. This architecture is strategically developed to ensure an efficient and seamless flow of data from Kafka streams to our PostgreSQL database, and ultimately to the frontend UI. Full set-up instructions are shown in `SETUP_INSTRUCTIONS.md`. The following table provides a detailed summary of the integral components and their specific roles:
 
-| Component         | Description                                                                                                                |
-|-------------------|----------------------------------------------------------------------------------------------------------------------------|
-| **Models Directory** | Hosts the definitions of our data models, which are directly mapped to database tables via FlaskSQLAlchemy. Key files include location.py, route.py, scheduled_arrival.py, schedule.py, stop.py, trip.py, and vehicle.py. They structure the data received from Kafka and stored in our PostgreSQL database. |
-| **Views.py**         | Central to defining route configurations for our Flask application, acting as a gateway for data requests and responses. It facilitates the interaction between the frontend and Flask backend, including routes for data retrieval and handling updates from Kafka. The index route renders the homepage with train schedules and stop information. |
-| **Extensions.py**    | Contains the FlaskSQLAlchemy extension, crucial for database operations. This extension is used for all database interactions. |
-| **Dockerfile**       | Outlines the containerization strategy for our Flask application. It provides insight into the runtime environment, especially highlighting the use of Python 3.10 and the port exposure for the Flask app. |
-| **init.py in the App Directory** | Serves as the entry point for creating and configuring the Flask application. It initializes and registers the Flask app, database, and routes, sets the app environment, and ensures database tables are created at startup. |
-| **Data Flow Overview** | Data ingested by our Kafka producer is sent to Kafka topics and then consumed by our service. The consumed data is processed and stored in the PostgreSQL database using the structures defined in our models directory. Data is retrieved from the database through routes in views.py for the frontend, ensuring an interactive user interface. |
+| Component                        | Description                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Models Directory**             | Hosts the definitions of our data models, which are directly mapped to database tables via FlaskSQLAlchemy. Key files include location.py, route.py, scheduled_arrival.py, schedule.py, stop.py, trip.py, and vehicle.py. They structure the data received from Kafka and stored in our PostgreSQL database.                                         |
+| **views.py**                     | Central to defining route configurations for our Flask application, acting as a gateway for data requests and responses. It facilitates the interaction between the frontend and Flask backend, including routes for data retrieval and handling updates from Kafka. The index route renders the homepage with train schedules and stop information. |
+| **extensions.py**                | Contains the FlaskSQLAlchemy extension, crucial for database operations. This extension is used for all database interactions.                                                                                                                                                                                                                       |
+| **Dockerfile**                   | Outlines the containerization strategy for our Flask application. It provides insight into the runtime environment, especially highlighting the use of Python 3.10 and the port exposure for the Flask app.                                                                                                                                          |
+| **init.py in the App Directory** | Serves as the entry point for creating and configuring the Flask application. It initializes and registers the Flask app, database, and routes, sets the app environment, and ensures database tables are created awt startup.                                                                                                                       |
+| **Data Flow Overview**           | Data ingested by our Kafka producer is sent to Kafka topics and then consumed by our service. The consumed data is processed and stored in the PostgreSQL database using the structures defined in our models directory. Data is retrieved from the database through routes in views.py for the frontend, ensuring an interactive user interface.    |
 
-
-## Conclusion 
+## Conclusion
 
 ### Adherence to Industry-Grade Practices
+
 - **Commitment to Excellence**: We have meticulously adhered to industry-grade practices, emphasizing efficiency, robustness, and scalability in our application development.
-- **Technological Integration**: Our choices to integrate Kafka, Flask, FastAPI, and XGBoost demonstrate our commitment to delivering a scalable and user-centric solution.
+- **Technological Integration**: Our choices to integrate Kafka, Flask, and XGBoost demonstrate our commitment to delivering a scalable and user-centric solution.
 - **Strategic Utilization of Tools**: Leveraging Google Cloud Platform and GitHub Actions for CI/CD underlines our alignment with modern software development practices and the markscheme objectives.
 
 ### Forward-Thinking Framework
+
 - **Beyond Immediate Requirements**: Our approach has created a framework that is adaptable to future technological advancements and evolving user needs.
 - **Resilience and Scalability**: The modularity of our architecture, combined with cutting-edge tools, ensures scalability and resilience.
 
 ### Preparing for Milestone 6
+
 - **Integration of Machine Learning**: We are poised to integrate our machine learning application with our robust backend architecture in Milestone 6.
 - **Strategic Use of Vertex AI**: Aligning with the markscheme, we will utilize Google Cloud's Vertex AI for our XGBoost model, embracing cloud-native technologies and enabling auto-scaling to Kubernetes.
 - **Industry Best Practices**: This decision exemplifies our commitment to adopting industry best practices, ensuring our deployment is both academically compliant and industry-relevant.
+- **Streaming and Predictive Inference**: Achieving accurate inference in streaming pipelines can be challenging, demanding expertise in both streaming and machine learning inference. This expertise is essential to minimize latency and develop applications that offer genuine utility to end-users while avoiding excessive latency or performance degradation to the point of unusability. Apache offers several powerful streaming platforms that excel in the field of ML streaming. Notably, Spark's support for structured streaming and Kafka stand out as excellent options.
 
 ### Balancing Academic and Industry Standards
+
 - **Academic and Industry Relevance**: Our project journey balances academic criteria with industry best practices, ensuring relevance and future-proofing.
 - **Excitement for Integration**: The upcoming integration of our data infrastructure, frontend, and the Vertex AI model on GCP in Milestone 6 marks a significant step towards building a state-of-the-art application.
 
