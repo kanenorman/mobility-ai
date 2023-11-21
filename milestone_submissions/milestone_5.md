@@ -121,7 +121,7 @@
 
 ## App Design, Setup, and Code Organization
 
-In designing the architecture of our application, we have meticulously embraced a microservices-based approach, a decision rooted in industry best practices for scalable, robust software engineering. This approach is not only about achieving modularity but also about ensuring future scalability, vital for real-world applications. Our code organization is structured with an acute emphasis on maintainability and clarity, aligning with the highest standards of software engineering.
+In designing the architecture of our application, we have meticulously embraced a microservices-based approach, a decision rooted in industry best practices for scalable, robust software engineering. This approach is not only about achieving modularity but also about ensuring future scalability, vital for real-world applications. Our code organization is structured with an acute emphasis on maintainability and clarity, aligning with the highest standards of software engineering and the milestone markschemes.
 
 ![Screencase of MS5 video app](../assets/ms5_mbta_screen_record.gif)
 
