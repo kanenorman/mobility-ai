@@ -123,7 +123,7 @@
 
 In designing the architecture of our application, we have meticulously embraced a microservices-based approach, a decision rooted in industry best practices for scalable, robust software engineering. This approach is not only about achieving modularity but also about ensuring future scalability, vital for real-world applications. Our code organization is structured with an acute emphasis on maintainability and clarity, aligning with the highest standards of software engineering.
 
-![High Level Architecture](../assets/figures/high-level.svg)
+![Screencase of MS5 video app](../assets/ms5_mbta_screen_record.gif)
 
 - **Kafka Producer**: Implementing a Kafka Producer to initiate data ingestion represents a strategic choice for efficient data stream management. This component efficiently channels data streams to Kafka Message Brokers, exemplifying a modern approach to handling large volumes of data in real-time applications.
 - **Kafka Message Broker**: The Kafka Message Broker is the backbone of our architecture. It adeptly manages data flow between components, ensuring both robustness and scalability. This choice underpins our commitment to building a system that can handle high throughput and low latency, essential for large-scale, real-time data processing.
@@ -136,8 +136,12 @@ In designing the architecture of our application, we have meticulously embraced 
 - **Frontend Design**: The intuitive and responsive design of our frontend, integrated seamlessly with backend APIs, ensures real-time data interactions. This approach to frontend design reflects a deep understanding of user needs and industry trends, prioritizing accessibility and responsiveness.
 - **User Interface**: The integration of MapBox and Google Client within the user interface offers an interactive and informative user experience. This aspect of our project not only enhances user engagement but also serves as a model for effective data presentation in web applications.
 
-Our architecture's flexibility and scalability make it suitable not just for the MBTA in Boston but also for potential expansion across America. The robustness of our design ensures that our state-of-the-art architecture can be scaled and adapted to various scenarios, making it an exemplary model in the realm of real-time data processing and visualization applications.
+<p style="text-align:center;">
+  <img src="../assets/figures/high-level.svg" alt="High Level Architecture" width="500">
+</p>
 
+
+Our architecture's flexibility and scalability make it suitable not just for the MBTA in Boston but also for potential expansion across America. The robustness of our design ensures that our state-of-the-art architecture can be scaled and adapted to various scenarios, making it an exemplary model in the realm of real-time data processing and visualization applications.
 
 ## Deployment Strategy and CI/CD
 
