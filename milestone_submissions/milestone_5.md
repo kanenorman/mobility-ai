@@ -121,19 +121,23 @@
 
 ## App Design, Setup, and Code Organization
 
-We adopted a microservices-based approach for modularity and future scalability. Our code organization is meticulously structured, promoting ease of maintenance and clarity. Docker and Docker Compose are pivotal in maintaining consistency across various deployment stages.
+In designing the architecture of our application, we have meticulously embraced a microservices-based approach, a decision rooted in industry best practices for scalable, robust software engineering. This approach is not only about achieving modularity but also about ensuring future scalability, vital for real-world applications. Our code organization is structured with an acute emphasis on maintainability and clarity, aligning with the highest standards of software engineering.
 
 ![High Level Architecture](../assets/figures/high-level.svg)
 
-- **Kafka Producer**: We implemented a Kafka Producer to initiate data ingestion, channeling data streams efficiently to the Kafka Message Brokers.
-- **Kafka Message Broker**: This serves as the backbone of our architecture, adeptly managing data flow between components, ensuring both robustness and scalability.
-- **Data Processing to PostgreSQL**: We process and store data in a PostgreSQL database, ensuring effective data management and retrieval capabilities.
-- **FlaskSQLAlchemy Integration**: By integrating FlaskSQLAlchemy, we facilitate seamless interaction between our Flask applications and the PostgreSQL database.
-- **Flask with MapBox**: Our Flask application is enriched with dynamic data visualization tools like MapBox, enhancing user interaction on the frontend.
-- **XGBoost Model on Google Vertex AI**: Hosted on Google Vertex AI, our XGBoost model benefits from Kubernetes-powered autoscaling and efficient model serving.
-- **API Development**: We focused on developing robust APIs using Flask, ensuring effective backend-frontend communication.
-- **Frontend Design**: Our frontend is designed to be intuitive and responsive, integrated seamlessly with backend APIs for real-time data interactions.
-- **User Interface**: The integration of MapBox offers users an interactive and informative experience.
+- **Kafka Producer**: Implementing a Kafka Producer to initiate data ingestion represents a strategic choice for efficient data stream management. This component efficiently channels data streams to Kafka Message Brokers, exemplifying a modern approach to handling large volumes of data in real-time applications.
+- **Kafka Message Broker**: The Kafka Message Broker is the backbone of our architecture. It adeptly manages data flow between components, ensuring both robustness and scalability. This choice underpins our commitment to building a system that can handle high throughput and low latency, essential for large-scale, real-time data processing.
+- **Data Processing to PostgreSQL**: Our utilization of PostgreSQL for data processing and storage aligns with industry norms for reliable and effective data management. This setup ensures high performance, particularly in handling complex queries and vast datasets.
+- **FlaskSQLAlchemy Integration**: The integration of FlaskSQLAlchemy is a testament to our dedication to seamless interaction between our Flask applications and the PostgreSQL database. This ORM (Object-Relational Mapping) tool simplifies database transactions, enhancing the efficiency and reliability of our data operations.
+- **Flask with MapBox and Google Client**: Enriching our Flask application with dynamic data visualization tools such as MapBox and Google Client showcases our focus on creating an interactive and user-friendly frontend. These tools elevate the user experience, providing intuitive and informative data visualizations.
+- **FastAPI for Model Serving**: Employing FastAPI for model serving aligns with contemporary practices for API development. This framework is known for its high performance and ease of use, making it an ideal choice for exposing our XGBoost model through a RESTful API, thereby ensuring streamlined communication across services.
+- **XGBoost Model on Google Vertex AI**: Hosting our XGBoost model on Google Vertex AI demonstrates our forward-thinking approach. This setup benefits from Kubernetes-powered autoscaling, ensuring that our machine learning model is both efficient and scalable, ready to handle varying loads with ease.
+- **API Development**: Our focus on developing robust APIs using FastAPI and Flask is a reflection of our commitment to effective backend-frontend communication. This is crucial for creating a seamless and responsive user experience, vital for modern web applications.
+- **Frontend Design**: The intuitive and responsive design of our frontend, integrated seamlessly with backend APIs, ensures real-time data interactions. This approach to frontend design reflects a deep understanding of user needs and industry trends, prioritizing accessibility and responsiveness.
+- **User Interface**: The integration of MapBox and Google Client within the user interface offers an interactive and informative user experience. This aspect of our project not only enhances user engagement but also serves as a model for effective data presentation in web applications.
+
+Our architecture's flexibility and scalability make it suitable not just for the MBTA in Boston but also for potential expansion across America. The robustness of our design ensures that our state-of-the-art architecture can be scaled and adapted to various scenarios, making it an exemplary model in the realm of real-time data processing and visualization applications.
+
 
 ## Deployment Strategy and CI/CD
 
