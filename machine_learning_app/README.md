@@ -1,23 +1,23 @@
-# Milestone 4 
+# Milestone 4
 
-In this milestone, we encapsulated our machine learning application within Docker containers and deployed them to the Google Artifact Registry (GAR). The structure of our application adheres to best practices for machine learning projects, ensuring modularity, scalability, and maintainability. 
+In this milestone, we encapsulated our machine learning application within Docker containers and deployed them to the Google Artifact Registry (GAR). The structure of our application adheres to best practices for machine learning projects, ensuring modularity, scalability, and maintainability.
 
 ## Table of Contents
 
 - [Milestone 4](#milestone-4)
   - [Breaking Down the Directory Structure](#breaking-down-the-directory-structure)
 - [MLOps: Adopting a Serverless Microservice Architecture](#mlops-adopting-a-serverless-microservice-architecture)
-- [Model Evolution & Continuous Improvement](#model-evolution--continuous-improvement)  
+- [Model Evolution & Continuous Improvement](#model-evolution--continuous-improvement)
 - [Model Selection & Design: Aligning with the Markscheme and Real-world Constraints](#model-selection--design-aligning-with-the-markscheme-and-real-world-constraints)
   - [Markscheme: Distillation, Quantization, and Compression](#markscheme-distillation-quantization-and-compression)
   - [Markscheme: Vertex AI Pipelines (Kubeflow) Deployment Approach](#markscheme-vertex-ai-pipelines-kubeflow-deployment-approach)
     - [Setting Permissions](#setting-permissions)
-    - [Local Testing](#local-testing) 
+    - [Local Testing](#local-testing)
     - [Deployment to Google Artifact Registry (GAR) and Vertex AI](#deployment-to-google-artifact-registry-gar-and-vertex-ai)
     - [Pushing Docker Image to GAR and Vertex AI](#pushing-docker-image-to-gar-and-vertex-ai)
 
 ```
-➜  machine_learning_app 
+➜  machine_learning_app
 .
 ├── authenticate.py
 ├── config.py
@@ -68,9 +68,9 @@ Before diving into the detailed directory structure, it's important to emphasize
 
 - **ml**: This section is dedicated to classical machine learning tasks:
     - **ml_utils.py**: Functions as a utility belt, offering an assortment of tools and functions, underscoring the need for reusable components in ML workflows.
-    - **xgboost_trainer.py**: Dedicated to the XGBoost training lifecycle, reflecting the importance of modularizing training tasks based on the algorithm. This conducts robust hyperparameter tuning and model saving. 
+    - **xgboost_trainer.py**: Dedicated to the XGBoost training lifecycle, reflecting the importance of modularizing training tasks based on the algorithm. This conducts robust hyperparameter tuning and model saving.
 
-- **models**: Acts as a repository for transitional model states. By cataloging these intermediate artifacts, the application provides a granular history of model evolution, allowing for rollback and comparison between iterations. These will be models can be pushed to the Google Artifact Registry (GAR) for inference in Milestone 6. 
+- **models**: Acts as a repository for transitional model states. By cataloging these intermediate artifacts, the application provides a granular history of model evolution, allowing for rollback and comparison between iterations. These will be models can be pushed to the Google Artifact Registry (GAR) for inference in Milestone 6.
 
 - **production_models**: Distinctly houses deployment-ready models. By isolating production-grade models, the structure ensures that only fully validated, optimal models are promoted to production environments, minimizing potential deployment risks.
 
@@ -119,11 +119,11 @@ In the realm of model optimization and compression, we've incorporated a suite o
         - Conducts weight and neuron pruning operations on DL models.
         - Executes fine-tuning on pruned models to recover any lost accuracy.
         - Assesses pruned models, selecting the most optimized version based on performance and compression metrics.
-    
+
     - `dnn_trainer.py`:
         - Orchestrates training of deep neural networks on relevant datasets.
         - Manages hyperparameter optimization to ensure optimal performance for the DL model.
-    
+
     - `knowledge_distiller.py`:
         - Employs an Object-Oriented Programming (OOP) approach to instantiate student models.
         - Oversees the distillation process, transferring knowledge from the teacher model to the student.
@@ -159,12 +159,12 @@ It's always a best practice to test your solution locally before deploying it to
 ```bash
 # Execute the xgboost_trainer locally to ensure ETL retrieves the correct data:
 python -m mbta_ml.ml.xgboost_trainer
-``` 
+```
 
 ### Deployment to Google Artifact Registry (GAR) and Vertex AI:
 ```bash
 # Construct the Docker container:
-sudo docker build -f Dockerfile.training -t gcr.io/ac215-transit-prediction/mbta_ml:latest 
+sudo docker build -f Dockerfile.training -t gcr.io/ac215-transit-prediction/mbta_ml:latest
 
 # (OPTIONAL) If encountering issues, run interactively to diagnose:
 docker run -it --rm --entrypoint /bin/bash gcr.io/ac215-transit-prediction/mbta_ml:latest
@@ -174,7 +174,7 @@ python ml.xgboost_trainer.py
 ```
 ### Pushing Docker Image to GAR and Vertex AI:
 For a seamless deployment to the cloud, adhere to the following considerations:
-1. Refrain from utilizing `sudo` with Docker during Google Cloud deployment. This could circumvent user-specific configurations and vital permissions imperative for authentication. 
+1. Refrain from utilizing `sudo` with Docker during Google Cloud deployment. This could circumvent user-specific configurations and vital permissions imperative for authentication.
 2. Disable VPN when deploying or interfacing with cloud services to avert potential network disruptions or obstructed connections.
 
 ```bash

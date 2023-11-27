@@ -9,7 +9,7 @@ The script is organized into three data layers:
 1. Bronze Data Layer:
    - Loads data from Kafka topics into streams.
    - Defines the schema without applying transformations.
-   
+
 2. Silver Data Layer:
    - Applies transformations to flatten the nested JSON data structure.
    - Casts columns to the correct data types.

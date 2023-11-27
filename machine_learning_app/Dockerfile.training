@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for MBTA ML Training.
-# The multi-stage build process is used to create a lightweight final image 
+# The multi-stage build process is used to create a lightweight final image
 # by separating the build-time dependencies from the runtime dependencies.
 # The "builder" stage installs all necessary build tools and libraries,
 # while the final image copies just the essentials, ensuring a minimal image size.
