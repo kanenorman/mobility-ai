@@ -3,12 +3,10 @@ targeting machine learning & time series forecasting of bus arrivals and delays.
 """
 import logging
 from datetime import datetime
-from pathlib import Path
 
 import mbta_ml.authenticate as auth
 import numpy as np
 import pandas as pd
-from google.cloud import bigquery
 from mbta_ml.config import APP_DATA_DIR
 
 

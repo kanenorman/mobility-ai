@@ -1,7 +1,6 @@
 """ ml_utils.py: This module contains functions to train, build, and save ML models.
 """
 import pandas as pd
-from mbta_ml.config import ML_TRAINING_DATA_PATH, MODEL_DIR, RAW_DATA_PATH
 from permetrics import RegressionMetric
 
 

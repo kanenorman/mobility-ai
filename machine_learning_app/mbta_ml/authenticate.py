@@ -1,6 +1,8 @@
 """authenticate.py: Authentication utility functions for ETL & Deep & Machine Learning model
 training & inference.
 """
+import argparse
+
 import numpy as np
 import psutil
 import ray
@@ -150,7 +152,7 @@ def run_authentication_tasks():
     print(f"Total memory available (GB): {total_memory_gb}")
 
     print("\nAuthenticating with Google Cloud Platform...")
-    gcp_client = authenticate_gcp_implicit()
+    gcp_client = authenticate_gcp_storage_implicit()
     print("Google Cloud Platform authentication successful.")
     print(f"GCP client: {gcp_client}")
     print(f"GCP client type: {type(gcp_client)}")
