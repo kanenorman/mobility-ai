@@ -12,7 +12,12 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
       test:
-        ["CMD", "bash", "-c", "echo 'ruok' | nc zookeeper ${ZOOKEEPER_PORT}"]
+        [
+          "CMD",
+          "bash",
+          "-c",
+          "echo 'ruok' | nc zookeeper ${ZOOKEEPER_PORT}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +41,13 @@ services:
       zookeeper:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST1} ${KAFKA_PORT1}"]
+      test:
+        [
+          "CMD",
+          "bash",
+          "-c",
+          "nc -z ${KAFKA_HOST1} ${KAFKA_PORT1}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -60,7 +71,13 @@ services:
       zookeeper:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST2} ${KAFKA_PORT2}"]
+      test:
+        [
+          "CMD",
+          "bash",
+          "-c",
+          "nc -z ${KAFKA_HOST2} ${KAFKA_PORT2}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -84,7 +101,13 @@ services:
       zookeeper:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST3} ${KAFKA_PORT3}"]
+      test:
+        [
+          "CMD",
+          "bash",
+          "-c",
+          "nc -z ${KAFKA_HOST3} ${KAFKA_PORT3}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -133,7 +156,7 @@ services:
       CONNECT_OFFSET_STORAGE_TOPIC: _connect-offsets
       CONNECT_STATUS_STORAGE_TOPIC: _connect-status
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_VALUE_CONVERTER: io.confluent.connect.json.JsonSchemaConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
       CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
@@ -161,7 +184,7 @@ services:
           "CMD",
           "bash",
           "-c",
-          "curl -f http://connect:8083/connectors || exit 1",
+          "curl -f http://connect:8083/connectors || exit 1"
         ]
       interval: 10s
       timeout: 5s
@@ -324,7 +347,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 5s
       timeout: 10s
       retries: 5
@@ -343,6 +366,28 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
     depends_on:
       - flask_database
+  ml_stream:
+    container_name: ml_stream
+    networks:
+      - network
+    build:
+      context: .
+      dockerfile: ./data_streaming/spark_streaming/Dockerfile
+    environment:
+      KAFKA_HOST1: "${KAFKA_HOST1}"
+      KAFKA_PORT1: "${KAFKA_PORT1}"
+      KAFKA_HOST2: "${KAFKA_HOST2}"
+      KAFKA_PORT2: "${KAFKA_PORT2}"
+      KAFKA_HOST3: "${KAFKA_HOST3}"
+      KAFKA_PORT3: "${KAFKA_PORT3}"
+      PYTHONUNBUFFERED: 1
+    depends_on:
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
 volumes:
   postgres_data:
 networks:
