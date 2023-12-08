@@ -1,7 +1,7 @@
 import sys
 from collections.abc import Callable
 
-import schemas
+import stream_parser as stream_parser
 from config import configs
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.streaming import StreamingQuery
@@ -65,7 +65,7 @@ def _stream(
     df: DataFrame = schema_parser(kafka_stream)
 
     query: StreamingQuery = (
-        df.writeStream.queryName("vehicle_stream")
+        df.writeStream.queryName(f"{kafka_topic}_stream")
         .format("console")
         .outputMode("append")
         .start()
@@ -83,11 +83,32 @@ def main() -> int:
 
     vehicle_stream = _stream(
         spark=spark,
-        kafka_topic="VEHICLE_GOLD",
-        schema_parser=schemas.parse_vehicle_topic,
+        kafka_topic="VEHICLE_JSON",
+        schema_parser=stream_parser.parse_vehicle_json,
+    )
+
+    stop_stream = _stream(
+        spark=spark,
+        kafka_topic="STOP_JSON",
+        schema_parser=stream_parser.parse_stop_json,
+    )
+
+    schedule_stream = _stream(
+        spark=spark,
+        kafka_topic="SCHEDULE_JSON",
+        schema_parser=stream_parser.parse_schedule_json,
+    )
+
+    trip_stream = _stream(
+        spark=spark,
+        kafka_topic="TRIP_JSON",
+        schema_parser=stream_parser.parse_trip_json,
     )
 
     vehicle_stream.awaitTermination()
+    stop_stream.awaitTermination()
+    schedule_stream.awaitTermination()
+    trip_stream.awaitTermination()
 
     spark.stop()
 

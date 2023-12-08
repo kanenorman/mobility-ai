@@ -156,7 +156,7 @@ services:
       CONNECT_OFFSET_STORAGE_TOPIC: _connect-offsets
       CONNECT_STATUS_STORAGE_TOPIC: _connect-status
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.json.JsonSchemaConverter
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
       CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
@@ -268,7 +268,7 @@ services:
     hostname: ksqldb-server
     container_name: ksqldb-server
     volumes:
-      - ./data_streaming/kafka_streams/ksqldb-server/queries.sql:/etc/ksqldb-server/queries.sql
+      - ./data_streaming/kafka_streams/ksqldb-server/queries.ksql:/etc/ksqldb-server/queries.ksql
     depends_on:
       broker1:
         condition: service_healthy
@@ -290,7 +290,7 @@ services:
       KSQL_APPLICATION_ID: "KSQLDB"
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
-      KSQL_KSQL_QUERIES_FILE: "/etc/ksqldb-server/queries.sql"
+      KSQL_KSQL_QUERIES_FILE: "/etc/ksqldb-server/queries.ksql"
     ports:
       - "8088:8088"
     networks:
@@ -300,7 +300,7 @@ services:
     image: confluentinc/ksqldb-cli:0.29.0
     container_name: ksqldb-cli
     volumes:
-      - ./data_streaming/kafka_streams/ksqldb-server/queries.sql:/etc/ksqldb-server/queries.sql
+      - ./data_streaming/kafka_streams/ksqldb-server/queries.ksql:/etc/ksqldb-server/queries.ksql
     networks:
       - network
     depends_on:
