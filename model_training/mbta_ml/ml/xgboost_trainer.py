@@ -64,7 +64,7 @@ def check_or_load_data(data_path: Path = ML_TRAINING_DATA_PATH) -> pd.DataFrame:
             raw_df = pd.read_csv(RAW_DATA_PATH)
 
         # Process raw data for ML
-        transformed_df, le_dict = xgboost_etl.transform(raw_df)
+        transformed_df = xgboost_etl.transform(raw_df)
         ml_ready_df = xgboost_etl.data_checks_and_cleaning(
             transformed_df, verbose=False
         )

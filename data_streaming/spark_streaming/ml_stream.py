@@ -7,6 +7,7 @@ from feature_engineering import feature_engineering
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.streaming import StreamingQuery
 from stream_merger import stream_merger
+from stream_predictor import stream_predictor
 
 
 def _create_spark_session() -> SparkSession:
@@ -130,8 +131,9 @@ def main() -> int:
     )
 
     unprocessed_data: DataFrame = stream_merger(vehicle, stop, schedule, trip)
-    processed_stream: StreamingQuery = feature_engineering(unprocessed_data)
-    processed_stream.awaitTermination()
+    processed_stream: DataFrame = feature_engineering(unprocessed_data)
+    prediction_stream : StreamingQuery = stream_predictor(processed_stream)
+    prediction_stream.awaitTermination()
 
     spark.stop()
 

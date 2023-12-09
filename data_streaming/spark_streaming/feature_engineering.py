@@ -1,39 +1,9 @@
-import h3
 import numpy as np
 from haversine import Unit, haversine
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from pyspark.sql.streaming import StreamingQuery
-
-
-@F.udf(T.StringType())
-def _geo_to_h3_udf(
-    latitude: T.FloatType, longitude: T.FloatType, resolution: int = 9
-) -> T.StringType:
-    """
-    Convert a latitude and longitude to a H3 hexagon string.
-
-    Parameters
-    ----------
-    latitude : T.FloatType
-        The latitude of the location.
-    longitude : T.FloatType
-        The longitude of the location.
-    resolution : int
-        The resolution of the H3 hexagon.
-
-    Returns
-    -------
-    T.StringType
-        The H3 hexagon string.
-
-    Examples
-    --------
-    >>> _geo_to_h3_udf(40.6892, -74.0445)
-    '8828308280fffff'
-    """
-    return h3.geo_to_h3(latitude, longitude, resolution)
 
 
 @F.udf(T.FloatType())
@@ -130,19 +100,6 @@ def feature_engineering(df: DataFrame) -> StreamingQuery:
     StreamingQuery
     """
 
-    df = df.withColumn(
-        "current_location_hex",
-        _geo_to_h3_udf(df["current_latitude"], df["current_longitude"]),
-    )
-
-    df = df.withColumn(
-        "destination_location_hex",
-        _geo_to_h3_udf(
-            df["destination_latitude"],
-            df["destination_longitude"],
-        ),
-    )
-
     # Calculate distance between current location and destination
     df = df.withColumn(
         "distance_travel_miles",
@@ -164,13 +121,6 @@ def feature_engineering(df: DataFrame) -> StreamingQuery:
     )
     df = df.withColumn("sin_time", F.col("trigonometric_time.sin_time"))
     df = df.withColumn("cos_time", F.col("trigonometric_time.cos_time"))
-    df = df.drop("trigonometric_time")
 
-    processed_stream: StreamingQuery = (
-        df.writeStream.queryName("model_features_stream")
-        .outputMode("append")
-        .format("console")
-        .start()
-    )
 
-    return processed_stream
+    return df
