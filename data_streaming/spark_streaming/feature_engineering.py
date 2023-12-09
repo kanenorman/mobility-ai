@@ -4,6 +4,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from pyspark.sql.streaming import StreamingQuery
+from pyspark.ml.feature import VectorAssembler
 
 
 @F.udf(T.FloatType())
@@ -122,5 +123,12 @@ def feature_engineering(df: DataFrame) -> StreamingQuery:
     df = df.withColumn("sin_time", F.col("trigonometric_time.sin_time"))
     df = df.withColumn("cos_time", F.col("trigonometric_time.cos_time"))
 
+    # Create a vector of the features used at inference time
+    assembler = VectorAssembler(
+        inputCols=["distance_travel_miles", "sin_time", "cos_time"],
+        outputCol="features",
+    )
+
+    df = assembler.transform(df)
 
     return df
