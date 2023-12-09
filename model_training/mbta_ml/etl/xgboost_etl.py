@@ -113,40 +113,6 @@ def transform(data_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, LabelEncod
         "Number of NaN values in predictor_delay_seconds:",
         data_df["predictor_delay_seconds"].isna().sum(),
     )
-    # Compute "predictor_delay_seconds" in seconds
-    # data_df["predictor_delay_seconds"] = (
-    #     data_df["actual_arrival_time"] - data_df["scheduled_time"]
-    # ).dt.total_seconds()
-
-    # After computation, print the number of NaN values in predictor_delay_seconds
-
-    # Compute the hex values for locations
-    resolution = 9  # you can adjust the resolution as required
-    data_df["current_location_hex"] = data_df.apply(
-        lambda row: h3.geo_to_h3(
-            row["current_latitude"], row["current_longitude"], resolution
-        ),
-        axis=1,
-    )
-    data_df["destination_location_hex"] = data_df.apply(
-        lambda row: h3.geo_to_h3(
-            row["destination_latitude"], row["destination_longitude"], resolution
-        ),
-        axis=1,
-    )
-
-    # Encode categorical columns
-    le_dict = {}
-    for col in [
-        "vehicle_id",
-        "destination",
-        "platform_name",
-        "current_location_hex",
-        "destination_location_hex",
-    ]:
-        le = LabelEncoder()
-        data_df[col] = le.fit_transform(data_df[col])
-        le_dict[col] = le
 
     # Compute distance of travel using haversine package and name it as "distance_travel_miles"
     data_df["distance_travel_miles"] = data_df.apply(
@@ -179,12 +145,17 @@ def transform(data_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, LabelEncod
         "delay",
         "distance_travel",
         "predictor_delay_time",
+        "vehicle_id",
+        "destination",
+        "platform_name",
+        "current_location_hex",
+        "destination_location_hex",
     ]
     transformed_df = data_df.drop(
         columns=cols_to_drop, errors="ignore"
     )  # Added errors='ignore' to ensure it doesn't fail if a column is missing
 
-    return transformed_df, le_dict
+    return transformed_df
 
 
 def data_checks_and_cleaning(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:

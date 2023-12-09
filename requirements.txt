@@ -10,3 +10,4 @@ psycopg2-binary==2.9.7
 requests==2.31.0
 retry==0.9.2
 stamina==23.1.0
+xgboost==2.0.2
