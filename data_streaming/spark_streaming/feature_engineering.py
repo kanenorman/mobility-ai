@@ -8,14 +8,65 @@ from pyspark.sql.streaming import StreamingQuery
 
 
 @F.udf(T.StringType())
-def _geo_to_h3_udf(latitude, longitude, resolution=9) -> str:
+def _geo_to_h3_udf(
+    latitude: T.FloatType, longitude: T.FloatType, resolution: int = 9
+) -> T.StringType:
+    """
+    Convert a latitude and longitude to a H3 hexagon string.
+
+    Parameters
+    ----------
+    latitude : T.FloatType
+        The latitude of the location.
+    longitude : T.FloatType
+        The longitude of the location.
+    resolution : int
+        The resolution of the H3 hexagon.
+
+    Returns
+    -------
+    T.StringType
+        The H3 hexagon string.
+
+    Examples
+    --------
+    >>> _geo_to_h3_udf(40.6892, -74.0445)
+    '8828308280fffff'
+    """
     return h3.geo_to_h3(latitude, longitude, resolution)
 
 
 @F.udf(T.FloatType())
 def _haversine_distance_udf(
-    current_latitude, current_longitude, destination_latitude, destination_longitude
-) -> float:
+    current_latitude: T.FloatType,
+    current_longitude: T.FloatType,
+    destination_latitude: T.FloatType,
+    destination_longitude: T.FloatType,
+) -> T.FloatType:
+    """
+    Calculate the distance between two locations using the haversine formula.
+
+    Parameters
+    ----------
+    current_latitude : T.FloatType
+        The latitude of the current location.
+    current_longitude : T.FloatType
+        The longitude of the current location.
+    destination_latitude : T.FloatType
+        The latitude of the destination location.
+    destination_longitude : T.FloatType
+        The longitude of the destination location.
+
+    Returns
+    -------
+    T.FloatType
+        The distance between the two locations in miles.
+
+    Examples
+    --------
+    >>> _haversine_distance_udf(40.6892, -74.0445, 37.6188, -122.3750)
+    2568.396
+    """
     return haversine(
         (current_latitude, current_longitude),
         (destination_latitude, destination_longitude),
@@ -23,26 +74,46 @@ def _haversine_distance_udf(
     )
 
 
-@F.udf(T.FloatType())
-def _sin_time(scheduled_time) -> float:
+@F.udf(
+    T.StructType(
+        [
+            T.StructField("sin_time", T.FloatType()),
+            T.StructField("cos_time", T.FloatType()),
+        ]
+    )
+)
+def trigonometric_time(scheduled_time: T.TimestampType):
+    """
+    Calculate both the sin and cos of the time of day in seconds.
+
+    Parameters
+    ----------
+    scheduled_time : T.TimestampType
+        The time of day.
+
+    Returns
+    -------
+    StructType
+        A structured type containing the sin and cos of the time of day.
+
+    Examples
+    --------
+    >>> trigonometric_time("2021-01-01T00:00:00Z")
+    (0.0, 1.0)
+    >>> trigonometric_time("2021-01-01T12:00:00Z")
+    (0.0, -1.0)
+    >>> trigonometric_time("2021-01-01T06:00:00Z")
+    (1.0, 0.0)
+    >>> trigonometric_time("2021-01-01T18:00:00Z")
+    (-1.0, 0.0)
+    """
     seconds_since_midnight = (
-        scheduled_time.hour() * 3600
-        + scheduled_time.minute() * 60
-        + scheduled_time.second()
+        scheduled_time.hour * 3600 + scheduled_time.minute * 60 + scheduled_time.second
     )
     seconds_in_day = 24 * 60 * 60
-    return np.sin(2 * np.pi * seconds_since_midnight / seconds_in_day)
+    angle = 2 * np.pi * seconds_since_midnight / seconds_in_day
 
-
-@F.udf(T.FloatType())
-def _cos_time(scheduled_time) -> float:
-    seconds_since_midnight = (
-        scheduled_time.hour() * 3600
-        + scheduled_time.minute() * 60
-        + scheduled_time.second()
-    )
-    seconds_in_day = 24 * 60 * 60
-    return np.cos(2 * np.pi * seconds_since_midnight / seconds_in_day)
+    return (float(np.sin(angle)), float(np.cos(angle)))
 
 
 def feature_engineering(df: DataFrame) -> StreamingQuery:
@@ -88,9 +159,12 @@ def feature_engineering(df: DataFrame) -> StreamingQuery:
         "scheduled_time", F.to_timestamp("scheduled_time", "yyyy-MM-dd'T'HH:mm:ssXXX")
     )
     df = df.withColumn("scheduled_time", F.from_utc_timestamp("scheduled_time", "UTC"))
-
-    df = df.withColumn("sin_time", _sin_time(df["scheduled_time"]))
-    df = df.withColumn("cos_time", _cos_time(df["scheduled_time"]))
+    df = df.withColumn(
+        "trigonometric_time", trigonometric_time(F.col("scheduled_time"))
+    )
+    df = df.withColumn("sin_time", F.col("trigonometric_time.sin_time"))
+    df = df.withColumn("cos_time", F.col("trigonometric_time.cos_time"))
+    df = df.drop("trigonometric_time")
 
     processed_stream: StreamingQuery = (
         df.writeStream.queryName("model_features_stream")
