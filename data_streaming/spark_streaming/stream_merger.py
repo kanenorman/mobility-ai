@@ -38,6 +38,7 @@ def stream_merger(
             & (schedule.stop_id == vehicle.stop_id),
         )
     ).select(
+        vehicle.id,
         stop.platform_name,
         vehicle.current_status,
         vehicle.updated_at.alias("time_stamp"),

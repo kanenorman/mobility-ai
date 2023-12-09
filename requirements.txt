@@ -1,9 +1,11 @@
 flask==2.3.3
 Flask-SQLAlchemy==3.0.5
 h3==3.7.6
+haversine==2.8.0
 httpx==0.25.0
 httpx-sse==0.3.1
 kafka-python==2.0.2
+numpy==1.26.2
 psycopg2-binary==2.9.7
 requests==2.31.0
 retry==0.9.2
