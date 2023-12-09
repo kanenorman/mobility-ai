@@ -3,6 +3,7 @@ from collections.abc import Callable
 
 import stream_parser as stream_parser
 from config import configs
+from feature_engineering import feature_engineering
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.streaming import StreamingQuery
 from stream_merger import stream_merger
@@ -128,8 +129,9 @@ def main() -> int:
         schema_parser=stream_parser.parse_trip_json,
     )
 
-    merged_stream: StreamingQuery = stream_merger(vehicle, stop, schedule, trip)
-    merged_stream.awaitTermination()
+    unprocessed_data: DataFrame = stream_merger(vehicle, stop, schedule, trip)
+    processed_stream: StreamingQuery = feature_engineering(unprocessed_data)
+    processed_stream.awaitTermination()
 
     spark.stop()
 
