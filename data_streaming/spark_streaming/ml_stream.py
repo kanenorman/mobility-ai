@@ -5,7 +5,37 @@ import stream_parser as stream_parser
 from config import configs
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.streaming import StreamingQuery
-from utils import configure_spark_logging, create_spark_session
+from stream_merger import stream_merger
+
+
+def _create_spark_session() -> SparkSession:
+    """
+    Create and configure a SparkSession.
+
+    Returns
+    -------
+    SparkSession
+        The configured SparkSession.
+    """
+    spark = (
+        SparkSession.builder.appName("MBTA Data Streaming")
+        .master("local[*]")
+        .getOrCreate()
+    )
+
+    return spark
+
+
+def _configure_spark_logging(spark: SparkSession) -> None:
+    """
+    Configure Spark logging level to ERROR.
+
+    Parameters
+    ----------
+    spark : SparkSession
+        The SparkSession to configure.
+    """
+    spark.sparkContext.setLogLevel("ERROR")
 
 
 def _read_stream_from_kafka(spark: SparkSession, kafka_topic: str) -> DataFrame:
@@ -35,7 +65,7 @@ def _read_stream_from_kafka(spark: SparkSession, kafka_topic: str) -> DataFrame:
         .option("kafka.bootstrap.servers", bootstrap_servers)
         .option("subscribe", kafka_topic)
         .option("startingOffsets", "earliest")
-        .option("maxOffsetsPerTrigger", 1000)
+        .option("maxOffsetsPerTrigger", 10_000)
         .load()
     )
 
@@ -44,7 +74,7 @@ def _stream(
     spark: SparkSession,
     kafka_topic: str,
     schema_parser: Callable,
-) -> StreamingQuery:
+) -> DataFrame:
     """
     Process data from a Kafka stream and write it to a table.
 
@@ -64,51 +94,42 @@ def _stream(
     kafka_stream: DataFrame = _read_stream_from_kafka(spark, kafka_topic)
     df: DataFrame = schema_parser(kafka_stream)
 
-    query: StreamingQuery = (
-        df.writeStream.queryName(f"{kafka_topic}_stream")
-        .format("console")
-        .outputMode("append")
-        .start()
-    )
-
-    return query
+    return df
 
 
 def main() -> int:
     """
     Start the Spark streaming job.
     """
-    spark = create_spark_session()
-    configure_spark_logging(spark)
+    spark = _create_spark_session()
+    _configure_spark_logging(spark)
 
-    vehicle_stream = _stream(
+    vehicle: DataFrame = _stream(
         spark=spark,
         kafka_topic="VEHICLE_JSON",
         schema_parser=stream_parser.parse_vehicle_json,
     )
 
-    stop_stream = _stream(
+    stop: DataFrame = _stream(
         spark=spark,
         kafka_topic="STOP_JSON",
         schema_parser=stream_parser.parse_stop_json,
     )
 
-    schedule_stream = _stream(
+    schedule: DataFrame = _stream(
         spark=spark,
         kafka_topic="SCHEDULE_JSON",
         schema_parser=stream_parser.parse_schedule_json,
     )
 
-    trip_stream = _stream(
+    trip: DataFrame = _stream(
         spark=spark,
         kafka_topic="TRIP_JSON",
         schema_parser=stream_parser.parse_trip_json,
     )
 
-    vehicle_stream.awaitTermination()
-    stop_stream.awaitTermination()
-    schedule_stream.awaitTermination()
-    trip_stream.awaitTermination()
+    merged_stream: StreamingQuery = stream_merger(vehicle, stop, schedule, trip)
+    merged_stream.awaitTermination()
 
     spark.stop()
 

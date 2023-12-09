@@ -192,7 +192,7 @@ def parse_trip_json(kafka_stream: pyspark.sql.DataFrame) -> pyspark.sql.DataFram
     )
 
 
-def parse_schedule_json(kafka_stream: pyspark.sql.DataFrame):
+def parse_schedule_json(kafka_stream: pyspark.sql.DataFrame) -> pyspark.sql.DataFrame:
     """
     Parse the schedule JSON data stream.
 
