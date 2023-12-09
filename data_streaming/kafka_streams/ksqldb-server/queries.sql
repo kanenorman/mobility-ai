@@ -429,8 +429,8 @@ AS
 SELECT
     id,
     event,
-    PARSE_TIMESTAMP(data->attributes->arrival_time, 'yyyy-MM-dd''T''HH:mm:ssXXX') AS arrival_time,
-    PARSE_TIMESTAMP(data->attributes->departure_time, 'yyyy-MM-dd''T''HH:mm:ssXXX') AS departure_time,
+    data->attributes->arrival_time AS arrival_time,
+    data->attributes->departure_time AS departure_time,
     data->attributes->direction_id AS direction_id,
     data->attributes->drop_off_type AS drop_off_type,
     data->attributes->pickup_type AS pickup_type,
@@ -625,8 +625,8 @@ AS
 SELECT
     id,
     LATEST_BY_OFFSET(event) AS event,
-    LATEST_BY_OFFSET(arrival_time) AS arrival_time,
-    LATEST_BY_OFFSET(departure_time) AS departure_time,
+    LATEST_BY_OFFSET(PARSE_TIMESTAMP(arrival_time, 'yyyy-MM-dd''T''HH:mm:ssXXX')) AS arrival_time,
+    LATEST_BY_OFFSET(PARSE_TIMESTAMP(departure_time, 'yyyy-MM-dd''T''HH:mm:ssXXX')) AS departure_time,
     LATEST_BY_OFFSET(direction_id) AS direction_id,
     LATEST_BY_OFFSET(drop_off_type) AS drop_off_type,
     LATEST_BY_OFFSET(pickup_type) AS pickup_type,

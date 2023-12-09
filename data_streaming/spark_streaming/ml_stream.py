@@ -66,7 +66,7 @@ def _read_stream_from_kafka(spark: SparkSession, kafka_topic: str) -> DataFrame:
         .option("kafka.bootstrap.servers", bootstrap_servers)
         .option("subscribe", kafka_topic)
         .option("startingOffsets", "earliest")
-        .option("maxOffsetsPerTrigger", 10_000)
+        .option("maxOffsetsPerTrigger", 500)
         .load()
     )
 
