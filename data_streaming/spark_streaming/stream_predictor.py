@@ -1,9 +1,30 @@
 from pyspark.sql import DataFrame
 from pyspark.sql.streaming import StreamingQuery
-from xgboost.spark import SparkXGBRegressor
+import pyspark.sql.types as T
+import pyspark.sql.functions as F
+import xgboost as xgb
+import numpy as np
 
 
-def stream_predictor(df: DataFrame):
+model_path = "./final_best_xgboost.json"
+model = xgb.Booster()
+model.load_model(model_path)
+
+
+@F.udf(T.FloatType())
+def prediction(features):
+    if not features or not all(features):
+        return None
+    
+    print(features)
+
+    dmatrix = xgb.DMatrix(np.array([features.toArray()]))
+    feature_names = ['distance_travel_miles', 'sin_time', 'cos_time']
+    prediction = model.predict(dmatrix, feature_names=feature_names)
+    return prediction[0]
+
+
+def stream_predictor(df: DataFrame) -> StreamingQuery:
     """
     Predict the arrival time for a given vehicle at a stop using XGBoost.
 
@@ -12,13 +33,9 @@ def stream_predictor(df: DataFrame):
     df : DataFrame
         The DataFrame to perform the prediction on.
     """
-    # Load the model
-    booster = SparkXGBRegressor()
-    # model = booster.load("/app/data_streaming/spark_streaming/final_best_xgboost.json")
+    df = df.withColumn("prediction", prediction(F.col("features")))
 
-    # df = model.transform(df)
-
-    prediction_stream: StreamingQuery = (
+    prediction_stream = (
         df.writeStream.queryName("model_features_stream")
         .outputMode("append")
         .format("console")
