@@ -694,118 +694,41 @@ LINK: https://stackoverflow.com/questions/48882723/integrating-spark-structured-
 
 
 
-CREATE OR REPLACE TABLE STOP_JSON
+CREATE OR REPLACE STREAM STOP_JSON
 WITH (VALUE_FORMAT='JSON')
 AS
 SELECT
-    id,
-    LATEST_BY_OFFSET(event) AS event,
-    LATEST_BY_OFFSET(address) AS address,
-    LATEST_BY_OFFSET(at_street) AS at_street,
-    LATEST_BY_OFFSET(description) AS description,
-    LATEST_BY_OFFSET(latitude) AS latitude,
-    LATEST_BY_OFFSET(location_type) AS location_type,
-    LATEST_BY_OFFSET(longitude) AS longitude,
-    LATEST_BY_OFFSET(municipality) AS municipality,
-    LATEST_BY_OFFSET(name) AS name,
-    LATEST_BY_OFFSET(on_street) AS on_street,
-    LATEST_BY_OFFSET(platform_code) AS platform_code,
-    LATEST_BY_OFFSET(platform_name) AS platform_name,
-    LATEST_BY_OFFSET(vehicle_type) AS vehicle_type,
-    LATEST_BY_OFFSET(wheelchair_boarding) AS wheelchair_boarding,
-    LATEST_BY_OFFSET(self) AS self,
-    LATEST_BY_OFFSET(facilities_self) AS facilities_self,
-    LATEST_BY_OFFSET(parent_station_id) AS parent_station_id,
-    LATEST_BY_OFFSET(parent_station_type) AS parent_station_type,
-    LATEST_BY_OFFSET(zone_id) AS zone_id,
-    LATEST_BY_OFFSET(type) AS type
+ *
 FROM
     STOP_SILVER
-GROUP BY
-    id
 EMIT CHANGES;
 
-CREATE OR REPLACE TABLE VEHICLE_JSON
+CREATE OR REPLACE STREAM VEHICLE_JSON
 WITH (VALUE_FORMAT='JSON')
 AS
 SELECT
-    id,
-    LATEST_BY_OFFSET(event) AS event,
-    LATEST_BY_OFFSET(bearing) AS bearing,
-    LATEST_BY_OFFSET(current_status) AS current_status,
-    LATEST_BY_OFFSET(current_stop_sequence) AS current_stop_sequence,
-    LATEST_BY_OFFSET(direction_id) AS direction_id,
-    LATEST_BY_OFFSET(label) AS label,
-    LATEST_BY_OFFSET(latitude) AS latitude,
-    LATEST_BY_OFFSET(longitude) AS longitude,
-    LATEST_BY_OFFSET(speed) AS speed,
-    LATEST_BY_OFFSET(updated_at) AS updated_at,
-    LATEST_BY_OFFSET(self) AS self,
-    LATEST_BY_OFFSET(stop_id) AS stop_id,
-    LATEST_BY_OFFSET(stop_type) AS stop_type,
-    LATEST_BY_OFFSET(trip_id) AS trip_id,
-    LATEST_BY_OFFSET(trip_type) AS trip_type,
-    LATEST_BY_OFFSET(type) AS type
+*
 FROM
     VEHICLE_SILVER
-GROUP BY
-    id
 EMIT CHANGES;
 
 
-CREATE OR REPLACE TABLE SCHEDULE_JSON
+CREATE OR REPLACE STREAM SCHEDULE_JSON
 WITH (VALUE_FORMAT='JSON')
 AS
 SELECT
-    id,
-    LATEST_BY_OFFSET(event) AS event,
-    LATEST_BY_OFFSET(arrival_time) AS arrival_time,
-    LATEST_BY_OFFSET(departure_time) AS departure_time,
-    LATEST_BY_OFFSET(direction_id) AS direction_id,
-    LATEST_BY_OFFSET(drop_off_type) AS drop_off_type,
-    LATEST_BY_OFFSET(pickup_type) AS pickup_type,
-    LATEST_BY_OFFSET(stop_headsign) AS stop_headsign,
-    LATEST_BY_OFFSET(stop_sequence) AS stop_sequence,
-    LATEST_BY_OFFSET(timepoint) AS timepoint,
-    LATEST_BY_OFFSET(route_id) AS route_id,
-    LATEST_BY_OFFSET(route_type) AS route_type,
-    LATEST_BY_OFFSET(stop_id) AS stop_id,
-    LATEST_BY_OFFSET(stop_type) AS stop_type,
-    LATEST_BY_OFFSET(trip_id) AS trip_id,
-    LATEST_BY_OFFSET(trip_type) AS trip_type,
-    LATEST_BY_OFFSET(type) AS type
+*
 FROM
     SCHEDULE_SILVER
-GROUP BY
-    id
 EMIT CHANGES;
 
 
 
-CREATE OR REPLACE TABLE TRIP_JSON
+CREATE OR REPLACE STREAM TRIP_JSON
 WITH (VALUE_FORMAT='JSON')
 AS
 SELECT
-    id,
-    LATEST_BY_OFFSET(event) AS event,
-    LATEST_BY_OFFSET(bikes_allowed) AS bikes_allowed,
-    LATEST_BY_OFFSET(block_id) AS block_id,
-    LATEST_BY_OFFSET(direction_id) AS direction_id,
-    LATEST_BY_OFFSET(headsign) AS headsign,
-    LATEST_BY_OFFSET(name) AS name,
-    LATEST_BY_OFFSET(wheelchair_accessible) AS wheelchair_accessible,
-    LATEST_BY_OFFSET(self) AS self,
-    LATEST_BY_OFFSET(shape_id) AS shape_id,
-    LATEST_BY_OFFSET(shape_type) AS shape_type,
-    LATEST_BY_OFFSET(service_id) AS service_id,
-    LATEST_BY_OFFSET(service_type) AS service_type,
-    LATEST_BY_OFFSET(route_id) AS route_id,
-    LATEST_BY_OFFSET(route_type) AS route_type,
-    LATEST_BY_OFFSET(route_pattern_id) AS route_pattern_id,
-    LATEST_BY_OFFSET(route_pattern_type) AS route_pattern_type,
-    LATEST_BY_OFFSET(type) AS type
+*
 FROM
     TRIP_SILVER
-GROUP BY
-    id
 EMIT CHANGES;
