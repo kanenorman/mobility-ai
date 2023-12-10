@@ -145,11 +145,7 @@ def main() -> int:
 
     unprocessed_data: DataFrame = stream_merger(vehicle, stop, schedule, trip)
     processed_stream: DataFrame = feature_engineering(unprocessed_data)
-<<<<<<< Updated upstream
-    prediction_stream : StreamingQuery = stream_predictor(processed_stream)
-=======
     prediction_stream: StreamingQuery = stream_predictor(processed_stream)
->>>>>>> Stashed changes
     prediction_stream.awaitTermination()
 
     spark.stop()
