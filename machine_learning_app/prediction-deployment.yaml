@@ -1,0 +1,48 @@
+# Kubernetes Deployment Configuration for Machine Learning Prediction
+# This configuration is designed for local deployment, but it adheres to
+# principles of microservice architecture. It is vendor-agnostic and can
+# be deployed to any cloud service (GCP, AWS, Azure) or on-premises environments.
+# This flexibility ensures that our architecture avoids vendor lock-in and
+# is adaptable to various deployment scenarios.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Name of the deployment
+  name: machine-learning-prediction
+spec:
+  # Number of replicas - set to a higher number for concurrent processing
+  replicas: 3  # Example: 3 replicas for handling multiple requests
+  selector:
+    matchLabels:
+      app: machine-learning-prediction
+  template:
+    metadata:
+      labels:
+        app: machine-learning-prediction
+    spec:
+      containers:
+      - name: machine-learning-prediction
+        # The Docker image to be used. This should be built and available locally.
+        # The image can be adapted and stored in any container registry for cloud deployments.
+        image: machine_learning_app_prediction:latest
+        # The container listens on port 80. This can be mapped to a host port
+        # or a service in cloud deployments for external access.
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Name of the service exposing the deployment
+  name: machine-learning-prediction-service
+spec:
+  selector:
+    app: machine-learning-prediction
+  ports:
+    - protocol: TCP
+      port: 80
+  # A LoadBalancer type is used here for simplicity. In cloud deployments,
+  # this will provision a cloud load balancer. For local deployment, access
+  # might be provided via NodePort or other mechanisms depending on the setup.
+  type: LoadBalancer

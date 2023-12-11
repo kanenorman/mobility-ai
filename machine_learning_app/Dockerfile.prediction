@@ -1,0 +1,53 @@
+# Multi-stage Dockerfile for MBTA ML Prediction.
+# This Dockerfile follows the same multi-stage build process as the training Dockerfile
+# to create a lightweight final image. The "builder" stage installs all necessary build
+# tools and libraries. The final image copies just the essentials, ensuring a minimal
+# image size, but changes the entry point to the prediction script.
+# In a production environment, it's advisable to separate these to keep Docker containers
+# as lightweight as possible.
+
+# --- BUILDER STAGE ---
+FROM python:3.10-slim as builder
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Install system dependencies required for the build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && pip install --upgrade pip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the requirements.txt and README files first for better caching.
+COPY requirements.txt README.md /app/
+
+# Copy the entire mbta_ml directory into the builder container
+COPY mbta_ml/ /app/mbta_ml/
+
+# Set the working directory to mbta_ml to install Python dependencies
+WORKDIR /app/mbta_ml
+
+# Install project dependencies
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# --- FINAL STAGE ---
+FROM python:3.10-slim
+
+# Set PYTHONPATH to ensure the mbta_ml module is discoverable by Python
+ENV PYTHONPATH=/app:$PYTHONPATH
+
+# Copy the essentials from the builder stage, effectively discarding
+# all the build-time dependencies and intermediate files.
+COPY --from=builder /app /app
+
+# Copy Python packages installed in the builder stage
+COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+# Set the working directory to the directory containing the prediction script
+WORKDIR /app/mbta_ml/production_models
+
+# Define the default command for this container, which is executing the prediction job
+CMD ["python3", "xgboost_predict.py"]
