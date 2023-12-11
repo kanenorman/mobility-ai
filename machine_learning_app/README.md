@@ -51,33 +51,115 @@ Deliverables:
 
 ```
 
-## Machine Learning App (Kubernetes) Vendor-Agnostic Deployment
+## Industry-grade Software Engineering Architecture Design 
 
-In this project, we have adopted a microservices architecture for deploying our machine learning application. This approach aligns with current industry best practices, offering modularity, scalability, and most importantly, vendor-agnostic deployment capabilities. By containerizing our application with Docker and orchestrating it with Kubernetes, we ensure that our application is not only robust and maintainable but also free from the constraints of being tied to a single cloud provider or platform. This flexibility allows us to balance academic rigor with practical, industry-focused considerations, preparing our system for real-world scenarios where adaptability and scalability are key.
+In our pursuit of creating a robust and scalable machine learning application, we have meticulously designed our architecture to align with the stringent demands of industry-grade software engineering. Our approach is characterized by its emphasis on vendor independence, fault tolerance, security, and control. Below, we delve into the key aspects of our architectural design, underpinned by both industry examples and literature:
+
+### Vendor Lock-in Avoidance
+- **Diverse Ecosystem Compatibility:** Inspired by the principles of cloud-native computing, our architecture leverages Kafka and Spark for backend ETL processes and XGBoost for ML modeling, ensuring adaptability to a variety of cloud services and infrastructures. This design choice mitigates the risks associated with vendor lock-in, prevalent in single-vendor cloud solutions (Gartner, 2020).
+- **Cost and Flexibility:** Emphasizing the findings of RightScale's 2019 State of the Cloud Report, our approach to avoiding vendor lock-in aligns with the need for cost optimization, which is a top priority for 64% of enterprises. This flexibility is crucial in a dynamic industry where service offerings and pricing models are subject to rapid change.
+- **Real-World Alignment:** Reflecting the strategies of major enterprises like Netflix and Twitter, our architecture prioritizes agility and independence from specific cloud ecosystems, ensuring long-term scalability and adaptability (Netflix Technology Blog, 2018).
+
+### Fault Tolerance
+- **Scalability and Reliability:** Our system's design for fault tolerance aligns with the principles outlined in the AWS Well-Architected Framework, ensuring uninterrupted service and data integrity through scalable and resilient architecture (AWS, 2020).
+- **Backup and Redundancy:** Incorporating multiple layers of backup and redundancy, our approach mirrors the disaster recovery strategies recommended in the NIST Special Publication 800-34, ensuring continuous operation and data preservation.
+- **Migration Ease:** The flexibility for easy migration and adaptation is in line with the best practices for cloud disaster recovery, as outlined by Microsoft Azure's resilience guidelines, essential for maintaining operational continuity.
+
+### Security
+- **Public Service Consideration:** In handling MBTA modeling, a public service, our architecture's adaptability for secure cloud or on-premises deployment addresses the security concerns highlighted in the ISO/IEC 27001 standard. This is crucial for government applications where data security is paramount.
+- **Adaptable to High-Security Needs:** Suited for high-security applications, our design offers an infrastructure that supports enhanced security measures, aligning with the cybersecurity guidelines provided by the Cybersecurity and Infrastructure Security Agency (CISA).
+- **Compliance and Data Protection:** By enabling on-premise deployment, our architecture adheres to various compliance requirements and data protection laws, crucial for government and public sector applications, as emphasized in the GDPR and CCPA regulations.
+
+### Control and Cost Management
+- **Full System Control:** Our architecture, offering complete control over the system, aligns with the microservices approach advocated by Fowler and Lewis (2014), enabling fine-tuning for optimal performance and efficiency.
+- **Cost Predictability:** The granular control over our infrastructure, including Kubernetes replicas, allows for effective cost management and predictability, a key factor in financial planning as highlighted in the IBM Full Economic Impact™ study.
+- **Customization and Optimization:** The control over our architecture facilitates extensive customization and optimization, ensuring functional, cost-effective, and efficient operation, as supported by the findings in the State of DevOps Report (Puppet Labs, 2019).
+
+
+## Machine Learning App (Kubernetes) Vendor-Agnostic Deployment
 
 ### Building and Deploying the Application
 
-#### 1. Build the Docker Image for Prediction
+#### 1. Install Requirements
 
-First, we need to build the Docker image that contains our XGBoost model and the prediction script.
+1. **Kubernetes Installation:** Ensure Kubernetes is installed on your server or local machine. For local development and testing, Minikube is recommended.
+    * For Ubuntu based systems:
+        ```bash
+        sudo apt-get update
+        sudo apt-get install -y kubectl
+        ```
+    * For Mac:
+        ```bash 
+        brew install kubectl 
+        ```
+    * For Debian, Fedora, and other distributions: Refer to the [official Kubernetes installation guide](https://kubernetes.io/docs/tasks/tools/).
 
-```bash
-docker build -t machine_learning_app_prediction:latest -f Dockerfile.prediction .
-```
+2. **Minikube Installation:** If you are using Minikube for a local Kubernetes cluster, install it following the instructions on the [official Minikube GitHub page](https://github.com/kubernetes/minikube).
+
+3. **Verify Kubernetes Installation:**
+    ```bash
+    kubectl version --client
+    ```
+
+4. **Ensure Docker is Running:**
+    ```bash
+    sudo systemctl start docker
+    ```
+
+5. **Start Minikube (for local deployment):**
+    ```bash
+    minikube start --driver=docker
+    ```
 
 #### 2. Build the Docker Image for Prediction
 
-Deploy the application using the Kubernetes configuration file. This step will set up the necessary Kubernetes resources.
+Before building the Docker image, ensure that Docker is running on your machine. This is crucial as the build process requires Docker to create the image.
 
-```bash
-kubectl apply -f prediction-deployment.yaml
-```
+1. **Start Docker:**
+   Ensure Docker is active. You can start Docker with the following command (the command might vary depending on your operating system):
+    ```bash
+    sudo systemctl start docker
+    ```
+   Or, if you're using a desktop version like Docker Desktop, ensure the application is running.
 
-#### 3. Confirm Deployment
-Verify if the Kubernetes pods are running correctly.
-```bash
-kubectl get pods
-```
+2. **Build the Image:**
+   Build the Docker image that contains your XGBoost model and the prediction script. This step is only necessary if you haven't already built the image or if you've made changes to the Dockerfile or related files.
+    ```bash
+    docker build -t machine_learning_app_prediction:latest -f Dockerfile.prediction .
+    ```
+
+This process creates a Docker image named `machine_learning_app_prediction` with the tag `latest`, based on the instructions in your `Dockerfile.prediction`. This image will be used in the Kubernetes deployment to run your machine learning application.
+
+#### 3. Deploy the Application
+
+1. **Remote Deployment:** For remote Kubernetes cluster deployment, one will need to set up a `kubeconfig` file with the necessary cluster access information. This is typically required if you're using a managed Kubernetes service (like Google Kubernetes Engine, Amazon EKS, or Azure AKS).
+
+2. **Local Deployment:** Deploy the application using the Kubernetes configuration file. This step will set up the necessary Kubernetes resources.
+    ```bash
+    kubectl apply -f prediction-deployment.yaml
+    ```
+
+3. **Confirm Deployment:** 
+    - Verify if the Kubernetes pods are running correctly.
+        ```bash
+        kubectl get pods
+        ```
+    - Check the status of the deployment to ensure that it is correctly rolled out and the desired number of replicas are running:
+        ```bash
+        kubectl get deployments
+        ```
+    - View the status of the service to confirm it's correctly exposing your application:
+        ```bash
+        kubectl get services
+        ```
+
+4. **Access the Application:**
+    - If you're using Minikube and a `NodePort` service, you can find the URL to access your application with:
+        ```bash
+        minikube service machine-learning-prediction-service --url
+        ```
+    - For other environments, the access method may vary based on your service configuration and Kubernetes setup.
+
 
 ### Testing the Prediction Service
 
@@ -108,7 +190,7 @@ To streamline the process, a shell script (deploy_and_test.sh) can be used to co
 This vendor-agnostic approach not only adheres to the principles taught in our course but also extends them into a practical, industry-relevant context. By leveraging Docker and Kubernetes, we've created a system that is not only scalable and efficient but also flexible enough to be deployed in any environment, be it cloud-based or on-premises. This ensures that our application is ready for the diverse and dynamic nature of real-world tech infrastructure, embodying the essence of modern software engineering and data science practices.
 
 
-## For Vertex AI Pipelines (Kubeflow) Deployment 
+## Demonstration of Vertex AI Pipelines (Kubeflow) Deployment from MS4 
 
 In the realm of machine learning deployment, transitioning from preliminary stages to production-ready solutions can be intricate. However, by grounding our methodology on industry best practices right from inception, we drastically diminish potential deployment intricacies. This emphasizes the vital role of a consistent and organized methodology throughout the machine learning lifecycle:
 
