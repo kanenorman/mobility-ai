@@ -1,6 +1,5 @@
 import sys
 from collections.abc import Callable
-from typing import Dict
 
 import stream_parser as stream_parser
 from config import configs

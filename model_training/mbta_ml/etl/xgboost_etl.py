@@ -22,7 +22,6 @@ scheduled time, while negligible delays suggest on-time arrivals.
 import warnings
 from typing import Dict, Tuple
 
-import h3
 import numpy as np
 import pandas as pd
 from haversine import Unit, haversine
