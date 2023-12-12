@@ -1,3 +1,4 @@
+from typing import List
 from pyspark.sql import DataFrame
 from pyspark.sql.streaming import StreamingQuery
 import pyspark.sql.types as T
@@ -13,7 +14,22 @@ model.load_model(model_path)
 
 
 @F.udf(T.TimestampType())
-def predict_arrival(scheduled_time, features):
+def _predict_arrival(scheduled_time: datetime.datetime, features: List[float]):
+    """
+    Predict the arrival time for a given vehicle at a stop using XGBoost.
+
+    Parameters
+    ----------
+    scheduled_time : datetime.datetime
+        Scheduled time of train arrival
+    features : List[float]
+        Input features for the model.
+
+    Returns
+    -------
+    datetime.datetime
+        Predicted arrival time.
+    """
     if not features or not all(features):
         return None
 
@@ -27,7 +43,7 @@ def predict_arrival(scheduled_time, features):
     return scheduled_time + datetime.timedelta(seconds=delay)
 
 
-def stream_predictor(df: DataFrame) -> StreamingQuery:
+def stream_predictor(df: DataFrame, bootstrap_servers: str) -> StreamingQuery:
     """
     Predict the arrival time for a given vehicle at a stop using XGBoost.
 
@@ -35,16 +51,28 @@ def stream_predictor(df: DataFrame) -> StreamingQuery:
     ----------
     df : DataFrame
         The DataFrame to perform the prediction on.
+    bootstrap_servers : str
+        Kafka bootstrap servers
     """
     df = df.withColumn(
-        "predicted_arrival", predict_arrival(F.col("scheduled_time"), F.col("features"))
+        "predicted_arrival",
+        _predict_arrival(F.col("scheduled_time"), F.col("features")),
     )
     df = df.drop("features")
 
+    df = df.select(
+        F.concat_ws(",", F.col("vehicle_id"), F.col("trip_id"), F.col("stop_id")).alias(
+            "key"
+        ),
+        F.col("predicted_arrival").cast("string").alias("value"),
+    )
+
     prediction_stream = (
-        df.writeStream.queryName("model_features_stream")
+        df.writeStream.format("kafka")
+        .option("kafka.bootstrap.servers", bootstrap_servers)
+        .option("topic", "predictions")
+        .option("checkpointLocation", "/tmp/mbta/checkpoint")
         .outputMode("append")
-        .format("console")
         .start()
     )
 
