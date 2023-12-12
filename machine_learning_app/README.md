@@ -2,6 +2,7 @@
 
 The final milestone represents the culmination of the project, with a focus on perfecting the scaling and deployment aspects, and on communicating the project’s success. It ensures that the project is robust, scalable, and deployable, and that the team can effectively convey the significance and details of the project to diverse audiences.
 
+![MS6 Stream](../assets/figures/ms6_stream.gif)
 
 
 ## MS6 Table of Contents
