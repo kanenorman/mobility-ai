@@ -1,11 +1,12 @@
+import datetime
 from typing import List
+
+import numpy as np
+import pyspark.sql.functions as F
+import pyspark.sql.types as T
+import xgboost as xgb
 from pyspark.sql import DataFrame
 from pyspark.sql.streaming import StreamingQuery
-import pyspark.sql.types as T
-import pyspark.sql.functions as F
-import xgboost as xgb
-import numpy as np
-import datetime
 
 # TODO: TRANSITION TO SPARK ML
 model_path = "./final_best_xgboost.json"

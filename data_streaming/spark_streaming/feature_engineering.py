@@ -1,10 +1,10 @@
 import numpy as np
 from haversine import Unit, haversine
+from pyspark.ml.feature import VectorAssembler
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from pyspark.sql.streaming import StreamingQuery
-from pyspark.ml.feature import VectorAssembler
 
 
 @F.udf(T.FloatType())
