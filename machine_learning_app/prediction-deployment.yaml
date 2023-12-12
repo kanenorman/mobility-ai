@@ -4,6 +4,7 @@
 # be deployed to any cloud service (GCP, AWS, Azure) or on-premises environments.
 # This flexibility ensures that our architecture avoids vendor lock-in and
 # is adaptable to various deployment scenarios.
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,6 +26,11 @@ spec:
         # The Docker image to be used. This should be built and available locally.
         # The image can be adapted and stored in any container registry for cloud deployments.
         image: machine_learning_app_prediction:latest
+        # Setting imagePullPolicy to Never to ensure Kubernetes uses the locally built image
+        # and does not attempt to pull it from a remote registry. This is particularly important
+        # for local development and testing with Minikube, where the image is built in Minikube's
+        # local Docker environment.
+        imagePullPolicy: Never
         # The container listens on port 80. This can be mapped to a host port
         # or a service in cloud deployments for external access.
         ports:
