@@ -4,24 +4,27 @@ import pyspark.sql.types as T
 import pyspark.sql.functions as F
 import xgboost as xgb
 import numpy as np
+import datetime
 
-
+# TODO: TRANSITION TO SPARK ML
 model_path = "./final_best_xgboost.json"
 model = xgb.Booster()
 model.load_model(model_path)
 
 
-@F.udf(T.FloatType())
-def prediction(features):
+@F.udf(T.TimestampType())
+def predict_arrival(scheduled_time, features):
     if not features or not all(features):
         return None
-    
-    print(features)
 
-    dmatrix = xgb.DMatrix(np.array([features.toArray()]))
-    feature_names = ['distance_travel_miles', 'sin_time', 'cos_time']
-    prediction = model.predict(dmatrix, feature_names=feature_names)
-    return prediction[0]
+    feature_names = ["distance_travel_miles", "sin_time", "cos_time"]
+    numpy_features = np.array([features])
+    dmatrix = xgb.DMatrix(numpy_features, feature_names=feature_names)
+
+    prediction = model.predict(dmatrix)
+    delay = float(prediction[0])
+
+    return scheduled_time + datetime.timedelta(seconds=delay)
 
 
 def stream_predictor(df: DataFrame) -> StreamingQuery:
@@ -33,7 +36,10 @@ def stream_predictor(df: DataFrame) -> StreamingQuery:
     df : DataFrame
         The DataFrame to perform the prediction on.
     """
-    df = df.withColumn("prediction", prediction(F.col("features")))
+    df = df.withColumn(
+        "predicted_arrival", predict_arrival(F.col("scheduled_time"), F.col("features"))
+    )
+    df = df.drop("features")
 
     prediction_stream = (
         df.writeStream.queryName("model_features_stream")
