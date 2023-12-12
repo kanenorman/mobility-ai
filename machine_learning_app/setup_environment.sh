@@ -52,11 +52,18 @@ fetch_application_url() {
     minikube service machine-learning-prediction-service --url
 }
 
+# Function to print the status of all pods
+print_pod_statuses() {
+    echo "Printing status of all pods..."
+    kubectl get pods -l app=machine-learning-prediction -o wide
+}
+
 # Main script execution
 check_minikube_status
 build_docker_image
 deploy_application
 wait_for_pods
+print_pod_statuses
 fetch_application_url
 
 echo "Setup complete."

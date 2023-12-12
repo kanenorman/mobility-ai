@@ -1,0 +1,12 @@
+{
+    "vehicle_id": 16,
+    "destination": 0,
+    "platform_name": 0,
+    "predictor_delay_seconds": 2.2419841444615725,
+    "current_location_hex": 40,
+    "destination_location_hex": 12,
+    "distance_travel_miles": 8.797281359274782,
+    "sin_time": -0.004726915787816701,
+    "cos_time": -0.9999888280711614
+  }
+  

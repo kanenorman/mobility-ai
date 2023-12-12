@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements.txt and README files first for better caching.
-COPY requirements.txt README.md /app/
+COPY requirements_prediction.txt /app/
 
 # Copy the entire mbta_ml directory into the builder container
 COPY mbta_ml/ /app/mbta_ml/
@@ -29,8 +29,8 @@ COPY mbta_ml/ /app/mbta_ml/
 # Set the working directory to mbta_ml to install Python dependencies
 WORKDIR /app/mbta_ml
 
-# Install project dependencies
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Install prediction dependencies
+RUN pip install --no-cache-dir -r /app/requirements_prediction.txt
 
 # --- FINAL STAGE ---
 FROM python:3.10-slim
