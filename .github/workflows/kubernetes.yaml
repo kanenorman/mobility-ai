@@ -41,7 +41,7 @@ jobs:
         run: docker compose config > k8-docker-compose.yml
         
       - name: Create Manifest
-        run: kompose convert -f k8-docker-compose.yml --out manifests
+        run: kompose convert -v -f k8-docker-compose.yml --out manifests
 
       - name: Deploy to Kubernetes
         run: kubectl apply -f manifests
