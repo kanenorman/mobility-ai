@@ -39,5 +39,5 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-             kubectl convert -f docker-compose.yml --out manifests
+             kompose convert -f docker-compose.yml --out manifests
              kubectl apply -f manifests
