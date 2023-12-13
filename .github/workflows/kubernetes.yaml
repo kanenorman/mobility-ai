@@ -21,8 +21,7 @@ jobs:
       # Store environment variables in a way that they can be accessed directly later in deployment
       - name: Extract environment variables
         run: |
-          echo "${{ secrets.ENV_FILE }}" | tr ";" "\n" >> $GITHUB_ENV
-
+          echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Configure gcloud CLI
         run: |
