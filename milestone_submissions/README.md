@@ -1024,6 +1024,7 @@ The latency is tolerable, but there is room for improvent in future iterations w
 Continuous Integration and Continuous Deployment (CI/CD) play a pivotal role in every substantial repository. They enable the seamless integration of updates into the application whenever developers make changes. In our case, our codebase is substantial and follows a monolithic repository approach. Interestingly, this monolithic repository structure proves to be advantageous for our CI/CD pipelines. It allows us to efficiently monitor the impact of changes in one microservice on other services within the same codebase. This visibility is instrumental in detecting and addressing potential issues that might arise when one service undergoes updates, ensuring the overall stability and reliability of
 our application.
 
+For the scope of the project. A full test suite is not required, but we have set up basic unit test functionality to ensure that at least core componenets are working and for demonstrative purposes.
 
 
 ## Continuious Integration
