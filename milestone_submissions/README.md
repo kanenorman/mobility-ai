@@ -1026,6 +1026,9 @@ our application.
 
 For the scope of the project. A full test suite is not required, but we have set up basic unit test functionality to ensure that at least core componenets are working and for demonstrative purposes.
 
+For convience purposes we added project health badges to the README
+
+![High Level Architecture](../assets/figures/project-health.png)
 
 ## Continuious Integration
 
