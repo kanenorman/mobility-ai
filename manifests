@@ -1,0 +1,1081 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker1
+  name: broker1
+spec:
+  ports:
+    - name: "9092"
+      port: 9092
+      targetPort: 9092
+  selector:
+    io.kompose.service: broker1
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker2
+  name: broker2
+spec:
+  ports:
+    - name: "19092"
+      port: 19092
+      targetPort: 19092
+  selector:
+    io.kompose.service: broker2
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker3
+  name: broker3
+spec:
+  ports:
+    - name: "29092"
+      port: 29092
+      targetPort: 29092
+  selector:
+    io.kompose.service: broker3
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: connect
+  name: connect
+spec:
+  ports:
+    - name: "8083"
+      port: 8083
+      targetPort: 8083
+  selector:
+    io.kompose.service: connect
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: control-center
+  name: control-center
+spec:
+  ports:
+    - name: "9021"
+      port: 9021
+      targetPort: 9021
+  selector:
+    io.kompose.service: control-center
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: flask-app
+  name: flask-app
+spec:
+  ports:
+    - name: "5000"
+      port: 5000
+      targetPort: 5000
+  selector:
+    io.kompose.service: flask-app
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: flask-databse
+  name: flask-databse
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  selector:
+    io.kompose.service: flask-databse
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ksqldb-server
+  name: ksqldb-server
+spec:
+  ports:
+    - name: "8088"
+      port: 8088
+      targetPort: 8088
+  selector:
+    io.kompose.service: ksqldb-server
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ml-stream
+  name: ml-stream
+spec:
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+  selector:
+    io.kompose.service: ml-stream
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: pgadmin
+  name: pgadmin
+spec:
+  ports:
+    - name: "5050"
+      port: 5050
+      targetPort: 80
+  selector:
+    io.kompose.service: pgadmin
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: producer
+  name: producer
+spec:
+  ports:
+    - name: "5950"
+      port: 5950
+      targetPort: 5950
+  selector:
+    io.kompose.service: producer
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: schema-registry
+  name: schema-registry
+spec:
+  ports:
+    - name: "8081"
+      port: 8081
+      targetPort: 8081
+  selector:
+    io.kompose.service: schema-registry
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: sink-connectors
+  name: sink-connectors
+spec:
+  ports:
+    - name: "8082"
+      port: 8082
+      targetPort: 8082
+  selector:
+    io.kompose.service: sink-connectors
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: zookeeper
+  name: zookeeper
+spec:
+  ports:
+    - name: "2081"
+      port: 2081
+      targetPort: 2081
+  selector:
+    io.kompose.service: zookeeper
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker1
+  name: broker1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: broker1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: broker1
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: INTERNAL://broker1:9092
+            - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+              value: "true"
+            - name: KAFKA_BROKER_ID
+              value: "1"
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: INTERNAL
+            - name: KAFKA_LISTENERS
+              value: INTERNAL://broker1:9092
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: INTERNAL:PLAINTEXT
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zookeeper:2081
+          image: confluentinc/cp-kafka:7.5.0
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - nc -z broker1 9092
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: broker1
+          ports:
+            - containerPort: 9092
+              hostPort: 9092
+              protocol: TCP
+          resources: {}
+      hostname: broker1
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker2
+  name: broker2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: broker2
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: broker2
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: INTERNAL://broker2:19092
+            - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+              value: "true"
+            - name: KAFKA_BROKER_ID
+              value: "2"
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: INTERNAL
+            - name: KAFKA_LISTENERS
+              value: INTERNAL://broker2:19092
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: INTERNAL:PLAINTEXT
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zookeeper:2081
+          image: confluentinc/cp-kafka:7.5.0
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - nc -z broker2 19092
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: broker2
+          ports:
+            - containerPort: 19092
+              hostPort: 19092
+              protocol: TCP
+          resources: {}
+      hostname: broker2
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker3
+  name: broker3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: broker3
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: broker3
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: INTERNAL://broker3:29092
+            - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+              value: "true"
+            - name: KAFKA_BROKER_ID
+              value: "3"
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: INTERNAL
+            - name: KAFKA_LISTENERS
+              value: INTERNAL://broker3:29092
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: INTERNAL:PLAINTEXT
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zookeeper:2081
+          image: confluentinc/cp-kafka:7.5.0
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - nc -z broker3 29092
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: broker3
+          ports:
+            - containerPort: 29092
+              hostPort: 29092
+              protocol: TCP
+          resources: {}
+      hostname: broker3
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: connect
+  name: connect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: connect
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: connect
+    spec:
+      containers:
+        - env:
+            - name: CONNECT_BOOTSTRAP_SERVERS
+              value: broker1:9092,broker2:19092,broker3:29092
+            - name: CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR
+              value: "1"
+            - name: CONNECT_CONFIG_STORAGE_TOPIC
+              value: _connect-configs
+            - name: CONNECT_GROUP_ID
+              value: connect
+            - name: CONNECT_KEY_CONVERTER
+              value: org.apache.kafka.connect.storage.StringConverter
+            - name: CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN
+              value: '[%d] %p %X{connector.context}%m (%c:%L)%n'
+            - name: CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR
+              value: "1"
+            - name: CONNECT_OFFSET_STORAGE_TOPIC
+              value: _connect-offsets
+            - name: CONNECT_PLUGIN_PATH
+              value: /usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect-jdbc
+            - name: CONNECT_REST_ADVERTISED_HOST_NAME
+              value: connect
+            - name: CONNECT_STATUS_STORAGE_REPLICATION_FACTOR
+              value: "1"
+            - name: CONNECT_STATUS_STORAGE_TOPIC
+              value: _connect-status
+            - name: CONNECT_VALUE_CONVERTER
+              value: io.confluent.connect.json.JsonSchemaConverter
+            - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
+              value: "false"
+            - name: CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL
+              value: http://schema-registry:8081
+          image: connect
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - curl -f http://connect:8083/connectors || exit 1
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: connect
+          ports:
+            - containerPort: 8083
+              hostPort: 8083
+              protocol: TCP
+          resources: {}
+      hostname: connect
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: control-center
+  name: control-center
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: control-center
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: control-center
+    spec:
+      containers:
+        - env:
+            - name: CONFLUENT_METRICS_TOPIC_REPLICATION
+              value: "1"
+            - name: CONTROL_CENTER_BOOTSTRAP_SERVERS
+              value: broker1:9092,broker2:19092,broker3:29092
+            - name: CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT
+              value: /connectors
+            - name: CONTROL_CENTER_CONNECT_KAFKA-CONNECT_CLUSTER
+              value: http://connect:8083
+            - name: CONTROL_CENTER_CONNECT_KAFKA_CONNECT_CLUSTER
+              value: connect:8083
+            - name: CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS
+              value: "1"
+            - name: CONTROL_CENTER_KSQL_KSQLDB_URL
+              value: http://ksqldb-server:8088
+            - name: CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS
+              value: "1"
+            - name: CONTROL_CENTER_REPLICATION_FACTOR
+              value: "1"
+            - name: CONTROL_CENTER_SCHEMA_REGISTRY_URL
+              value: http://schema-registry:8081
+            - name: PORT
+              value: "9021"
+          image: confluentinc/cp-enterprise-control-center:7.5.0
+          name: control-center
+          ports:
+            - containerPort: 9021
+              hostPort: 9021
+              protocol: TCP
+          resources: {}
+      hostname: control-center
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: flask-app
+  name: flask-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: flask-app
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: flask-app
+    spec:
+      containers:
+        - env:
+            - name: DEV_POSTGRES_URI
+              value: postgresql://postgres:password@flask_database:5432/mbta
+            - name: MAPBOX_TOKEN
+              value: pk.eyJ1Ijoia2FuZW5vcm1hbiIsImEiOiJjbG5tbTZsZmswaXN2MmpueWwydThnOHlsIn0.8_VNLuAlfsnk-4GvQTR3gw
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          image: flask-app
+          name: flask-app
+          ports:
+            - containerPort: 5000
+              hostPort: 5000
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: flask-databse
+  name: flask-databse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: flask-databse
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: flask-databse
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: mbta
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_USER
+              value: postgres
+          image: flask-databse
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready -U postgres
+            failureThreshold: 5
+            periodSeconds: 5
+            timeoutSeconds: 10
+          name: flask-databse
+          ports:
+            - containerPort: 5432
+              hostPort: 5432
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ksqldb-server
+  name: ksqldb-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ksqldb-server
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: ksqldb-server
+    spec:
+      containers:
+        - env:
+            - name: KSQL_APPLICATION_ID
+              value: KSQLDB
+            - name: KSQL_BOOTSTRAP_SERVERS
+              value: broker1:9092,broker2:19092,broker3:29092
+            - name: KSQL_CONFIG_DIR
+              value: /etc/ksql
+            - name: KSQL_HOST_NAME
+              value: KSQLDB
+            - name: KSQL_KSQL_CONNECT_URL
+              value: http://connect:8083/
+            - name: KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE
+              value: "true"
+            - name: KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE
+              value: "true"
+            - name: KSQL_KSQL_QUERIES_FILE
+              value: /etc/ksqldb-server/queries.sql
+            - name: KSQL_KSQL_SCHEMA_REGISTRY_URL
+              value: http://schema-registry:8081
+            - name: KSQL_LISTENERS
+              value: http://0.0.0.0:8088
+          image: confluentinc/ksqldb-server:0.29.0
+          name: ksqldb-server
+          ports:
+            - containerPort: 8088
+              hostPort: 8088
+              protocol: TCP
+          resources: {}
+      hostname: ksqldb-server
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ml-stream
+  name: ml-stream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ml-stream
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: ml-stream
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_HOST1
+              value: broker1
+            - name: KAFKA_HOST2
+              value: broker2
+            - name: KAFKA_HOST3
+              value: broker3
+            - name: KAFKA_PORT1
+              value: "9092"
+            - name: KAFKA_PORT2
+              value: "19092"
+            - name: KAFKA_PORT3
+              value: "29092"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: SPARK_MODE
+              value: worker
+            - name: SPARK_WORKER_CORES
+              value: "4"
+          image: ml-stream
+          name: ml-stream
+          ports:
+            - containerPort: 80
+              hostPort: 80
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: pgadmin
+  name: pgadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: pgadmin
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: pgadmin
+    spec:
+      containers:
+        - env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: postgres@admin.com
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: admin
+          image: dpage/pgadmin4
+          name: pgadmin
+          ports:
+            - containerPort: 80
+              hostPort: 5050
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: producer
+  name: producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: producer
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: producer
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_HOST1
+              value: broker1
+            - name: KAFKA_HOST2
+              value: broker2
+            - name: KAFKA_HOST3
+              value: broker3
+            - name: KAFKA_PORT1
+              value: "9092"
+            - name: KAFKA_PORT2
+              value: "19092"
+            - name: KAFKA_PORT3
+              value: "29092"
+            - name: MBTA_API_KEY
+              value: 902c54ecd36642d09282def93e921819
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          image: producer
+          name: producer
+          ports:
+            - containerPort: 5950
+              hostPort: 5950
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: schema-registry
+  name: schema-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: schema-registry
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: schema-registry
+    spec:
+      containers:
+        - env:
+            - name: SCHEMA_REGISTRY_HOST_NAME
+              value: schema-registry
+            - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+              value: broker1:9092,broker2:19092,broker3:29092
+            - name: SCHEMA_REGISTRY_LISTENERS
+              value: http://0.0.0.0:8081
+          image: confluentinc/cp-schema-registry:7.5.0
+          name: schema-registry
+          ports:
+            - containerPort: 8081
+              hostPort: 8081
+              protocol: TCP
+          resources: {}
+      hostname: schema-registry
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: sink-connectors
+  name: sink-connectors
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: sink-connectors
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: sink-connectors
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: mbta
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              value: postgres
+          image: sink-connectors
+          name: sink-connectors
+          ports:
+            - containerPort: 8082
+              hostPort: 8082
+              protocol: TCP
+          resources: {}
+      hostname: sink-connectors
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: zookeeper
+  name: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: zookeeper
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml --out manifests
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mbta-project-network: "true"
+        io.kompose.service: zookeeper
+    spec:
+      containers:
+        - env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "2081"
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
+          image: confluentinc/cp-zookeeper:7.5.0
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - echo 'ruok' | nc zookeeper 2081
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: zookeeper
+          ports:
+            - containerPort: 2081
+              hostPort: 2081
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
