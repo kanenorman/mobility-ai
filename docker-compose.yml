@@ -12,12 +12,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
       test:
-        [
-          "CMD",
-          "bash",
-          "-c",
-          "echo 'ruok' | nc zookeeper ${ZOOKEEPER_PORT}"
-        ]
+        ["CMD", "bash", "-c", "echo 'ruok' | nc zookeeper ${ZOOKEEPER_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,13 +36,7 @@ services:
       zookeeper:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "bash",
-          "-c",
-          "nc -z ${KAFKA_HOST1} ${KAFKA_PORT1}"
-        ]
+      test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST1} ${KAFKA_PORT1}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -71,13 +60,7 @@ services:
       zookeeper:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "bash",
-          "-c",
-          "nc -z ${KAFKA_HOST2} ${KAFKA_PORT2}"
-        ]
+      test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST2} ${KAFKA_PORT2}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -101,13 +84,7 @@ services:
       zookeeper:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "bash",
-          "-c",
-          "nc -z ${KAFKA_HOST3} ${KAFKA_PORT3}"
-        ]
+      test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST3} ${KAFKA_PORT3}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -173,12 +150,14 @@ services:
           "CMD",
           "bash",
           "-c",
-          "curl -f http://connect:8083/connectors || exit 1"
+          "curl -f http://connect:8083/connectors || exit 1",
         ]
       interval: 10s
       timeout: 5s
       retries: 5
   sink-connectors:
+    ports:
+      - "8082:8082"
     build:
       context: .
       dockerfile: ./data_streaming/kafka_streams/kafka-connect-jdbc/Dockerfile
@@ -232,6 +211,8 @@ services:
     container_name: producer
     networks:
       - network
+    ports:
+      - "5950:5950"
     build:
       context: .
       dockerfile: ./data_streaming/kafka_producer/Dockerfile
@@ -314,7 +295,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 10s
       retries: 5
@@ -334,6 +315,8 @@ services:
     depends_on:
       - flask_database
   ml_stream:
+    ports:
+      - "80:80"
     container_name: ml_stream
     networks:
       - network
