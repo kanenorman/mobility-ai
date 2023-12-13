@@ -334,11 +334,8 @@ services:
       SPARK_WORKER_CORES: 4
       PYTHONUNBUFFERED: 1
     depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
-      broker3:
-        condition: service_healthy
+      - broker1
+      - broker2
+      - broker3
 networks:
   network:
