@@ -26,7 +26,6 @@ jobs:
       - name: Configure gcloud CLI
         run: |
           gcloud config set project ac215-transit-prediction
-          sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
           gcloud container clusters get-credentials cluster-1 --region us-central1-c --project ac215-transit-prediction
 
       - name: Install Kompose
