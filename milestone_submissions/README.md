@@ -1052,7 +1052,7 @@ We've simlpified the instructions into a two step process
 
 ## Creating a Kubernetes Manifest with Kompose
 
-To start the deployment process, the first step is to create a manifest artifact. While in a local development setup or within a virtual machine (VM) instance, launching the application is as simple as running the following command: `docker compose up -d`. However, this approach is not suitable for Kubernetes. Kubernetes requires a specific type of configuration called a manifest. To create this manifest, we rely on a tool called Kompose.
+To start the deployment process, the first step is to create a manifest artifact. While in a local development setup or within a virtual machine (VM) instance, launching the application is as simple as running the following command: `docker compose up -d`. However, this approach is not suitable for Kubernetes. Kubernetes requires a specific type of configuration called a manifest. To create this manifest, we rely on a Kubernetes tool called [Kompose](https://kubernetes.io/docs/tasks/configure-pod-container/translate-compose-kubernetes/).
 
 ### Manifest Artifact
 In the context of Kubernetes, a manifest is essentially a declaration of how the application should run within the Kubernetes cluster. It specifies various aspects of the application, such as the container images, resource requirements, networking, and scaling rules.
