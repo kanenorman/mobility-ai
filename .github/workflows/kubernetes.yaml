@@ -38,4 +38,6 @@ jobs:
           sudo mv kompose /usr/local/bin/kompose
 
       - name: Deploy to Kubernetes
-        run: sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin && kubectl apply -f manifests
+        run: |
+             kubectl convert -f docker-compose.yml --out manifests
+             kubectl apply -f manifests
