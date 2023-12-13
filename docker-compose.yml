@@ -181,7 +181,7 @@ services:
   sink-connectors:
     build:
       context: .
-      dockerfile: ./data_streaming/kafka_streams/kafka_connect_jdbc/Dockerfile
+      dockerfile: ./data_streaming/kafka_streams/kafka-connect-jdbc/Dockerfile
     container_name: sink-connectors
     hostname: sink-connectors
     depends_on:
@@ -252,11 +252,12 @@ services:
       broker3:
         condition: service_healthy
   ksqldb-server:
+    build:
+      context: .
+      dockerfile: ./data_streaming/kafka_streams/ksqldb-server/Dockerfile
     image: confluentinc/ksqldb-server:0.29.0
     hostname: ksqldb-server
     container_name: ksqldb-server
-    volumes:
-      - ./data_streaming/kafka_streams/ksqldb-server/queries.sql:/etc/ksqldb-server/queries.sql
     depends_on:
       broker1:
         condition: service_healthy
@@ -284,24 +285,6 @@ services:
     networks:
       - network
     restart: always
-  ksqldb-cli:
-    image: confluentinc/ksqldb-cli:0.29.0
-    container_name: ksqldb-cli
-    volumes:
-      - ./data_streaming/kafka_streams/ksqldb-server/queries.sql:/etc/ksqldb-server/queries.sql
-    networks:
-      - network
-    depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
-      broker3:
-        condition: service_healthy
-      ksqldb-server:
-        condition: service_started
-    entrypoint: /bin/sh
-    tty: true
   flask_app:
     restart: always
     container_name: flask_app
@@ -374,7 +357,5 @@ services:
         condition: service_healthy
       broker3:
         condition: service_healthy
-volumes:
-  postgres_data:
 networks:
   network:
