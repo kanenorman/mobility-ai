@@ -31,17 +31,5 @@ jobs:
           gcloud components install gke-gcloud-auth-plugin
           gcloud container clusters get-credentials cluster-1 --region us-central1-c --project ac215-transit-prediction
 
-      - name: Install Kompose
-        run: |
-          curl -L https://github.com/kubernetes/kompose/releases/download/v1.26.0/kompose-linux-amd64 -o kompose
-          chmod +x kompose
-          sudo mv kompose /usr/local/bin/kompose
-
-      - name: Prepare Manifest
-        run: docker compose config > k8-docker-compose.yml
-        
-      - name: Create Manifest
-        run: kompose convert -v -f k8-docker-compose.yml --out manifests
-
       - name: Deploy to Kubernetes
         run: kubectl apply -f manifests
