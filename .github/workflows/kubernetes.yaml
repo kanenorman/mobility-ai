@@ -34,11 +34,5 @@ jobs:
           chmod +x kompose
           sudo mv kompose /usr/local/bin/kompose
 
-      - name: Create Manifests Directory
-        run: mkdir manifests
-
-      - name: Convert Docker Compose to Kubernetes Manifests
-        run: kompose convert -f docker-compose.yml --out manifests
-
       - name: Deploy to Kubernetes
         run: kubectl apply -f k8s-manifests
