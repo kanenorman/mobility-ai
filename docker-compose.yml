@@ -33,8 +33,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper
     healthcheck:
       test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST1} ${KAFKA_PORT1}"]
       interval: 10s
@@ -57,8 +56,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper
     healthcheck:
       test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST2} ${KAFKA_PORT2}"]
       interval: 10s
@@ -81,8 +79,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper
     healthcheck:
       test: ["CMD", "bash", "-c", "nc -z ${KAFKA_HOST3} ${KAFKA_PORT3}"]
       interval: 10s
@@ -93,14 +90,10 @@ services:
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
-      broker3:
-        condition: service_healthy
-      connect:
-        condition: service_healthy
+      - broker1
+      - broker2
+      - broker3
+      - connect
     ports:
       - "8081:8081"
     environment:
@@ -116,14 +109,10 @@ services:
     container_name: connect
     hostname: connect
     depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
-      broker3:
-        condition: service_healthy
-      flask-databse:
-        condition: service_healthy
+      - broker1
+      - broker2
+      - broker3
+      - flask-databse
     networks:
       - network
     ports:
@@ -164,10 +153,8 @@ services:
     container_name: sink-connectors
     hostname: sink-connectors
     depends_on:
-      flask-databse:
-        condition: service_healthy
-      connect:
-        condition: service_healthy
+      - flask-databse
+      - connect
     networks:
       - network
     environment:
@@ -180,16 +167,11 @@ services:
     hostname: control-center
     container_name: control-center
     depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
-      broker3:
-        condition: service_healthy
-      ksqldb-server:
-        condition: service_started
-      connect:
-        condition: service_healthy
+      - broker1:
+      - broker2
+      - broker3
+      - ksqldb-server
+      - connect
     ports:
       - "9021:9021"
     restart: always
@@ -226,12 +208,9 @@ services:
       MBTA_API_KEY: "${MBTA_API_KEY}"
       PYTHONUNBUFFERED: 1
     depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
-      broker3:
-        condition: service_healthy
+      - broker1
+      - broker2
+      - broker3
   ksqldb-server:
     build:
       context: .
@@ -240,16 +219,11 @@ services:
     hostname: ksqldb-server
     container_name: ksqldb-server
     depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
-      broker3:
-        condition: service_healthy
-      flask-databse:
-        condition: service_healthy
-      connect:
-        condition: service_healthy
+      - broker1
+      - broker2
+      - broker3
+      - flask-databse
+      - connect
     environment:
       KSQL_CONFIG_DIR: "/etc/ksql"
       KSQL_LISTENERS: http://0.0.0.0:8088
@@ -281,8 +255,7 @@ services:
       - PYTHONUNBUFFERED=1
       - MAPBOX_TOKEN=${MAPBOX_TOKEN}
     depends_on:
-      flask-databse:
-        condition: service_healthy
+      - flask-databse
   flask-databse:
     container_name: flask-databse
     build:
