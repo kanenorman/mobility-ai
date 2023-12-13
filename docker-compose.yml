@@ -122,7 +122,7 @@ services:
         condition: service_healthy
       broker3:
         condition: service_healthy
-      flask_database:
+      flask-databse:
         condition: service_healthy
     networks:
       - network
@@ -164,7 +164,7 @@ services:
     container_name: sink-connectors
     hostname: sink-connectors
     depends_on:
-      flask_database:
+      flask-databse:
         condition: service_healthy
       connect:
         condition: service_healthy
@@ -246,7 +246,7 @@ services:
         condition: service_healthy
       broker3:
         condition: service_healthy
-      flask_database:
+      flask-databse:
         condition: service_healthy
       connect:
         condition: service_healthy
@@ -266,9 +266,9 @@ services:
     networks:
       - network
     restart: always
-  flask_app:
+  flask-app:
     restart: always
-    container_name: flask_app
+    container_name: flask-app
     networks:
       - network
     build:
@@ -281,10 +281,10 @@ services:
       - PYTHONUNBUFFERED=1
       - MAPBOX_TOKEN=${MAPBOX_TOKEN}
     depends_on:
-      flask_database:
+      flask-databse:
         condition: service_healthy
-  flask_database:
-    container_name: flask_database
+  flask-databse:
+    container_name: flask-databse
     build:
       context: .
       dockerfile: ./postgres/Dockerfile
@@ -313,11 +313,11 @@ services:
       PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
       PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
     depends_on:
-      - flask_database
-  ml_stream:
+      - flask-databse
+  ml-stream:
     ports:
       - "80:80"
-    container_name: ml_stream
+    container_name: ml-stream
     networks:
       - network
     build:

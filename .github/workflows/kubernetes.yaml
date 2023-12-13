@@ -1,0 +1,46 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: "gcp auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+
+      # Store environment variables in a way that they can be accessed directly later in deployment
+      - name: Extract environment variables
+        run: |
+          echo "${{ secrets.ENV_FILE }}" | tr ";" "\n" >> $GITHUB_ENV
+
+
+      - name: Configure gcloud CLI
+        run: |
+          gcloud config set project ac215-transit-prediction
+          gcloud components install gke-gcloud-auth-plugin -y
+          gcloud container clusters get-credentials cluster-1 --region us-central1-c --project ac215-transit-prediction
+
+      - name: Install Kompose
+        run: |
+          curl -L https://github.com/kubernetes/kompose/releases/download/v1.26.0/kompose-linux-amd64 -o kompose
+          chmod +x kompose
+          sudo mv kompose /usr/local/bin/kompose
+
+      - name: Create Manifests Directory
+        run: mkdir k8s-manifests
+
+      - name: Convert Docker Compose to Kubernetes Manifests
+        run: kompose convert --out k8s-manifests
+
+      - name: Deploy to Kubernetes
+        run: kubectl apply -f k8s-manifests
