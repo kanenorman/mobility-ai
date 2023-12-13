@@ -38,7 +38,7 @@ jobs:
         run: mkdir k8s-manifests
 
       - name: Convert Docker Compose to Kubernetes Manifests
-        run: kompose convert --out k8s-manifests
+        run: kompose convert -f docker-compose.yml --out k8s-manifests
 
       - name: Deploy to Kubernetes
         run: kubectl apply -f k8s-manifests
