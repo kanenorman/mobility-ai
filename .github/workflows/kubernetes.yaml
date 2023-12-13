@@ -24,7 +24,7 @@ jobs:
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
-        
+
       - name: Configure gcloud CLI
         run: |
           gcloud config set project ac215-transit-prediction
