@@ -167,7 +167,7 @@ services:
     hostname: control-center
     container_name: control-center
     depends_on:
-      - broker1:
+      - broker1
       - broker2
       - broker3
       - ksqldb-server
