@@ -9,7 +9,6 @@
 ![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
 ![Weights & Biases](https://img.shields.io/badge/Weights_&_Biases-FFBE00?style=for-the-badge&logo=WeightsAndBiases&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/kubernetes-326ce5.svg?&style=for-the-badge&logo=kubernetes&logoColor=white)
-![Ansible](https://img.shields.io/badge/Ansible-000000?style=for-the-badge&logo=ansible&logoColor=white)
 ![Open Street Map](https://img.shields.io/badge/OpenStreetMap-7EBC6F?style=for-the-badge&logo=OpenStreetMap&logoColor=white)
 [![Docker Badge](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![PostgreSQL Badge](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -21,6 +20,8 @@
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/kanenorman/AC215_MBTArrivals-App/main.svg)](https://results.pre-commit.ci/latest/github/kanenorman/AC215_MBTArrivals-App/main)
 [![Unit Tests](https://github.com/kanenorman/AC215_MBTArrivals-App/actions/workflows/run-unit-test.yml/badge.svg)](https://github.com/kanenorman/AC215_MBTArrivals-App/actions/workflows/run-unit-test.yml)
+[![Kubernetes](https://github.com/kanenorman/AC215_MBTArrivals-App/actions/workflows/kubernetes.yaml/badge.svg)](https://github.com/kanenorman/AC215_MBTArrivals-App/actions/workflows/kubernetes.yaml)
+
 
 ## Project Introduction
 
