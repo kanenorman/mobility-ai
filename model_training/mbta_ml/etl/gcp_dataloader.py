@@ -1,6 +1,7 @@
 """ gcp_dataloader.py: Functions for extracting and preprocessing transit data from GCP,
 targeting machine learning & time series forecasting of bus arrivals and delays.
 """
+
 import logging
 from datetime import datetime
 
@@ -192,9 +193,11 @@ def preprocess_data(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
     # Assuming scheduled_departure column has NaNs wherever there's no value
     # Merge scheduled_departure and scheduled_arrival to form scheduled_time
     df_copy["scheduled_time"] = df_copy.apply(
-        lambda row: row["scheduled_departure"]
-        if pd.notnull(row["scheduled_departure"])
-        else row["scheduled_arrival"],
+        lambda row: (
+            row["scheduled_departure"]
+            if pd.notnull(row["scheduled_departure"])
+            else row["scheduled_arrival"]
+        ),
         axis=1,
     )
 
