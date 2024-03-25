@@ -19,6 +19,7 @@ Instead of precise arrival times, we predict delay durations. This offers a
 more tractable modeling task: a 5-minute predicted delay can be added to the
 scheduled time, while negligible delays suggest on-time arrivals.
 """
+
 import warnings
 from typing import Dict, Tuple
 
